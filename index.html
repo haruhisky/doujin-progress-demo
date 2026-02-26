@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>進捗管理デモ v2</title>
+<style>
+:root {
+  --bg: #faf8f5;
+  --card-bg: #ffffff;
+  --text: #4a4a4a;
+  --text-light: #8a8a8a;
+  --border: #e8e4df;
+  --shadow: rgba(0,0,0,0.06);
+
+  --name-color: #e8a0b4;
+  --name-bg: #fdf0f4;
+  --draft-color: #e8b472;
+  --draft-bg: #fdf5ec;
+  --ink-color: #7baed4;
+  --ink-bg: #eef5fb;
+  --finish-color: #82b89a;
+  --finish-bg: #eef7f2;
+
+  --today-line: #e07070;
+  --deadline-line: #c04040;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  background: #e8e4df;
+  color: var(--text);
+  overflow: hidden;
+  height: 100dvh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.phone-frame {
+  width: 390px;
+  height: 760px;
+  background: var(--bg);
+  border-radius: 32px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ── */
+.header {
+  padding: 16px 20px 8px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.header h1 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.5px;
+}
+
+/* ── Nav labels ── */
+.nav-labels {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  padding: 0 0 10px;
+  flex-shrink: 0;
+}
+.nav-label {
+  font-size: 11px;
+  color: var(--text-light);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 12px;
+  transition: all 0.3s;
+}
+.nav-label.active {
+  color: var(--text);
+  background: var(--card-bg);
+  font-weight: 600;
+}
+
+/* ── Nav dots ── */
+.nav-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 0 10px;
+  flex-shrink: 0;
+}
+.nav-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background 0.3s, transform 0.3s;
+  cursor: pointer;
+}
+.nav-dot.active {
+  background: var(--text-light);
+  transform: scale(1.3);
+}
+
+/* ── Swipe container ── */
+.swipe-container {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+.swipe-track {
+  display: flex;
+  width: 300%;
+  height: 100%;
+  transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.page {
+  width: 33.3333%;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 16px 20px;
+}
+
+/* ── Today page ── */
+.date-display {
+  text-align: center;
+  margin-bottom: 12px;
+}
+.date-display .date {
+  font-size: 20px;
+  font-weight: 600;
+}
+.date-display .weekday {
+  font-size: 12px;
+  color: var(--text-light);
+  margin-top: 2px;
+}
+
+.summary-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.summary-chip {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+.summary-chip.name { background: var(--name-bg); color: #b06078; }
+.summary-chip.draft { background: var(--draft-bg); color: #a07840; }
+.summary-chip.ink { background: var(--ink-bg); color: #5080a0; }
+.summary-chip.finish { background: var(--finish-bg); color: #508068; }
+
+.sticker-area {
+  background: var(--card-bg);
+  border-radius: 16px;
+  min-height: 300px;
+  padding: 16px;
+  box-shadow: 0 2px 8px var(--shadow);
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 6px;
+  position: relative;
+  margin-bottom: 16px;
+}
+.sticker-area-empty {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--text-light);
+  font-size: 13px;
+  pointer-events: none;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.sticker {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  animation: stickerBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+  transition: transform 0.15s, opacity 0.2s;
+  position: relative;
+}
+.sticker:active { transform: scale(0.9); }
+.sticker.removing {
+  animation: stickerRemove 0.3s ease-in forwards;
+}
+.sticker.name-s { background: var(--name-color); }
+.sticker.draft-s { background: var(--draft-color); }
+.sticker.ink-s { background: var(--ink-color); }
+.sticker.finish-s { background: var(--finish-color); }
+
+@keyframes stickerBounce {
+  0%   { transform: scale(0); opacity: 0; }
+  40%  { transform: scale(1.3); opacity: 1; }
+  55%  { transform: scale(0.9); }
+  70%  { transform: scale(1.05); }
+  85%  { transform: scale(0.98); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes stickerRemove {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0); opacity: 0; }
+}
+
+/* Particle */
+.particle {
+  position: absolute;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: particleFly 0.5s ease-out forwards;
+}
+@keyframes particleFly {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.sticker-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.sticker-btn {
+  flex: 1;
+  max-width: 80px;
+  aspect-ratio: 1;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  box-shadow: 0 3px 10px var(--shadow);
+  transition: transform 0.12s;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.sticker-btn:active { transform: scale(0.92); }
+.sticker-btn .icon { font-size: 22px; }
+.sticker-btn.name-btn { background: var(--name-color); }
+.sticker-btn.draft-btn { background: var(--draft-color); }
+.sticker-btn.ink-btn { background: var(--ink-color); }
+.sticker-btn.finish-btn { background: var(--finish-color); }
+
+/* ── Gantt page ── */
+.gantt-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  text-align: center;
+}
+.gantt-legend {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 10px;
+  font-size: 11px;
+  color: var(--text-light);
+}
+.gantt-legend span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.legend-swatch {
+  display: inline-block;
+  width: 12px; height: 12px;
+  border-radius: 3px;
+}
+.legend-swatch.plan { background: var(--text-light); opacity: 0.4; }
+.legend-swatch.actual { background: var(--text); }
+.legend-swatch.forecast-ok { background: #82b89a; opacity: 0.45; }
+.legend-swatch.forecast-late { background: #e07070; opacity: 0.45; }
+
+.gantt-chart {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 16px 12px;
+  box-shadow: 0 2px 8px var(--shadow);
+  position: relative;
+}
+
+/* Date axis */
+.gantt-date-axis {
+  display: flex;
+  margin-left: 50px;
+  margin-bottom: 6px;
+  position: relative;
+  height: 18px;
+}
+.gantt-date-tick {
+  position: absolute;
+  font-size: 9px;
+  color: var(--text-light);
+  transform: translateX(-50%);
+  white-space: nowrap;
+  top: 0;
+}
+
+/* Timeline area (rows + vertical lines) */
+.gantt-timeline {
+  position: relative;
+  margin-left: 50px;
+}
+
+.gantt-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+  position: relative;
+  height: 36px;
+}
+.gantt-label {
+  position: absolute;
+  left: -50px;
+  width: 46px;
+  font-size: 11px;
+  font-weight: 500;
+  text-align: right;
+}
+.gantt-bar-track {
+  width: 100%;
+  height: 36px;
+  position: relative;
+  background: #f5f3f0;
+  border-radius: 8px;
+  overflow: visible;
+}
+
+/* Plan bar (light, full planned area) */
+.gantt-plan-bar {
+  position: absolute;
+  height: 100%;
+  border-radius: 8px;
+  opacity: 0.25;
+  top: 0;
+}
+
+/* Actual progress bar */
+.gantt-actual-bar {
+  position: absolute;
+  height: 100%;
+  border-radius: 8px;
+  top: 0;
+  transition: width 0.4s ease;
+}
+.gantt-actual-label {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 9px;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  white-space: nowrap;
+}
+
+/* Forecast overlay */
+.gantt-forecast-bar {
+  position: absolute;
+  height: 100%;
+  border-radius: 8px;
+  top: 0;
+  opacity: 0.35;
+  transition: width 0.4s ease, left 0.4s ease;
+}
+.gantt-forecast-bar.late {
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 3px,
+    rgba(224, 112, 112, 0.3) 3px,
+    rgba(224, 112, 112, 0.3) 6px
+  );
+  border: 2px dashed #e07070;
+}
+.gantt-forecast-bar.on-track {
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 3px,
+    rgba(130, 184, 154, 0.3) 3px,
+    rgba(130, 184, 154, 0.3) 6px
+  );
+  border: 2px dashed #82b89a;
+}
+
+/* Drag handle between processes */
+.gantt-drag-handle {
+  position: absolute;
+  top: 0;
+  width: 14px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateX(-50%);
+}
+.gantt-drag-handle::after {
+  content: '';
+  width: 4px;
+  height: 20px;
+  border-radius: 2px;
+  background: rgba(74,74,74,0.3);
+  transition: background 0.2s, height 0.2s;
+}
+.gantt-drag-handle:hover::after,
+.gantt-drag-handle.dragging::after {
+  background: rgba(74,74,74,0.6);
+  height: 28px;
+}
+
+/* Vertical lines (today / deadline) */
+.gantt-vline {
+  position: absolute;
+  top: -24px;
+  width: 2px;
+  z-index: 5;
+  pointer-events: none;
+}
+.gantt-vline.today-line { background: var(--today-line); }
+.gantt-vline.deadline-line {
+  background: var(--deadline-line);
+  border-left: 1px dashed var(--deadline-line);
+  width: 1px;
+}
+.gantt-vline-label {
+  position: absolute;
+  top: -2px;
+  font-size: 8px;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  left: 50%;
+}
+.gantt-vline.today-line .gantt-vline-label { color: var(--today-line); }
+.gantt-vline.deadline-line .gantt-vline-label { color: var(--deadline-line); }
+
+/* Connected plan bar (single row showing 4 processes as a merged bar) */
+.gantt-connected-bar {
+  position: relative;
+  height: 36px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  overflow: visible;
+  display: flex;
+}
+.gantt-connected-segment {
+  height: 100%;
+  position: relative;
+  transition: flex 0.2s ease;
+}
+.gantt-connected-segment:first-child { border-radius: 8px 0 0 8px; }
+.gantt-connected-segment:last-child { border-radius: 0 8px 8px 0; }
+.gantt-connected-segment-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.gantt-info {
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--name-bg);
+  border-radius: 12px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #806068;
+}
+
+/* ── Settings page ── */
+.settings-card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px var(--shadow);
+  margin-bottom: 16px;
+}
+.settings-card h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.setting-row:last-child { border-bottom: none; }
+.setting-label { color: var(--text); }
+.setting-value {
+  color: var(--text-light);
+  font-weight: 500;
+  text-align: right;
+}
+.setting-value input {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 13px;
+  width: 120px;
+  text-align: right;
+  color: var(--text);
+  background: var(--bg);
+}
+.process-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.process-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.process-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Toast ── */
+.toast {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(74,74,74,0.9);
+  color: #fff;
+  font-size: 12px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  opacity: 0;
+  transition: all 0.3s;
+  pointer-events: none;
+  z-index: 10;
+  white-space: nowrap;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+@media (max-width: 420px) {
+  body { align-items: flex-start; }
+  .phone-frame {
+    width: 100%;
+    height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="phone-frame">
+  <div class="header">
+    <h1>同人誌プロジェクト管理</h1>
+  </div>
+
+  <div class="nav-labels">
+    <div class="nav-label" data-page="0">ガントチャート</div>
+    <div class="nav-label active" data-page="1">今日の進捗</div>
+    <div class="nav-label" data-page="2">設定</div>
+  </div>
+
+  <div class="nav-dots">
+    <div class="nav-dot" data-page="0"></div>
+    <div class="nav-dot active" data-page="1"></div>
+    <div class="nav-dot" data-page="2"></div>
+  </div>
+
+  <div class="swipe-container">
+    <div class="swipe-track" id="swipeTrack">
+
+      <!-- ガントチャート -->
+      <div class="page" id="pageGantt">
+        <div class="gantt-section-title">ガントチャート</div>
+        <div class="gantt-legend">
+          <span><span class="legend-swatch plan"></span>計画</span>
+          <span><span class="legend-swatch actual"></span>実績</span>
+          <span><span class="legend-swatch forecast-ok"></span>想定(順調)</span>
+          <span><span class="legend-swatch forecast-late"></span>想定(遅延)</span>
+        </div>
+        <div class="gantt-chart" id="ganttChart"></div>
+        <div class="gantt-info" id="ganttInfo"></div>
+      </div>
+
+      <!-- 今日の進捗 -->
+      <div class="page" id="pageToday">
+        <div class="date-display">
+          <div class="date" id="todayDate"></div>
+          <div class="weekday" id="todayWeekday"></div>
+        </div>
+        <div class="summary-row" id="summaryRow"></div>
+        <div class="sticker-area" id="stickerArea">
+          <div class="sticker-area-empty" id="emptyHint">シールボタンをタップして<br>今日の進捗を記録しよう</div>
+        </div>
+        <div class="sticker-buttons" id="stickerButtons"></div>
+      </div>
+
+      <!-- 設定 -->
+      <div class="page" id="pageSettings">
+        <div class="settings-card">
+          <h3>プロジェクト情報</h3>
+          <div class="setting-row">
+            <span class="setting-label">プロジェクト名</span>
+            <span class="setting-value"><input type="text" id="projName" value="夏コミ新刊"></span>
+          </div>
+          <div class="setting-row">
+            <span class="setting-label">総ページ数</span>
+            <span class="setting-value"><input type="number" id="projPages" value="16" min="1" max="999"></span>
+          </div>
+          <div class="setting-row">
+            <span class="setting-label">開始日</span>
+            <span class="setting-value"><input type="date" id="projStart" value="2026-02-20"></span>
+          </div>
+          <div class="setting-row">
+            <span class="setting-label">締切日</span>
+            <span class="setting-value"><input type="date" id="projDeadline" value="2026-04-15"></span>
+          </div>
+        </div>
+        <div class="settings-card">
+          <h3>工程</h3>
+          <div class="process-list">
+            <div class="process-item">
+              <div class="process-dot" style="background:var(--name-color)"></div>
+              <span>ネーム</span>
+            </div>
+            <div class="process-item">
+              <div class="process-dot" style="background:var(--draft-color)"></div>
+              <span>下書き</span>
+            </div>
+            <div class="process-item">
+              <div class="process-dot" style="background:var(--ink-color)"></div>
+              <span>ペン入れ</span>
+            </div>
+            <div class="process-item">
+              <div class="process-dot" style="background:var(--finish-color)"></div>
+              <span>仕上げ</span>
+            </div>
+          </div>
+        </div>
+        <div class="settings-card">
+          <h3>このデモについて</h3>
+          <p style="font-size:12px;color:var(--text-light);line-height:1.6;">
+            シール式進捗管理のコンセプトデモ v2です。シールをタップして進捗を記録し、ガントチャートで進捗状況を確認できます。工程境界をドラッグして計画を調整できます。データはページ内のみに保持されます。
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ── Process definitions ──
+const PROCESSES = [
+  { id: 'name', label: 'ネーム', icon: '✏️', cls: 'name', btnCls: 'name-btn', stickerCls: 'name-s', chipCls: 'name', color: '#e8a0b4' },
+  { id: 'draft', label: '下書き', icon: '📝', cls: 'draft', btnCls: 'draft-btn', stickerCls: 'draft-s', chipCls: 'draft', color: '#e8b472' },
+  { id: 'ink', label: 'ペン入れ', icon: '🖊️', cls: 'ink', btnCls: 'ink-btn', stickerCls: 'ink-s', chipCls: 'ink', color: '#7baed4' },
+  { id: 'finish', label: '仕上げ', icon: '✨', cls: 'finish', btnCls: 'finish-btn', stickerCls: 'finish-s', chipCls: 'finish', color: '#82b89a' },
+];
+
+// ── Sample sticker log (historical data for demo) ──
+const stickerLog = [
+  // ネーム: 2/20〜2/25 で 7枚
+  { process: 'name', date: '2026-02-20', count: 2 },
+  { process: 'name', date: '2026-02-21', count: 2 },
+  { process: 'name', date: '2026-02-22', count: 1 },
+  { process: 'name', date: '2026-02-24', count: 1 },
+  { process: 'name', date: '2026-02-25', count: 1 },
+  // 下書き: 2/23〜2/26 で 3枚
+  { process: 'draft', date: '2026-02-23', count: 1 },
+  { process: 'draft', date: '2026-02-25', count: 1 },
+  { process: 'draft', date: '2026-02-26', count: 1 },
+];
+
+// ── State ──
+const state = {
+  currentPage: 1,
+  totalPages: 16,
+  stickers: [], // today's stickers: { process, timestamp }
+  planRatios: [0.25, 0.25, 0.25, 0.25], // sum = 1.0
+};
+
+// ── Helpers ──
+const today = new Date();
+const todayStr = today.toISOString().slice(0, 10);
+
+function parseDate(str) {
+  const [y, m, d] = str.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function daysBetween(d1, d2) {
+  return Math.round((d2 - d1) / 86400000);
+}
+
+function getHistoryCount(processId) {
+  return stickerLog
+    .filter(e => e.process === processId)
+    .reduce((sum, e) => sum + e.count, 0);
+}
+
+function getTodayCount(processId) {
+  return state.stickers.filter(s => s.process === processId).length;
+}
+
+function getTotal(processId) {
+  return getHistoryCount(processId) + getTodayCount(processId);
+}
+
+// ── Pace calculation ──
+function calcPace(processId) {
+  const startStr = document.getElementById('projStart').value;
+  const projStart = parseDate(startStr);
+
+  // Gather all entries for this process (log + today's stickers)
+  const logEntries = stickerLog.filter(e => e.process === processId);
+  const todayCount = getTodayCount(processId);
+
+  // Build a date→count map
+  const dateMap = {};
+  logEntries.forEach(e => { dateMap[e.date] = (dateMap[e.date] || 0) + e.count; });
+  if (todayCount > 0) {
+    dateMap[todayStr] = (dateMap[todayStr] || 0) + todayCount;
+  }
+
+  const dates = Object.keys(dateMap).sort();
+  if (dates.length === 0) return null;
+
+  const totalStickers = Object.values(dateMap).reduce((a, b) => a + b, 0);
+  if (totalStickers <= 1) return null;
+
+  const firstDate = parseDate(dates[0]);
+  const lastDate = parseDate(dates[dates.length - 1]);
+
+  let periodStart;
+  if (processId === 'name') {
+    // ネーム: from project start
+    periodStart = projStart;
+  } else {
+    // Other processes: from their first sticker date
+    periodStart = firstDate;
+  }
+
+  const days = Math.max(1, daysBetween(periodStart, lastDate) + 1); // inclusive
+  const pace = totalStickers / days; // pages per day
+
+  return {
+    pace,
+    totalStickers,
+    firstDate,
+    lastDate,
+    periodStart,
+    days,
+  };
+}
+
+// ── Navigation ──
+const swipeTrack = document.getElementById('swipeTrack');
+const navDots = document.querySelectorAll('.nav-dot');
+const navLabels = document.querySelectorAll('.nav-label');
+
+function goToPage(idx) {
+  state.currentPage = idx;
+  swipeTrack.style.transform = `translateX(-${idx * 33.3333}%)`;
+  navDots.forEach((d, i) => d.classList.toggle('active', i === idx));
+  navLabels.forEach((l, i) => l.classList.toggle('active', i === idx));
+  if (idx === 0) renderGantt();
+}
+
+navDots.forEach(d => d.addEventListener('click', () => goToPage(+d.dataset.page)));
+navLabels.forEach(l => l.addEventListener('click', () => goToPage(+l.dataset.page)));
+
+// Swipe (touch)
+let touchStartX = 0, touchStartY = 0, swiping = false;
+const swipeContainer = document.querySelector('.swipe-container');
+
+swipeContainer.addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+  swiping = true;
+}, { passive: true });
+
+swipeContainer.addEventListener('touchend', e => {
+  if (!swiping) return;
+  swiping = false;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
+  if (dx < 0 && state.currentPage < 2) goToPage(state.currentPage + 1);
+  if (dx > 0 && state.currentPage > 0) goToPage(state.currentPage - 1);
+}, { passive: true });
+
+// Swipe (mouse)
+let mouseDown = false, mouseStartX = 0;
+swipeContainer.addEventListener('mousedown', e => { mouseDown = true; mouseStartX = e.clientX; });
+swipeContainer.addEventListener('mouseup', e => {
+  if (!mouseDown) return;
+  mouseDown = false;
+  const dx = e.clientX - mouseStartX;
+  if (Math.abs(dx) < 50) return;
+  if (dx < 0 && state.currentPage < 2) goToPage(state.currentPage + 1);
+  if (dx > 0 && state.currentPage > 0) goToPage(state.currentPage - 1);
+});
+
+// ── Date display ──
+const WEEKDAYS = ['日', '月', '火', '水', '木', '金', '土'];
+document.getElementById('todayDate').textContent = `${today.getMonth() + 1}月${today.getDate()}日`;
+document.getElementById('todayWeekday').textContent = `${WEEKDAYS[today.getDay()]}曜日`;
+
+// ── Summary ──
+function renderSummary() {
+  const row = document.getElementById('summaryRow');
+  row.innerHTML = PROCESSES.map(p =>
+    `<div class="summary-chip ${p.chipCls}">${p.label} ${getTotal(p.id)}/${state.totalPages}</div>`
+  ).join('');
+}
+
+// ── Sticker buttons ──
+function createStickerButtons() {
+  const container = document.getElementById('stickerButtons');
+  PROCESSES.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = `sticker-btn ${p.btnCls}`;
+    btn.innerHTML = `<span class="icon">${p.icon}</span><span>${p.label}</span>`;
+    btn.addEventListener('click', () => addSticker(p.id));
+    container.appendChild(btn);
+  });
+}
+
+// ── Particles ──
+function emitParticles(targetEl, color) {
+  const rect = targetEl.getBoundingClientRect();
+  const stickerArea = document.getElementById('stickerArea');
+  const areaRect = stickerArea.getBoundingClientRect();
+
+  const cx = rect.left + rect.width / 2 - areaRect.left;
+  const cy = rect.top + rect.height / 2 - areaRect.top;
+
+  const count = 4 + Math.floor(Math.random() * 2); // 4-5 particles
+  for (let i = 0; i < count; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.style.background = color;
+    particle.style.left = cx + 'px';
+    particle.style.top = cy + 'px';
+
+    const angle = (Math.PI * 2 / count) * i + (Math.random() - 0.5) * 0.5;
+    const dist = 20 + Math.random() * 20;
+    const tx = Math.cos(angle) * dist;
+    const ty = Math.sin(angle) * dist;
+    particle.style.setProperty('--tx', tx + 'px');
+    particle.style.setProperty('--ty', ty + 'px');
+    particle.style.animation = 'none';
+    particle.style.width = (4 + Math.random() * 3) + 'px';
+    particle.style.height = particle.style.width;
+
+    stickerArea.appendChild(particle);
+
+    // Animate manually for directional movement
+    requestAnimationFrame(() => {
+      particle.style.transition = 'transform 0.45s ease-out, opacity 0.45s ease-out';
+      particle.style.transform = `translate(${tx}px, ${ty}px) scale(0.3)`;
+      particle.style.opacity = '0';
+    });
+
+    setTimeout(() => particle.remove(), 500);
+  }
+}
+
+// ── Stickers ──
+function addSticker(processId) {
+  const total = getTotal(processId);
+  if (total >= state.totalPages) {
+    showToast(`${PROCESSES.find(p => p.id === processId).label}は全ページ完了済みです`);
+    return;
+  }
+  state.stickers.push({ process: processId, timestamp: Date.now() });
+
+  // Haptic feedback
+  if (navigator.vibrate) navigator.vibrate(15);
+
+  renderStickers();
+  renderSummary();
+
+  // Emit particles after sticker is rendered
+  requestAnimationFrame(() => {
+    const stickers = document.querySelectorAll('#stickerArea .sticker');
+    const lastSticker = stickers[stickers.length - 1];
+    if (lastSticker) {
+      const proc = PROCESSES.find(p => p.id === processId);
+      emitParticles(lastSticker, proc.color);
+    }
+  });
+}
+
+function removeSticker(index) {
+  const el = document.querySelectorAll('#stickerArea .sticker')[index];
+  if (el) {
+    el.classList.add('removing');
+    setTimeout(() => {
+      state.stickers.splice(index, 1);
+      renderStickers();
+      renderSummary();
+    }, 280);
+  }
+}
+
+function renderStickers() {
+  const area = document.getElementById('stickerArea');
+  const hint = document.getElementById('emptyHint');
+  hint.style.display = state.stickers.length === 0 ? '' : 'none';
+
+  area.querySelectorAll('.sticker').forEach(el => el.remove());
+
+  state.stickers.forEach((s, i) => {
+    const p = PROCESSES.find(pr => pr.id === s.process);
+    const el = document.createElement('div');
+    el.className = `sticker ${p.stickerCls}`;
+    el.textContent = p.icon;
+    el.title = `${p.label}（タップで取消）`;
+    el.addEventListener('click', () => removeSticker(i));
+    area.appendChild(el);
+  });
+}
+
+// ── Toast ──
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+// ── Gantt chart ──
+function renderGantt() {
+  const pages = parseInt(document.getElementById('projPages').value) || 16;
+  state.totalPages = pages;
+
+  const startStr = document.getElementById('projStart').value;
+  const deadlineStr = document.getElementById('projDeadline').value;
+  const projStart = parseDate(startStr);
+  const deadline = parseDate(deadlineStr);
+  const totalDays = Math.max(1, daysBetween(projStart, deadline));
+  const todayOffset = daysBetween(projStart, today);
+
+  const chart = document.getElementById('ganttChart');
+  chart.innerHTML = '';
+
+  // Get the available width for bars
+  const chartWidth = chart.clientWidth - 24; // minus padding
+  const barAreaWidth = chartWidth - 50; // minus label space
+
+  // ── Date axis ──
+  const dateAxis = document.createElement('div');
+  dateAxis.className = 'gantt-date-axis';
+  dateAxis.style.width = barAreaWidth + 'px';
+
+  const tickCount = 7;
+  for (let i = 0; i < tickCount; i++) {
+    const frac = i / (tickCount - 1);
+    const d = new Date(projStart.getTime() + totalDays * frac * 86400000);
+    const tick = document.createElement('div');
+    tick.className = 'gantt-date-tick';
+    tick.style.left = (frac * 100) + '%';
+    tick.textContent = `${d.getMonth() + 1}/${d.getDate()}`;
+    dateAxis.appendChild(tick);
+  }
+  chart.appendChild(dateAxis);
+
+  // ── Timeline container ──
+  const timeline = document.createElement('div');
+  timeline.className = 'gantt-timeline';
+  timeline.style.width = barAreaWidth + 'px';
+
+  // ── Connected plan bar (draggable boundaries) ──
+  const connectedBar = document.createElement('div');
+  connectedBar.className = 'gantt-connected-bar';
+  connectedBar.style.width = '100%';
+
+  PROCESSES.forEach((p, idx) => {
+    const seg = document.createElement('div');
+    seg.className = 'gantt-connected-segment';
+    seg.style.flex = state.planRatios[idx];
+    seg.style.background = p.color;
+    seg.style.opacity = '0.5';
+
+    const label = document.createElement('div');
+    label.className = 'gantt-connected-segment-label';
+    label.textContent = p.label;
+    seg.appendChild(label);
+
+    connectedBar.appendChild(seg);
+  });
+
+  // Drag handles (3 handles between 4 processes)
+  for (let i = 0; i < 3; i++) {
+    const handle = document.createElement('div');
+    handle.className = 'gantt-drag-handle';
+    handle.dataset.index = i;
+    connectedBar.appendChild(handle);
+    setupDragHandle(handle, i, connectedBar);
+  }
+
+  timeline.appendChild(connectedBar);
+
+  // Position drag handles after layout
+  requestAnimationFrame(() => positionDragHandles(connectedBar));
+
+  // ── Compute chained forecast data ──
+  // Each process's forecast starts where the previous one ends.
+  // Processes with no pace data split the remaining time equally.
+  const forecastData = []; // { startFrac, widthFrac, hasPace }
+  let chainEndDayOffset = 0; // days from project start where last forecast ended
+
+  PROCESSES.forEach((p, idx) => {
+    const pace = calcPace(p.id);
+    if (pace) {
+      const forecastDays = pages / pace.pace;
+      const startFrac = chainEndDayOffset / totalDays;
+      const widthFrac = forecastDays / totalDays;
+      forecastData.push({ startFrac, widthFrac, hasPace: true });
+      chainEndDayOffset += forecastDays;
+    } else {
+      // Placeholder — will be filled after we know the chain
+      forecastData.push({ startFrac: 0, widthFrac: 0, hasPace: false });
+    }
+  });
+
+  // Fill in processes with no pace data:
+  // They share the remaining time equally, starting from chainEndDayOffset.
+  const noPaceIndices = forecastData
+    .map((d, i) => d.hasPace ? -1 : i)
+    .filter(i => i >= 0);
+
+  if (noPaceIndices.length > 0) {
+    // Find the last process that has pace data, to know where the chain ended
+    let lastPaceEnd = 0;
+    for (let i = 0; i < forecastData.length; i++) {
+      if (forecastData[i].hasPace) {
+        lastPaceEnd = forecastData[i].startFrac + forecastData[i].widthFrac;
+      }
+    }
+
+    // Remaining fraction of timeline for no-pace processes
+    const remainingFrac = Math.max(0, 1 - lastPaceEnd);
+    const eachFrac = noPaceIndices.length > 0 ? remainingFrac / noPaceIndices.length : 0;
+
+    let cursor = lastPaceEnd;
+    noPaceIndices.forEach(i => {
+      forecastData[i].startFrac = cursor;
+      forecastData[i].widthFrac = eachFrac;
+      cursor += eachFrac;
+    });
+  }
+
+  // ── Process rows (actual + forecast) ──
+  PROCESSES.forEach((p, idx) => {
+    const row = document.createElement('div');
+    row.className = 'gantt-row';
+
+    const label = document.createElement('div');
+    label.className = 'gantt-label';
+    label.textContent = p.label;
+    row.appendChild(label);
+
+    const track = document.createElement('div');
+    track.className = 'gantt-bar-track';
+
+    // Plan bar (background showing planned period)
+    const planStartFrac = state.planRatios.slice(0, idx).reduce((a, b) => a + b, 0);
+    const planWidthFrac = state.planRatios[idx];
+
+    const planBar = document.createElement('div');
+    planBar.className = 'gantt-plan-bar';
+    planBar.style.left = (planStartFrac * 100) + '%';
+    planBar.style.width = (planWidthFrac * 100) + '%';
+    planBar.style.background = p.color;
+    track.appendChild(planBar);
+
+    // Actual progress bar
+    const done = getTotal(p.id);
+    const actualFrac = planWidthFrac * (done / pages);
+
+    const actualBar = document.createElement('div');
+    actualBar.className = 'gantt-actual-bar';
+    actualBar.style.left = (planStartFrac * 100) + '%';
+    actualBar.style.width = (actualFrac * 100) + '%';
+    actualBar.style.background = p.color;
+
+    if (done > 0) {
+      const actualLabel = document.createElement('div');
+      actualLabel.className = 'gantt-actual-label';
+      actualLabel.textContent = `${done}/${pages}`;
+      actualBar.appendChild(actualLabel);
+    }
+    track.appendChild(actualBar);
+
+    // Forecast overlay (chained)
+    const fc = forecastData[idx];
+    if (fc.widthFrac > 0) {
+      // Compare forecast end with plan end
+      const planEndFrac = planStartFrac + planWidthFrac;
+      const forecastEndFrac = fc.startFrac + fc.widthFrac;
+      const isLate = forecastEndFrac > planEndFrac + 0.01;
+
+      const forecastBar = document.createElement('div');
+      forecastBar.className = `gantt-forecast-bar ${isLate ? 'late' : 'on-track'}`;
+      forecastBar.style.left = (fc.startFrac * 100) + '%';
+      forecastBar.style.width = (fc.widthFrac * 100) + '%';
+
+      track.appendChild(forecastBar);
+    }
+
+    row.appendChild(track);
+    timeline.appendChild(row);
+  });
+
+  // ── Today line ──
+  const todayPct = Math.min(100, Math.max(0, (todayOffset / totalDays) * 100));
+  const totalTimelineHeight = 36 + 12 + (36 + 6) * 4; // connected bar + gap + 4 rows
+  const todayLine = document.createElement('div');
+  todayLine.className = 'gantt-vline today-line';
+  todayLine.style.left = todayPct + '%';
+  todayLine.style.height = totalTimelineHeight + 'px';
+  todayLine.innerHTML = `<div class="gantt-vline-label">今日</div>`;
+  timeline.appendChild(todayLine);
+
+  // ── Deadline line ──
+  const deadlineLine = document.createElement('div');
+  deadlineLine.className = 'gantt-vline deadline-line';
+  deadlineLine.style.left = '100%';
+  deadlineLine.style.height = totalTimelineHeight + 'px';
+  deadlineLine.innerHTML = `<div class="gantt-vline-label">締切</div>`;
+  timeline.appendChild(deadlineLine);
+
+  chart.appendChild(timeline);
+
+  // ── Info panel ──
+  const info = document.getElementById('ganttInfo');
+  const daysLeft = daysBetween(today, deadline);
+  const totalDone = PROCESSES.reduce((sum, p) => sum + getTotal(p.id), 0);
+  const totalTasks = pages * 4;
+
+  let infoHtml = `
+    締切まで <strong>${daysLeft}日</strong> ｜
+    全体進捗 <strong>${totalDone}/${totalTasks}</strong>（${Math.round(totalDone / totalTasks * 100)}%）<br>
+    今日のシール: <strong>${state.stickers.length}枚</strong>
+  `;
+
+  // Per-process pace info + chained forecast summary
+  const paceInfos = [];
+  PROCESSES.forEach((p, idx) => {
+    const pace = calcPace(p.id);
+    const fc = forecastData[idx];
+    if (pace) {
+      const remaining = pages - getTotal(p.id);
+      const forecastDays = Math.ceil(pages / pace.pace);
+      paceInfos.push(`${p.label}: ${pace.pace.toFixed(1)}枚/日（想定${forecastDays}日）`);
+    } else {
+      paceInfos.push(`${p.label}: データなし（想定で等分）`);
+    }
+  });
+
+  // Total forecast end (chained)
+  const lastFc = forecastData[forecastData.length - 1];
+  const totalForecastEndFrac = lastFc.startFrac + lastFc.widthFrac;
+  const totalForecastDays = Math.ceil(totalForecastEndFrac * totalDays);
+  const forecastEndDate = new Date(projStart.getTime() + totalForecastDays * 86400000);
+  const overUnder = totalForecastDays - totalDays;
+
+  if (paceInfos.length > 0) {
+    infoHtml += `<br><br><strong>ペース分析:</strong><br>` + paceInfos.join('<br>');
+    infoHtml += `<br><br>`;
+    if (overUnder > 0) {
+      infoHtml += `⚠ 全工程想定: <strong>${totalForecastDays}日</strong>（締切を${overUnder}日超過）`;
+    } else {
+      infoHtml += `✓ 全工程想定: <strong>${totalForecastDays}日</strong>（${Math.abs(overUnder)}日の余裕）`;
+    }
+  }
+
+  info.innerHTML = infoHtml;
+}
+
+// ── Drag handle logic ──
+function positionDragHandles(connectedBar) {
+  const handles = connectedBar.querySelectorAll('.gantt-drag-handle');
+  const segments = connectedBar.querySelectorAll('.gantt-connected-segment');
+
+  let cumulative = 0;
+  handles.forEach((handle, i) => {
+    cumulative += segments[i].getBoundingClientRect().width;
+    const pct = (cumulative / connectedBar.getBoundingClientRect().width) * 100;
+    handle.style.left = pct + '%';
+  });
+}
+
+function setupDragHandle(handle, index, connectedBar) {
+  let isDragging = false;
+  let startX = 0;
+  let startRatios = [];
+
+  function onStart(clientX) {
+    isDragging = true;
+    startX = clientX;
+    startRatios = [...state.planRatios];
+    handle.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  }
+
+  function onMove(clientX) {
+    if (!isDragging) return;
+    const barWidth = connectedBar.getBoundingClientRect().width;
+    const dx = clientX - startX;
+    const deltaRatio = dx / barWidth;
+
+    const newRatios = [...startRatios];
+    const minRatio = 0.08; // minimum 8% per process
+
+    newRatios[index] = startRatios[index] + deltaRatio;
+    newRatios[index + 1] = startRatios[index + 1] - deltaRatio;
+
+    // Clamp
+    if (newRatios[index] < minRatio) {
+      newRatios[index + 1] -= (minRatio - newRatios[index]);
+      newRatios[index] = minRatio;
+    }
+    if (newRatios[index + 1] < minRatio) {
+      newRatios[index] -= (minRatio - newRatios[index + 1]);
+      newRatios[index + 1] = minRatio;
+    }
+
+    // Validate all ratios are positive
+    if (newRatios.some(r => r < minRatio)) return;
+
+    state.planRatios = newRatios;
+
+    // Update segments
+    const segments = connectedBar.querySelectorAll('.gantt-connected-segment');
+    segments.forEach((seg, i) => {
+      seg.style.flex = state.planRatios[i];
+    });
+
+    // Reposition handles
+    positionDragHandles(connectedBar);
+  }
+
+  function onEnd() {
+    if (!isDragging) return;
+    isDragging = false;
+    handle.classList.remove('dragging');
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+    // Re-render to update forecast bars with new plan ratios
+    renderGantt();
+  }
+
+  // Mouse events
+  handle.addEventListener('mousedown', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    onStart(e.clientX);
+  });
+  document.addEventListener('mousemove', e => onMove(e.clientX));
+  document.addEventListener('mouseup', () => onEnd());
+
+  // Touch events
+  handle.addEventListener('touchstart', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    onStart(e.touches[0].clientX);
+  }, { passive: false });
+  document.addEventListener('touchmove', e => {
+    if (isDragging) onMove(e.touches[0].clientX);
+  }, { passive: true });
+  document.addEventListener('touchend', () => onEnd());
+}
+
+// ── Settings change listeners ──
+['projPages', 'projStart', 'projDeadline'].forEach(id => {
+  document.getElementById(id).addEventListener('change', () => {
+    state.totalPages = parseInt(document.getElementById('projPages').value) || 16;
+    renderSummary();
+  });
+});
+
+// ── Init ──
+createStickerButtons();
+renderSummary();
+renderStickers();
+goToPage(1);
+</script>
+</body>
+</html>
