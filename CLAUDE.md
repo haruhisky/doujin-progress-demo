@@ -1,4 +1,4 @@
-# 同人誌プロジェクト管理アプリ: Project Context & Rules
+# 同人ぽちぽち進捗: Project Context & Rules
 
 ## 1. プロダクトビジョン
 
