@@ -83,12 +83,12 @@ body {
 .nav-labels {
   display: flex;
   justify-content: center;
-  gap: 24px;
+  gap: 12px;
   padding: 0 0 10px;
   flex-shrink: 0;
 }
 .nav-label {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-light);
   cursor: pointer;
   padding: 4px 8px;
@@ -129,12 +129,12 @@ body {
 }
 .swipe-track {
   display: flex;
-  width: 300%;
+  width: 400%;
   height: 100%;
   transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 .page {
-  width: 33.3333%;
+  width: 25%;
   height: 100%;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -171,12 +171,10 @@ body {
   border-radius: 12px;
   background: var(--card-bg);
   box-shadow: 0 1px 4px var(--shadow);
-  cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
   transition: transform 0.1s;
 }
-.de-card:active { transform: scale(0.96); }
 .de-card-label {
   font-size: 11px;
   font-weight: 600;
@@ -190,6 +188,7 @@ body {
   width: 22px;
   height: 22px;
   position: relative;
+  cursor: pointer;
 }
 .de-paw-slot svg { width: 100%; height: 100%; }
 .de-paw-slot .paw-outline { opacity: 0.3; }
@@ -197,12 +196,18 @@ body {
 .de-paw-slot.done .paw-filled { opacity: 1; }
 .de-paw-slot.done .paw-outline { opacity: 0; }
 .de-paw-slot.bounce { animation: dePawBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.de-paw-slot.unbounce { animation: dePawUnbounce 0.3s ease-in; }
 
 @keyframes dePawBounce {
   0%   { transform: scale(0.3); }
   50%  { transform: scale(1.25); }
   75%  { transform: scale(0.9); }
   100% { transform: scale(1); }
+}
+@keyframes dePawUnbounce {
+  0%   { transform: scale(1); opacity: 1; }
+  50%  { transform: scale(1.15); opacity: 0.7; }
+  100% { transform: scale(0.3); opacity: 0; }
 }
 
 .tap-grid {
@@ -570,6 +575,144 @@ body {
   text-align: center;
 }
 
+/* ── Pace Analysis ── */
+.pace-analysis {
+  margin-top: 12px;
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+.pace-analysis-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+.pace-process {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.pace-process:last-child { border-bottom: none; }
+.pace-process-name {
+  font-weight: 600;
+}
+.pace-process-detail {
+  color: var(--text-light);
+  font-size: 11px;
+  padding-left: 8px;
+}
+.pace-summary {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+.pace-summary.over { background: #fdf0f0; color: #c04040; }
+.pace-summary.ok { background: #eef7f2; color: #508068; }
+
+/* ── Calendar page ── */
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+.cal-nav-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--text);
+  padding: 4px 8px;
+}
+.cal-month-label {
+  font-size: 16px;
+  font-weight: 600;
+}
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.cal-weekday-header {
+  text-align: center;
+  font-size: 10px;
+  color: var(--text-light);
+  padding: 4px 0;
+}
+.cal-day {
+  min-height: 44px;
+  background: var(--card-bg);
+  border-radius: 8px;
+  padding: 4px;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+}
+.cal-day.today {
+  border: 2px solid var(--name-color);
+}
+.cal-day.other-month {
+  opacity: 0.3;
+}
+.cal-day.selected {
+  background: var(--name-bg);
+}
+.cal-day-num {
+  font-size: 11px;
+  font-weight: 500;
+}
+.cal-day-dots {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+.cal-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.calendar-detail {
+  margin-top: 12px;
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 8px var(--shadow);
+  min-height: 60px;
+}
+.cal-detail-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.cal-detail-item {
+  font-size: 12px;
+  padding: 3px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cal-detail-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.cal-detail-empty {
+  font-size: 12px;
+  color: var(--text-light);
+  text-align: center;
+  padding: 10px 0;
+}
+
 /* ── Settings page ── */
 .settings-card {
   background: var(--card-bg);
@@ -647,6 +790,71 @@ body {
   color: var(--text-light);
 }
 
+/* ── Task edit UI ── */
+.task-edit-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.task-edit-row:last-child { border-bottom: none; }
+.task-edit-colors {
+  display: flex;
+  gap: 4px;
+}
+.task-color-btn {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.task-color-btn.selected {
+  border-color: var(--text);
+}
+.task-edit-input {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-size: 12px;
+  color: var(--text);
+  background: var(--bg);
+}
+.task-edit-input-name { width: 70px; }
+.task-edit-input-count { width: 36px; text-align: center; }
+.task-edit-input-date { width: 110px; }
+.task-delete-btn {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 2px 4px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.task-delete-btn:hover { color: #e07070; }
+.task-add-btn {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px;
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  background: none;
+  color: var(--text-light);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.task-add-btn:hover {
+  border-color: var(--text-light);
+  color: var(--text);
+}
+
 /* ── Toast ── */
 .toast {
   position: absolute;
@@ -714,13 +922,15 @@ body {
   <div class="nav-labels">
     <div class="nav-label" data-page="0">ガントチャート</div>
     <div class="nav-label active" data-page="1">今日の進捗</div>
-    <div class="nav-label" data-page="2">設定</div>
+    <div class="nav-label" data-page="2">カレンダー</div>
+    <div class="nav-label" data-page="3">設定</div>
   </div>
 
   <div class="nav-dots">
     <div class="nav-dot" data-page="0"></div>
     <div class="nav-dot active" data-page="1"></div>
     <div class="nav-dot" data-page="2"></div>
+    <div class="nav-dot" data-page="3"></div>
   </div>
 
   <div class="swipe-container">
@@ -735,6 +945,7 @@ body {
         </div>
         <div class="gantt-chart" id="ganttChart"></div>
         <div class="gantt-info" id="ganttInfo"></div>
+        <div id="paceAnalysis"></div>
       </div>
 
       <!-- 今日の進捗 -->
@@ -745,6 +956,17 @@ body {
         </div>
         <div class="daily-event-row" id="dailyEventRow"></div>
         <div class="tap-grid" id="tapGrid"></div>
+      </div>
+
+      <!-- カレンダー -->
+      <div class="page" id="pageCalendar">
+        <div class="calendar-header">
+          <button class="cal-nav-btn" id="calPrev">◀</button>
+          <span class="cal-month-label" id="calMonthLabel"></span>
+          <button class="cal-nav-btn" id="calNext">▶</button>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+        <div class="calendar-detail" id="calendarDetail"></div>
       </div>
 
       <!-- 設定 -->
@@ -800,7 +1022,7 @@ body {
         <div class="settings-card">
           <h3>このデモについて</h3>
           <p style="font-size:12px;color:var(--text-light);line-height:1.6;">
-            シール式進捗管理のコンセプトデモ v4です。各エリアをタップしてシールを貼り、横スワイプで剥がせます。データはページ内のみに保持されます。
+            シール式進捗管理のコンセプトデモ v5です。各エリアをタップしてシールを貼り、横スワイプで剥がせます。データはページ内のみに保持されます。
           </p>
         </div>
       </div>
@@ -820,16 +1042,19 @@ const PROCESSES = [
   { id: 'finish', label: '仕上げ', icon: '✨', cls: 'finish', stickerCls: 'finish-s', cellCls: 'finish-cell', color: '#82b89a' },
 ];
 
-// ── Daily / Event task definitions (demo samples) ──
+// ── Daily / Event task definitions (mutable for editing) ──
 const today = new Date();
 const todayStr = today.toISOString().slice(0, 10);
 
-const DAILY_TASKS = [
+const TASK_COLORS = ['#c4a6d4', '#d4a6b8', '#d4b896', '#a6c4b8', '#a6b8d4'];
+let nextTaskId = 100;
+
+let DAILY_TASKS = [
   { id: 'stretch', label: 'ストレッチ', count: 1, color: '#c4a6d4' },
   { id: 'practice', label: '練習', count: 2, color: '#d4a6b8' },
 ];
 
-const EVENT_TASKS = [
+let EVENT_TASKS = [
   { id: 'evt1', label: '申込締切', date: todayStr, color: '#d4b896' },
 ];
 
@@ -853,6 +1078,9 @@ const state = {
   planRatios: [0.25, 0.25, 0.25, 0.25],
   dailyDone: {},   // { 'stretch': 0, 'practice': 0 }
   eventDone: {},   // { 'evt1': false }
+  calYear: today.getFullYear(),
+  calMonth: today.getMonth(),
+  calSelectedDate: todayStr,
 };
 
 // Initialize daily/event state
@@ -867,6 +1095,10 @@ function parseDate(str) {
 
 function daysBetween(d1, d2) {
   return Math.round((d2 - d1) / 86400000);
+}
+
+function formatDateStr(y, m, d) {
+  return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
 }
 
 function getHistoryCount(processId) {
@@ -957,10 +1189,11 @@ const navLabels = document.querySelectorAll('.nav-label');
 
 function goToPage(idx) {
   state.currentPage = idx;
-  swipeTrack.style.transform = `translateX(-${idx * 33.3333}%)`;
+  swipeTrack.style.transform = `translateX(-${idx * 25}%)`;
   navDots.forEach((d, i) => d.classList.toggle('active', i === idx));
   navLabels.forEach((l, i) => l.classList.toggle('active', i === idx));
   if (idx === 0) renderGantt();
+  if (idx === 2) renderCalendar();
 }
 
 navDots.forEach(d => d.addEventListener('click', () => goToPage(+d.dataset.page)));
@@ -982,7 +1215,7 @@ swipeContainer.addEventListener('touchend', e => {
   const dx = e.changedTouches[0].clientX - touchStartX;
   const dy = e.changedTouches[0].clientY - touchStartY;
   if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
-  if (dx < 0 && state.currentPage < 2) goToPage(state.currentPage + 1);
+  if (dx < 0 && state.currentPage < 3) goToPage(state.currentPage + 1);
   if (dx > 0 && state.currentPage > 0) goToPage(state.currentPage - 1);
 }, { passive: true });
 
@@ -994,7 +1227,7 @@ swipeContainer.addEventListener('mouseup', e => {
   mouseDown = false;
   const dx = e.clientX - mouseStartX;
   if (Math.abs(dx) < 50) return;
-  if (dx < 0 && state.currentPage < 2) goToPage(state.currentPage + 1);
+  if (dx < 0 && state.currentPage < 3) goToPage(state.currentPage + 1);
   if (dx > 0 && state.currentPage > 0) goToPage(state.currentPage - 1);
 });
 
@@ -1003,7 +1236,7 @@ const WEEKDAYS = ['日', '月', '火', '水', '木', '金', '土'];
 document.getElementById('todayDate').textContent = `${today.getMonth() + 1}月${today.getDate()}日`;
 document.getElementById('todayWeekday').textContent = `${WEEKDAYS[today.getDay()]}曜日`;
 
-// ── Daily / Event row ──
+// ── Daily / Event row (変更2: スロット個別クリック) ──
 function renderDailyEventRow() {
   const row = document.getElementById('dailyEventRow');
   row.innerHTML = '';
@@ -1035,25 +1268,31 @@ function renderDailyEventRow() {
         slot.innerHTML = `<span class="paw-outline">${pawOutlineSVG(task.color)}</span>`;
       }
 
+      // Individual slot click
+      slot.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isDone = i < state.dailyDone[task.id];
+        if (isDone) {
+          // Undo this slot: set done count to this index
+          state.dailyDone[task.id] = i;
+          if (navigator.vibrate) navigator.vibrate(10);
+          renderDailyEventRow();
+        } else {
+          // Fill up to and including this slot
+          state.dailyDone[task.id] = i + 1;
+          if (navigator.vibrate) navigator.vibrate(15);
+          renderDailyEventRow();
+          // Bounce the newly filled slot
+          const newSlots = row.querySelectorAll(`.de-paw-slot[data-task-id="${task.id}"]`);
+          const filledSlot = newSlots[i];
+          if (filledSlot) filledSlot.classList.add('bounce');
+        }
+      });
+
       slots.appendChild(slot);
     }
 
     card.appendChild(slots);
-
-    card.addEventListener('click', () => {
-      if (state.dailyDone[task.id] >= task.count) {
-        showToast(`${task.label}は本日完了済みです`);
-        return;
-      }
-      state.dailyDone[task.id]++;
-      if (navigator.vibrate) navigator.vibrate(15);
-      renderDailyEventRow();
-      // Bounce animation on the newly filled slot
-      const newSlots = row.querySelectorAll(`.de-paw-slot[data-task-id="${task.id}"]`);
-      const filledSlot = newSlots[state.dailyDone[task.id] - 1];
-      if (filledSlot) filledSlot.classList.add('bounce');
-    });
-
     row.appendChild(card);
   });
 
@@ -1079,22 +1318,27 @@ function renderDailyEventRow() {
     } else {
       slot.innerHTML = `<span class="paw-outline">${pawOutlineSVG(task.color)}</span>`;
     }
-    slots.appendChild(slot);
 
-    card.appendChild(slots);
-
-    card.addEventListener('click', () => {
+    // Individual slot click for toggle
+    slot.addEventListener('click', (e) => {
+      e.stopPropagation();
       if (state.eventDone[task.id]) {
-        showToast(`${task.label}は完了済みです`);
-        return;
+        // Undo
+        state.eventDone[task.id] = false;
+        if (navigator.vibrate) navigator.vibrate(10);
+        renderDailyEventRow();
+      } else {
+        // Complete
+        state.eventDone[task.id] = true;
+        if (navigator.vibrate) navigator.vibrate(15);
+        renderDailyEventRow();
+        const newSlot = row.querySelector(`.de-paw-slot.done`);
+        if (newSlot) newSlot.classList.add('bounce');
       }
-      state.eventDone[task.id] = true;
-      if (navigator.vibrate) navigator.vibrate(15);
-      renderDailyEventRow();
-      const newSlot = row.querySelector(`.de-paw-slot`);
-      if (newSlot) newSlot.classList.add('bounce');
     });
 
+    slots.appendChild(slot);
+    card.appendChild(slots);
     row.appendChild(card);
   });
 }
@@ -1119,10 +1363,8 @@ function getPlannedProcessIndex() {
 }
 
 function calcGridLayout() {
-  // Find main process: planned process for today
   let mainIdx = getPlannedProcessIndex();
 
-  // If that process is fully completed, fall back to next incomplete
   if (getTotal(PROCESSES[mainIdx].id) >= state.totalPages) {
     let found = false;
     for (let i = mainIdx + 1; i < PROCESSES.length; i++) {
@@ -1132,7 +1374,6 @@ function calcGridLayout() {
         break;
       }
     }
-    // If no later process is incomplete, try earlier ones
     if (!found) {
       for (let i = 0; i < mainIdx; i++) {
         if (getTotal(PROCESSES[i].id) < state.totalPages) {
@@ -1143,7 +1384,6 @@ function calcGridLayout() {
     }
   }
 
-  // Next process: next incomplete after main
   let nextIdx = -1;
   for (let i = mainIdx + 1; i < PROCESSES.length; i++) {
     if (getTotal(PROCESSES[i].id) < state.totalPages) {
@@ -1152,7 +1392,6 @@ function calcGridLayout() {
     }
   }
 
-  // Rest: all other processes (maintaining order)
   const restIndices = [];
   for (let i = 0; i < PROCESSES.length; i++) {
     if (i !== mainIdx && i !== nextIdx) {
@@ -1160,12 +1399,10 @@ function calcGridLayout() {
     }
   }
 
-  // Calculate transition ratio based on main process progress
   const mainDone = getTotal(PROCESSES[mainIdx].id);
   const mainProgress = mainDone / state.totalPages;
   const transition = Math.max(0, Math.min(1, (mainProgress - 0.6) / 0.4));
 
-  // Interpolation
   const lerp = (a, b, t) => a + (b - a) * t;
   const topRatio = lerp(55, 30, transition);
   const bottomRatio = 100 - topRatio;
@@ -1191,13 +1428,11 @@ function createTapGrid() {
 
   const layout = calcGridLayout();
 
-  // Set CSS variables
   grid.style.setProperty('--top-ratio', `${layout.topRatio}fr`);
   grid.style.setProperty('--bottom-ratio', `${layout.bottomRatio}fr`);
   grid.style.setProperty('--left-ratio', `${layout.leftPct}fr`);
   grid.style.setProperty('--right-ratio', `${100 - layout.leftPct}fr`);
 
-  // Helper: create a tap cell
   function createCell(p) {
     const cell = document.createElement('div');
     cell.className = `tap-cell ${p.cellCls}`;
@@ -1224,19 +1459,16 @@ function createTapGrid() {
     return cell;
   }
 
-  // Main process (top, full width)
   const mainCell = createCell(PROCESSES[layout.mainIdx]);
   mainCell.classList.add('tap-cell-main');
   grid.appendChild(mainCell);
 
-  // Next process (bottom-left)
   if (layout.nextIdx >= 0) {
     const nextCell = createCell(PROCESSES[layout.nextIdx]);
     nextCell.classList.add('tap-cell-next');
     grid.appendChild(nextCell);
   }
 
-  // Rest processes (bottom-right, stacked)
   if (layout.restIndices.length > 0) {
     const restWrap = document.createElement('div');
     restWrap.className = 'tap-cell-rest-wrap';
@@ -1296,27 +1528,22 @@ function addSticker(processId, xPct, yPct) {
     return;
   }
 
-  // Add random offset (±8px equivalent in %)
   const offsetX = (Math.random() - 0.5) * 10;
   const offsetY = (Math.random() - 0.5) * 10;
   const finalX = Math.max(5, Math.min(85, xPct + offsetX));
   const finalY = Math.max(5, Math.min(85, yPct + offsetY));
 
-  // Remember current layout to detect main process change
   const prevLayout = calcGridLayout();
 
   state.stickers.push({ process: processId, x: finalX, y: finalY, timestamp: Date.now() });
 
   if (navigator.vibrate) navigator.vibrate(15);
 
-  // Check if main process changed (process fully completed → next becomes main)
   const newLayout = calcGridLayout();
   if (newLayout.mainIdx !== prevLayout.mainIdx) {
-    // Rebuild the grid with new layout
     createTapGrid();
     renderStickers();
   } else {
-    // Just update CSS variables for smooth transition
     updateGridLayout();
     renderStickers();
     updateCellHeaders();
@@ -1324,7 +1551,6 @@ function addSticker(processId, xPct, yPct) {
 }
 
 function removeSticker(processId, stickerIndex, slideOut) {
-  // Find the sticker element
   const container = document.querySelector(`.tap-cell-stickers[data-process="${processId}"]`);
   if (!container) return;
   const stickers = container.querySelectorAll('.sticker');
@@ -1332,7 +1558,6 @@ function removeSticker(processId, stickerIndex, slideOut) {
   if (el) {
     el.classList.add(slideOut ? 'removing' : 'removing-shrink');
     setTimeout(() => {
-      // Find the actual index in state.stickers
       const processStickers = state.stickers
         .map((s, i) => ({ ...s, idx: i }))
         .filter(s => s.process === processId);
@@ -1367,13 +1592,11 @@ function renderStickers() {
       el.style.left = `calc(${s.x}% - 20px)`;
       el.style.top = `calc(${s.y}% - 20px)`;
 
-      // Swipe/drag to delete
       setupStickerSwipe(el, p.id, i);
 
       container.appendChild(el);
     });
 
-    // Emit particles for the newest sticker
     if (processStickers.length > 0) {
       const newest = processStickers[processStickers.length - 1];
       const rect = container.getBoundingClientRect();
@@ -1396,7 +1619,6 @@ function setupStickerSwipe(el, processId, stickerIndex) {
     startY = clientY;
     isDragging = true;
     startTime = Date.now();
-    // Long press fallback
     longPressTimer = setTimeout(() => {
       if (isDragging) {
         isDragging = false;
@@ -1409,7 +1631,6 @@ function setupStickerSwipe(el, processId, stickerIndex) {
     if (!isDragging) return;
     const dx = clientX - startX;
     const dy = clientY - startY;
-    // If horizontal movement > threshold, show visual feedback
     if (Math.abs(dx) > 10) {
       el.style.transform = `translateX(${dx}px)`;
       el.style.opacity = Math.max(0.3, 1 - Math.abs(dx) / 100);
@@ -1424,16 +1645,13 @@ function setupStickerSwipe(el, processId, stickerIndex) {
     const dx = clientX - startX;
 
     if (Math.abs(dx) >= 50) {
-      // Swipe delete
       removeSticker(processId, stickerIndex, true);
     } else {
-      // Reset position
       el.style.transform = '';
       el.style.opacity = '';
     }
   }
 
-  // Touch events
   el.addEventListener('touchstart', (e) => {
     e.stopPropagation();
     const t = e.touches[0];
@@ -1450,10 +1668,9 @@ function setupStickerSwipe(el, processId, stickerIndex) {
     e.stopPropagation();
     const t = e.changedTouches[0];
     onEnd(t.clientX);
-    e.preventDefault(); // prevent click from firing
+    e.preventDefault();
   });
 
-  // Mouse events
   el.addEventListener('mousedown', (e) => {
     e.stopPropagation();
     e.preventDefault();
@@ -1469,7 +1686,6 @@ function setupStickerSwipe(el, processId, stickerIndex) {
     document.addEventListener('mouseup', onMouseUp);
   });
 
-  // Prevent click from bubbling to cell (which would add a sticker)
   el.addEventListener('click', (e) => {
     e.stopPropagation();
   });
@@ -1671,7 +1887,7 @@ function renderGantt() {
 
   chart.appendChild(timeline);
 
-  // ── Info panel (simplified) ──
+  // ── Info panel ──
   const info = document.getElementById('ganttInfo');
   const daysLeft = daysBetween(today, deadline);
 
@@ -1688,6 +1904,82 @@ function renderGantt() {
   }
 
   info.innerHTML = infoHtml;
+
+  // ── Pace Analysis (変更4) ──
+  renderPaceAnalysis();
+}
+
+// ── Pace Analysis ──
+function renderPaceAnalysis() {
+  const container = document.getElementById('paceAnalysis');
+  const pages = state.totalPages;
+  const startStr = document.getElementById('projStart').value;
+  const deadlineStr = document.getElementById('projDeadline').value;
+  const projStart = parseDate(startStr);
+  const deadline = parseDate(deadlineStr);
+  const totalDays = Math.max(1, daysBetween(projStart, deadline));
+  const daysLeft = daysBetween(today, deadline);
+
+  let html = '<div class="pace-analysis"><div class="pace-analysis-title">工程別ペース分析</div>';
+  let totalDeviation = 0; // 計画に対する合計差分（正=超過、負=余裕）
+  let hasAnyPace = false;
+
+  PROCESSES.forEach((p, idx) => {
+    const pace = calcPace(p.id);
+    const done = getTotal(p.id);
+    const remaining = Math.max(0, pages - done);
+    const planDays = Math.round(state.planRatios[idx] * totalDays);
+
+    if (pace) {
+      hasAnyPace = true;
+      const forecastTotal = Math.ceil(pages / pace.pace);
+      const forecastRemaining = remaining > 0 ? Math.ceil(remaining / pace.pace) : 0;
+      const deviation = forecastTotal - planDays; // 計画比の差分
+
+      totalDeviation += deviation;
+
+      html += `<div class="pace-process">`;
+      html += `<span class="pace-process-name" style="color:${p.color}">${p.label}</span>: ${done}/${pages}ページ`;
+      html += ` (${pace.days}日間で${pace.totalStickers}ページ = ${pace.pace.toFixed(1)}ページ/日)`;
+      html += `<div class="pace-process-detail">`;
+      html += `計画${planDays}日 → 想定${forecastTotal}日`;
+      if (deviation > 0) {
+        html += ` (⚠ +${deviation}日)`;
+      } else if (deviation < 0) {
+        html += ` (${deviation}日)`;
+      } else {
+        html += ` (±0)`;
+      }
+      if (remaining > 0) {
+        html += ` ｜ 残り${remaining}ページ → 約${forecastRemaining}日`;
+      } else {
+        html += ` ｜ 完了済み`;
+      }
+      html += `</div></div>`;
+    } else {
+      // ペースデータなし → 計画通りと仮定（差分0）
+      html += `<div class="pace-process">`;
+      html += `<span class="pace-process-name" style="color:${p.color}">${p.label}</span>: ${done}/${pages}ページ`;
+      html += `<div class="pace-process-detail">計画${planDays}日 (データ不足 → 計画通りと仮定)</div>`;
+      html += `</div>`;
+    }
+  });
+
+  if (!hasAnyPace) {
+    html += `<div class="cal-detail-empty">まだ十分なデータがありません</div>`;
+  } else {
+    const devDays = Math.round(totalDeviation);
+    if (devDays > 0) {
+      html += `<div class="pace-summary over">計画に対して ⚠ ${devDays}日超過 ｜ 締切まで${daysLeft}日</div>`;
+    } else if (devDays < 0) {
+      html += `<div class="pace-summary ok">計画に対して ${Math.abs(devDays)}日の余裕 ｜ 締切まで${daysLeft}日</div>`;
+    } else {
+      html += `<div class="pace-summary ok">計画通りのペース ｜ 締切まで${daysLeft}日</div>`;
+    }
+  }
+
+  html += '</div>';
+  container.innerHTML = html;
 }
 
 // ── Drag handle logic ──
@@ -1780,38 +2072,371 @@ function setupDragHandle(handle, index, connectedBar) {
   document.addEventListener('touchend', () => onEnd());
 }
 
-// ── Settings: Daily / Event cards ──
+// ── Calendar (変更1) ──
+function renderCalendar() {
+  const year = state.calYear;
+  const month = state.calMonth;
+
+  // Update label
+  document.getElementById('calMonthLabel').textContent = `${month + 1}月 ${year}`;
+
+  const grid = document.getElementById('calendarGrid');
+  grid.innerHTML = '';
+
+  // Weekday headers
+  const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+  weekdays.forEach(w => {
+    const hdr = document.createElement('div');
+    hdr.className = 'cal-weekday-header';
+    hdr.textContent = w;
+    grid.appendChild(hdr);
+  });
+
+  // First day of month
+  const firstDay = new Date(year, month, 1);
+  const startWeekday = firstDay.getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  // Previous month fill
+  const prevMonthDays = new Date(year, month, 0).getDate();
+  for (let i = startWeekday - 1; i >= 0; i--) {
+    const day = prevMonthDays - i;
+    const prevMonth = month === 0 ? 11 : month - 1;
+    const prevYear = month === 0 ? year - 1 : year;
+    const dateStr = formatDateStr(prevYear, prevMonth, day);
+    grid.appendChild(createCalDay(day, dateStr, true));
+  }
+
+  // Current month
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = formatDateStr(year, month, d);
+    grid.appendChild(createCalDay(d, dateStr, false));
+  }
+
+  // Next month fill
+  const totalCells = startWeekday + daysInMonth;
+  const remaining = (7 - (totalCells % 7)) % 7;
+  for (let d = 1; d <= remaining; d++) {
+    const nextMonth = month === 11 ? 0 : month + 1;
+    const nextYear = month === 11 ? year + 1 : year;
+    const dateStr = formatDateStr(nextYear, nextMonth, d);
+    grid.appendChild(createCalDay(d, dateStr, true));
+  }
+
+  // Render detail for selected date
+  renderCalendarDetail(state.calSelectedDate);
+}
+
+function createCalDay(dayNum, dateStr, isOtherMonth) {
+  const cell = document.createElement('div');
+  cell.className = 'cal-day';
+  if (isOtherMonth) cell.classList.add('other-month');
+  if (dateStr === todayStr) cell.classList.add('today');
+  if (dateStr === state.calSelectedDate) cell.classList.add('selected');
+
+  const num = document.createElement('div');
+  num.className = 'cal-day-num';
+  num.textContent = dayNum;
+  cell.appendChild(num);
+
+  // Dots for activity
+  const dots = document.createElement('div');
+  dots.className = 'cal-day-dots';
+
+  const dayData = getDayData(dateStr);
+
+  // Sequential task dot (any process sticker on this day)
+  if (dayData.hasSequential) {
+    const dot = document.createElement('div');
+    dot.className = 'cal-dot';
+    dot.style.background = '#e8a0b4';
+    dots.appendChild(dot);
+  }
+
+  // Daily task dot
+  if (dayData.hasDaily) {
+    const dot = document.createElement('div');
+    dot.className = 'cal-dot';
+    dot.style.background = '#c4a6d4';
+    dots.appendChild(dot);
+  }
+
+  // Event task dot
+  if (dayData.hasEvent) {
+    const dot = document.createElement('div');
+    dot.className = 'cal-dot';
+    dot.style.background = '#d4b896';
+    dots.appendChild(dot);
+  }
+
+  cell.appendChild(dots);
+
+  cell.addEventListener('click', () => {
+    state.calSelectedDate = dateStr;
+    // Update selection styling
+    document.querySelectorAll('.cal-day.selected').forEach(el => el.classList.remove('selected'));
+    cell.classList.add('selected');
+    renderCalendarDetail(dateStr);
+  });
+
+  return cell;
+}
+
+function getDayData(dateStr) {
+  const result = { hasSequential: false, hasDaily: false, hasEvent: false, details: [] };
+
+  // Check sticker log for sequential tasks
+  if (dateStr === todayStr) {
+    // Today: use live stickers
+    PROCESSES.forEach(p => {
+      const count = state.stickers.filter(s => s.process === p.id).length;
+      if (count > 0) {
+        result.hasSequential = true;
+        result.details.push({ type: 'sequential', label: p.label, count, color: p.color });
+      }
+    });
+    // Also check stickerLog for today
+    PROCESSES.forEach(p => {
+      const logCount = stickerLog.filter(e => e.process === p.id && e.date === dateStr).reduce((s, e) => s + e.count, 0);
+      if (logCount > 0) {
+        result.hasSequential = true;
+        const existing = result.details.find(d => d.type === 'sequential' && d.label === p.label);
+        if (existing) {
+          existing.count += logCount;
+        } else {
+          result.details.push({ type: 'sequential', label: p.label, count: logCount, color: p.color });
+        }
+      }
+    });
+
+    // Daily tasks for today
+    DAILY_TASKS.forEach(t => {
+      const done = state.dailyDone[t.id] || 0;
+      if (done > 0) {
+        result.hasDaily = true;
+        result.details.push({ type: 'daily', label: t.label, count: done, total: t.count, color: t.color });
+      }
+    });
+
+    // Event tasks for today
+    EVENT_TASKS.filter(t => t.date === dateStr).forEach(t => {
+      if (state.eventDone[t.id]) {
+        result.hasEvent = true;
+        result.details.push({ type: 'event', label: t.label, done: true, color: t.color });
+      }
+    });
+  } else {
+    // Past/future: check stickerLog
+    PROCESSES.forEach(p => {
+      const count = stickerLog.filter(e => e.process === p.id && e.date === dateStr).reduce((s, e) => s + e.count, 0);
+      if (count > 0) {
+        result.hasSequential = true;
+        result.details.push({ type: 'sequential', label: p.label, count, color: p.color });
+      }
+    });
+
+    // Event tasks on this date
+    EVENT_TASKS.filter(t => t.date === dateStr).forEach(t => {
+      result.hasEvent = true;
+      result.details.push({ type: 'event', label: t.label, done: false, color: t.color });
+    });
+  }
+
+  return result;
+}
+
+function renderCalendarDetail(dateStr) {
+  const detail = document.getElementById('calendarDetail');
+  const d = parseDate(dateStr);
+  const dayData = getDayData(dateStr);
+
+  let html = `<div class="cal-detail-title">${d.getMonth()+1}月${d.getDate()}日 (${WEEKDAYS[d.getDay()]})</div>`;
+
+  if (dayData.details.length === 0) {
+    html += `<div class="cal-detail-empty">この日の記録はありません</div>`;
+  } else {
+    dayData.details.forEach(item => {
+      html += `<div class="cal-detail-item">`;
+      html += `<div class="cal-detail-dot" style="background:${item.color}"></div>`;
+      if (item.type === 'sequential') {
+        html += `${item.label}: ${item.count}ページ`;
+      } else if (item.type === 'daily') {
+        html += `${item.label}: ${item.count}/${item.total}回`;
+      } else if (item.type === 'event') {
+        html += `${item.label}${item.done ? ' (完了)' : ''}`;
+      }
+      html += `</div>`;
+    });
+  }
+
+  detail.innerHTML = html;
+}
+
+// Calendar navigation
+document.getElementById('calPrev').addEventListener('click', () => {
+  state.calMonth--;
+  if (state.calMonth < 0) { state.calMonth = 11; state.calYear--; }
+  renderCalendar();
+});
+document.getElementById('calNext').addEventListener('click', () => {
+  state.calMonth++;
+  if (state.calMonth > 11) { state.calMonth = 0; state.calYear++; }
+  renderCalendar();
+});
+
+// ── Settings: Daily / Event cards (変更3: 編集対応) ──
 function renderSettingsCards() {
   const dailyList = document.getElementById('settingsDailyList');
   dailyList.innerHTML = '';
-  DAILY_TASKS.forEach(t => {
+
+  DAILY_TASKS.forEach((t, idx) => {
     const row = document.createElement('div');
-    row.className = 'setting-task-row';
-    row.innerHTML = `
-      <div class="setting-task-dot" style="background:${t.color}"></div>
-      <div class="setting-task-info">
-        <div>${t.label}</div>
-        <div class="setting-task-meta">1日 ${t.count}回</div>
-      </div>
-    `;
+    row.className = 'task-edit-row';
+
+    // Color selector
+    const colors = document.createElement('div');
+    colors.className = 'task-edit-colors';
+    TASK_COLORS.forEach(c => {
+      const btn = document.createElement('div');
+      btn.className = 'task-color-btn' + (c === t.color ? ' selected' : '');
+      btn.style.background = c;
+      btn.addEventListener('click', () => {
+        t.color = c;
+        renderSettingsCards();
+        renderDailyEventRow();
+      });
+      colors.appendChild(btn);
+    });
+    row.appendChild(colors);
+
+    // Name input
+    const nameInput = document.createElement('input');
+    nameInput.className = 'task-edit-input task-edit-input-name';
+    nameInput.type = 'text';
+    nameInput.value = t.label;
+    nameInput.addEventListener('change', () => {
+      t.label = nameInput.value || t.label;
+      renderDailyEventRow();
+    });
+    row.appendChild(nameInput);
+
+    // Count input
+    const countInput = document.createElement('input');
+    countInput.className = 'task-edit-input task-edit-input-count';
+    countInput.type = 'number';
+    countInput.min = '1';
+    countInput.max = '10';
+    countInput.value = t.count;
+    countInput.addEventListener('change', () => {
+      const newCount = Math.max(1, Math.min(10, parseInt(countInput.value) || 1));
+      t.count = newCount;
+      // Reset done count if it exceeds new count
+      if (state.dailyDone[t.id] > newCount) state.dailyDone[t.id] = newCount;
+      renderDailyEventRow();
+    });
+    row.appendChild(countInput);
+
+    // Delete button
+    const delBtn = document.createElement('button');
+    delBtn.className = 'task-delete-btn';
+    delBtn.textContent = '×';
+    delBtn.addEventListener('click', () => {
+      DAILY_TASKS.splice(idx, 1);
+      delete state.dailyDone[t.id];
+      renderSettingsCards();
+      renderDailyEventRow();
+    });
+    row.appendChild(delBtn);
+
     dailyList.appendChild(row);
   });
 
+  // Add button for daily
+  const addDailyBtn = document.createElement('button');
+  addDailyBtn.className = 'task-add-btn';
+  addDailyBtn.textContent = '＋ デイリータスクを追加';
+  addDailyBtn.addEventListener('click', () => {
+    const newId = 'daily_' + (nextTaskId++);
+    DAILY_TASKS.push({ id: newId, label: '新しいタスク', count: 1, color: TASK_COLORS[DAILY_TASKS.length % TASK_COLORS.length] });
+    state.dailyDone[newId] = 0;
+    renderSettingsCards();
+    renderDailyEventRow();
+  });
+  dailyList.appendChild(addDailyBtn);
+
+  // Event tasks
   const eventList = document.getElementById('settingsEventList');
   eventList.innerHTML = '';
-  EVENT_TASKS.forEach(t => {
-    const d = parseDate(t.date);
+
+  EVENT_TASKS.forEach((t, idx) => {
     const row = document.createElement('div');
-    row.className = 'setting-task-row';
-    row.innerHTML = `
-      <div class="setting-task-dot" style="background:${t.color}"></div>
-      <div class="setting-task-info">
-        <div>${t.label}</div>
-        <div class="setting-task-meta">${d.getMonth()+1}月${d.getDate()}日</div>
-      </div>
-    `;
+    row.className = 'task-edit-row';
+
+    // Color selector
+    const colors = document.createElement('div');
+    colors.className = 'task-edit-colors';
+    TASK_COLORS.forEach(c => {
+      const btn = document.createElement('div');
+      btn.className = 'task-color-btn' + (c === t.color ? ' selected' : '');
+      btn.style.background = c;
+      btn.addEventListener('click', () => {
+        t.color = c;
+        renderSettingsCards();
+        renderDailyEventRow();
+      });
+      colors.appendChild(btn);
+    });
+    row.appendChild(colors);
+
+    // Name input
+    const nameInput = document.createElement('input');
+    nameInput.className = 'task-edit-input task-edit-input-name';
+    nameInput.type = 'text';
+    nameInput.value = t.label;
+    nameInput.addEventListener('change', () => {
+      t.label = nameInput.value || t.label;
+      renderDailyEventRow();
+    });
+    row.appendChild(nameInput);
+
+    // Date input
+    const dateInput = document.createElement('input');
+    dateInput.className = 'task-edit-input task-edit-input-date';
+    dateInput.type = 'date';
+    dateInput.value = t.date;
+    dateInput.addEventListener('change', () => {
+      t.date = dateInput.value;
+      renderDailyEventRow();
+    });
+    row.appendChild(dateInput);
+
+    // Delete button
+    const delBtn = document.createElement('button');
+    delBtn.className = 'task-delete-btn';
+    delBtn.textContent = '×';
+    delBtn.addEventListener('click', () => {
+      EVENT_TASKS.splice(idx, 1);
+      delete state.eventDone[t.id];
+      renderSettingsCards();
+      renderDailyEventRow();
+    });
+    row.appendChild(delBtn);
+
     eventList.appendChild(row);
   });
+
+  // Add button for events
+  const addEventBtn = document.createElement('button');
+  addEventBtn.className = 'task-add-btn';
+  addEventBtn.textContent = '＋ イベントタスクを追加';
+  addEventBtn.addEventListener('click', () => {
+    const newId = 'evt_' + (nextTaskId++);
+    EVENT_TASKS.push({ id: newId, label: '新しいイベント', date: todayStr, color: TASK_COLORS[(EVENT_TASKS.length + 2) % TASK_COLORS.length] });
+    state.eventDone[newId] = false;
+    renderSettingsCards();
+    renderDailyEventRow();
+  });
+  eventList.appendChild(addEventBtn);
 }
 
 // ── Settings change listeners ──
@@ -1827,6 +2452,7 @@ renderDailyEventRow();
 renderSettingsCards();
 createTapGrid();
 renderStickers();
+renderCalendar();
 goToPage(1);
 </script>
 </body>
