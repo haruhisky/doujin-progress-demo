@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>同人ぽちぽち進捗</title>
+<title>同人わんたっぷ</title>
 <style>
 :root {
   --bg: #faf8f5;
@@ -126,10 +126,10 @@ body {
   padding: 0 16px 20px;
 }
 
-/* ── Today page ── */
+/* ── Today page: variable grid ── */
 .date-display {
   text-align: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 .date-display .date {
   font-size: 20px;
@@ -141,71 +141,110 @@ body {
   margin-top: 2px;
 }
 
-.summary-row {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-  justify-content: center;
+.tap-grid {
+  display: grid;
+  grid-template-columns: var(--left-ratio, 1fr) var(--right-ratio, 1fr);
+  grid-template-rows: var(--top-ratio, 1fr) var(--bottom-ratio, 1fr);
+  gap: 10px;
+  flex: 1;
+  height: calc(100% - 60px);
+  transition: grid-template-columns 0.5s ease, grid-template-rows 0.5s ease;
 }
-.summary-chip {
-  font-size: 12px;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-weight: 500;
-}
-.summary-chip.name { background: var(--name-bg); color: #b06078; }
-.summary-chip.draft { background: var(--draft-bg); color: #a07840; }
-.summary-chip.ink { background: var(--ink-bg); color: #5080a0; }
-.summary-chip.finish { background: var(--finish-bg); color: #508068; }
 
-.sticker-area {
-  background: var(--card-bg);
+.tap-cell {
   border-radius: 16px;
-  min-height: 300px;
-  padding: 16px;
-  box-shadow: 0 2px 8px var(--shadow);
-  display: flex;
-  flex-wrap: wrap;
-  align-content: flex-start;
-  gap: 6px;
   position: relative;
-  margin-bottom: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.1s;
 }
-.sticker-area-empty {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: var(--text-light);
-  font-size: 13px;
-  pointer-events: none;
-  text-align: center;
-  line-height: 1.6;
+.tap-cell:active { transform: scale(0.98); }
+
+.tap-cell-main {
+  grid-column: 1 / -1;
+}
+.tap-cell-next {
+  grid-row: 2;
+  grid-column: 1;
+}
+.tap-cell-rest-wrap {
+  grid-row: 2;
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tap-cell-rest-wrap .tap-cell {
+  flex: 1;
+  min-height: 0;
 }
 
+.tap-cell.name-cell { background: var(--name-bg); }
+.tap-cell.draft-cell { background: var(--draft-bg); }
+.tap-cell.ink-cell { background: var(--ink-bg); }
+.tap-cell.finish-cell { background: var(--finish-bg); }
+
+.tap-cell-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  pointer-events: none;
+  z-index: 2;
+}
+.tap-cell-header .icon { font-size: 16px; }
+.tap-cell-header .progress {
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tap-cell.name-cell .tap-cell-header { color: #b06078; }
+.tap-cell.draft-cell .tap-cell-header { color: #a07840; }
+.tap-cell.ink-cell .tap-cell-header { color: #5080a0; }
+.tap-cell.finish-cell .tap-cell-header { color: #508068; }
+
+.tap-cell-stickers {
+  flex: 1;
+  position: relative;
+  pointer-events: none;
+}
+
+/* ── Stickers (positioned absolutely within cell) ── */
 .sticker {
-  width: 42px; height: 42px;
+  width: 36px; height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: #fff;
+  position: absolute;
   animation: stickerBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   cursor: pointer;
-  transition: transform 0.15s, opacity 0.2s;
-  position: relative;
-}
-.sticker:active { transform: scale(0.9); }
-.sticker.removing {
-  animation: stickerRemove 0.3s ease-in forwards;
+  pointer-events: auto;
+  transition: opacity 0.2s;
+  z-index: 1;
+  touch-action: none;
 }
 .sticker.name-s { background: var(--name-color); }
 .sticker.draft-s { background: var(--draft-color); }
 .sticker.ink-s { background: var(--ink-color); }
 .sticker.finish-s { background: var(--finish-color); }
+
+.sticker.removing {
+  animation: stickerSlideOut 0.3s ease-in forwards;
+}
+.sticker.removing-shrink {
+  animation: stickerRemove 0.3s ease-in forwards;
+}
 
 @keyframes stickerBounce {
   0%   { transform: scale(0); opacity: 0; }
@@ -219,6 +258,10 @@ body {
   0% { transform: scale(1); opacity: 1; }
   100% { transform: scale(0); opacity: 0; }
 }
+@keyframes stickerSlideOut {
+  0% { transform: translateX(0); opacity: 1; }
+  100% { transform: translateX(80px); opacity: 0; }
+}
 
 /* Particle */
 .particle {
@@ -226,44 +269,8 @@ body {
   width: 6px; height: 6px;
   border-radius: 50%;
   pointer-events: none;
-  animation: particleFly 0.5s ease-out forwards;
+  z-index: 5;
 }
-@keyframes particleFly {
-  0% { transform: translate(0, 0) scale(1); opacity: 1; }
-  100% { opacity: 0; }
-}
-
-.sticker-buttons {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
-.sticker-btn {
-  flex: 1;
-  max-width: 80px;
-  aspect-ratio: 1;
-  border: none;
-  border-radius: 16px;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  font-size: 10px;
-  font-weight: 600;
-  color: #fff;
-  box-shadow: 0 3px 10px var(--shadow);
-  transition: transform 0.12s;
-  -webkit-user-select: none;
-  user-select: none;
-}
-.sticker-btn:active { transform: scale(0.92); }
-.sticker-btn .icon { font-size: 22px; }
-.sticker-btn.name-btn { background: var(--name-color); }
-.sticker-btn.draft-btn { background: var(--draft-color); }
-.sticker-btn.ink-btn { background: var(--ink-color); }
-.sticker-btn.finish-btn { background: var(--finish-color); }
 
 /* ── Gantt page ── */
 .gantt-section-title {
@@ -291,9 +298,16 @@ body {
   border-radius: 3px;
 }
 .legend-swatch.plan { background: var(--text-light); opacity: 0.4; }
-.legend-swatch.actual { background: var(--text); }
-.legend-swatch.forecast-ok { background: #82b89a; opacity: 0.45; }
-.legend-swatch.forecast-late { background: #e07070; opacity: 0.45; }
+.legend-swatch.forecast-combined {
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(130, 184, 154, 0.5),
+    rgba(130, 184, 154, 0.5) 2px,
+    transparent 2px,
+    transparent 4px
+  );
+  border: 1px dashed #82b89a;
+}
 
 .gantt-chart {
   background: var(--card-bg);
@@ -350,7 +364,7 @@ body {
   overflow: visible;
 }
 
-/* Plan bar (light, full planned area) */
+/* Plan bar */
 .gantt-plan-bar {
   position: absolute;
   height: 100%;
@@ -436,7 +450,7 @@ body {
   height: 28px;
 }
 
-/* Vertical lines (today / deadline) */
+/* Vertical lines */
 .gantt-vline {
   position: absolute;
   top: -24px;
@@ -461,7 +475,7 @@ body {
 .gantt-vline.today-line .gantt-vline-label { color: var(--today-line); }
 .gantt-vline.deadline-line .gantt-vline-label { color: var(--deadline-line); }
 
-/* Connected plan bar (single row showing 4 processes as a merged bar) */
+/* Connected plan bar */
 .gantt-connected-bar {
   position: relative;
   height: 36px;
@@ -492,12 +506,13 @@ body {
 
 .gantt-info {
   margin-top: 12px;
-  padding: 12px;
+  padding: 10px 14px;
   background: var(--name-bg);
   border-radius: 12px;
-  font-size: 12px;
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.5;
   color: #806068;
+  text-align: center;
 }
 
 /* ── Settings page ── */
@@ -593,7 +608,7 @@ body {
 
 <div class="phone-frame">
   <div class="header">
-    <h1>同人ぽちぽち進捗</h1>
+    <h1>同人わんたっぷ</h1>
   </div>
 
   <div class="nav-labels">
@@ -616,9 +631,7 @@ body {
         <div class="gantt-section-title">ガントチャート</div>
         <div class="gantt-legend">
           <span><span class="legend-swatch plan"></span>計画</span>
-          <span><span class="legend-swatch actual"></span>実績</span>
-          <span><span class="legend-swatch forecast-ok"></span>想定(順調)</span>
-          <span><span class="legend-swatch forecast-late"></span>想定(遅延)</span>
+          <span><span class="legend-swatch forecast-combined"></span>想定</span>
         </div>
         <div class="gantt-chart" id="ganttChart"></div>
         <div class="gantt-info" id="ganttInfo"></div>
@@ -630,11 +643,7 @@ body {
           <div class="date" id="todayDate"></div>
           <div class="weekday" id="todayWeekday"></div>
         </div>
-        <div class="summary-row" id="summaryRow"></div>
-        <div class="sticker-area" id="stickerArea">
-          <div class="sticker-area-empty" id="emptyHint">シールボタンをタップして<br>今日の進捗を記録しよう</div>
-        </div>
-        <div class="sticker-buttons" id="stickerButtons"></div>
+        <div class="tap-grid" id="tapGrid"></div>
       </div>
 
       <!-- 設定 -->
@@ -682,7 +691,7 @@ body {
         <div class="settings-card">
           <h3>このデモについて</h3>
           <p style="font-size:12px;color:var(--text-light);line-height:1.6;">
-            シール式進捗管理のコンセプトデモ v2です。シールをタップして進捗を記録し、ガントチャートで進捗状況を確認できます。工程境界をドラッグして計画を調整できます。データはページ内のみに保持されます。
+            シール式進捗管理のコンセプトデモ v3です。各エリアをタップしてシールを貼り、横スワイプで剥がせます。データはページ内のみに保持されます。
           </p>
         </div>
       </div>
@@ -696,21 +705,19 @@ body {
 <script>
 // ── Process definitions ──
 const PROCESSES = [
-  { id: 'name', label: 'ネーム', icon: '✏️', cls: 'name', btnCls: 'name-btn', stickerCls: 'name-s', chipCls: 'name', color: '#e8a0b4' },
-  { id: 'draft', label: '下書き', icon: '📝', cls: 'draft', btnCls: 'draft-btn', stickerCls: 'draft-s', chipCls: 'draft', color: '#e8b472' },
-  { id: 'ink', label: 'ペン入れ', icon: '🖊️', cls: 'ink', btnCls: 'ink-btn', stickerCls: 'ink-s', chipCls: 'ink', color: '#7baed4' },
-  { id: 'finish', label: '仕上げ', icon: '✨', cls: 'finish', btnCls: 'finish-btn', stickerCls: 'finish-s', chipCls: 'finish', color: '#82b89a' },
+  { id: 'name', label: 'ネーム', icon: '✏️', cls: 'name', stickerCls: 'name-s', cellCls: 'name-cell', color: '#e8a0b4' },
+  { id: 'draft', label: '下書き', icon: '📝', cls: 'draft', stickerCls: 'draft-s', cellCls: 'draft-cell', color: '#e8b472' },
+  { id: 'ink', label: 'ペン入れ', icon: '🖊️', cls: 'ink', stickerCls: 'ink-s', cellCls: 'ink-cell', color: '#7baed4' },
+  { id: 'finish', label: '仕上げ', icon: '✨', cls: 'finish', stickerCls: 'finish-s', cellCls: 'finish-cell', color: '#82b89a' },
 ];
 
 // ── Sample sticker log (historical data for demo) ──
 const stickerLog = [
-  // ネーム: 2/20〜2/25 で 7枚
   { process: 'name', date: '2026-02-20', count: 2 },
   { process: 'name', date: '2026-02-21', count: 2 },
   { process: 'name', date: '2026-02-22', count: 1 },
   { process: 'name', date: '2026-02-24', count: 1 },
   { process: 'name', date: '2026-02-25', count: 1 },
-  // 下書き: 2/23〜2/26 で 3枚
   { process: 'draft', date: '2026-02-23', count: 1 },
   { process: 'draft', date: '2026-02-25', count: 1 },
   { process: 'draft', date: '2026-02-26', count: 1 },
@@ -720,8 +727,8 @@ const stickerLog = [
 const state = {
   currentPage: 1,
   totalPages: 16,
-  stickers: [], // today's stickers: { process, timestamp }
-  planRatios: [0.25, 0.25, 0.25, 0.25], // sum = 1.0
+  stickers: [], // today's stickers: { process, x, y, timestamp }
+  planRatios: [0.25, 0.25, 0.25, 0.25],
 };
 
 // ── Helpers ──
@@ -756,11 +763,9 @@ function calcPace(processId) {
   const startStr = document.getElementById('projStart').value;
   const projStart = parseDate(startStr);
 
-  // Gather all entries for this process (log + today's stickers)
   const logEntries = stickerLog.filter(e => e.process === processId);
   const todayCount = getTodayCount(processId);
 
-  // Build a date→count map
   const dateMap = {};
   logEntries.forEach(e => { dateMap[e.date] = (dateMap[e.date] || 0) + e.count; });
   if (todayCount > 0) {
@@ -778,24 +783,15 @@ function calcPace(processId) {
 
   let periodStart;
   if (processId === 'name') {
-    // ネーム: from project start
     periodStart = projStart;
   } else {
-    // Other processes: from their first sticker date
     periodStart = firstDate;
   }
 
-  const days = Math.max(1, daysBetween(periodStart, lastDate) + 1); // inclusive
-  const pace = totalStickers / days; // pages per day
+  const days = Math.max(1, daysBetween(periodStart, lastDate) + 1);
+  const pace = totalStickers / days;
 
-  return {
-    pace,
-    totalStickers,
-    firstDate,
-    lastDate,
-    periodStart,
-    days,
-  };
+  return { pace, totalStickers, firstDate, lastDate, periodStart, days };
 }
 
 // ── Navigation ──
@@ -834,7 +830,7 @@ swipeContainer.addEventListener('touchend', e => {
   if (dx > 0 && state.currentPage > 0) goToPage(state.currentPage - 1);
 }, { passive: true });
 
-// Swipe (mouse)
+// Swipe (mouse - page navigation)
 let mouseDown = false, mouseStartX = 0;
 swipeContainer.addEventListener('mousedown', e => { mouseDown = true; mouseStartX = e.clientX; });
 swipeContainer.addEventListener('mouseup', e => {
@@ -851,56 +847,154 @@ const WEEKDAYS = ['日', '月', '火', '水', '木', '金', '土'];
 document.getElementById('todayDate').textContent = `${today.getMonth() + 1}月${today.getDate()}日`;
 document.getElementById('todayWeekday').textContent = `${WEEKDAYS[today.getDay()]}曜日`;
 
-// ── Summary ──
-function renderSummary() {
-  const row = document.getElementById('summaryRow');
-  row.innerHTML = PROCESSES.map(p =>
-    `<div class="summary-chip ${p.chipCls}">${p.label} ${getTotal(p.id)}/${state.totalPages}</div>`
-  ).join('');
+// ── Grid layout calculation ──
+function calcGridLayout() {
+  // Find main process: first process that is not fully completed
+  let mainIdx = 0;
+  for (let i = 0; i < PROCESSES.length; i++) {
+    if (getTotal(PROCESSES[i].id) < state.totalPages) {
+      mainIdx = i;
+      break;
+    }
+    // If all are complete, main stays at last
+    if (i === PROCESSES.length - 1) mainIdx = i;
+  }
+
+  // Next process: next incomplete after main
+  let nextIdx = -1;
+  for (let i = mainIdx + 1; i < PROCESSES.length; i++) {
+    if (getTotal(PROCESSES[i].id) < state.totalPages) {
+      nextIdx = i;
+      break;
+    }
+  }
+
+  // Rest: all other processes (maintaining order)
+  const restIndices = [];
+  for (let i = 0; i < PROCESSES.length; i++) {
+    if (i !== mainIdx && i !== nextIdx) {
+      restIndices.push(i);
+    }
+  }
+
+  // Calculate transition ratio based on main process progress
+  const mainDone = getTotal(PROCESSES[mainIdx].id);
+  const mainProgress = mainDone / state.totalPages;
+  const transition = Math.max(0, Math.min(1, (mainProgress - 0.6) / 0.4));
+
+  // Interpolation
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const topRatio = lerp(55, 30, transition);
+  const bottomRatio = 100 - topRatio;
+  const leftPct = lerp(50, 65, transition);
+
+  return { mainIdx, nextIdx, restIndices, topRatio, bottomRatio, leftPct };
 }
 
-// ── Sticker buttons ──
-function createStickerButtons() {
-  const container = document.getElementById('stickerButtons');
+function updateGridLayout() {
+  const grid = document.getElementById('tapGrid');
+  const layout = calcGridLayout();
+
+  grid.style.setProperty('--top-ratio', `${layout.topRatio}fr`);
+  grid.style.setProperty('--bottom-ratio', `${layout.bottomRatio}fr`);
+  grid.style.setProperty('--left-ratio', `${layout.leftPct}fr`);
+  grid.style.setProperty('--right-ratio', `${100 - layout.leftPct}fr`);
+}
+
+// ── Variable Tap Grid ──
+function createTapGrid() {
+  const grid = document.getElementById('tapGrid');
+  grid.innerHTML = '';
+
+  const layout = calcGridLayout();
+
+  // Set CSS variables
+  grid.style.setProperty('--top-ratio', `${layout.topRatio}fr`);
+  grid.style.setProperty('--bottom-ratio', `${layout.bottomRatio}fr`);
+  grid.style.setProperty('--left-ratio', `${layout.leftPct}fr`);
+  grid.style.setProperty('--right-ratio', `${100 - layout.leftPct}fr`);
+
+  // Helper: create a tap cell
+  function createCell(p) {
+    const cell = document.createElement('div');
+    cell.className = `tap-cell ${p.cellCls}`;
+    cell.dataset.process = p.id;
+
+    const header = document.createElement('div');
+    header.className = 'tap-cell-header';
+    header.innerHTML = `<span class="icon">${p.icon}</span><span>${p.label}</span><span class="progress">${getTotal(p.id)}/${state.totalPages}</span>`;
+    cell.appendChild(header);
+
+    const stickersArea = document.createElement('div');
+    stickersArea.className = 'tap-cell-stickers';
+    stickersArea.dataset.process = p.id;
+    cell.appendChild(stickersArea);
+
+    cell.addEventListener('click', (e) => {
+      if (e.target.classList.contains('sticker')) return;
+      const rect = stickersArea.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      addSticker(p.id, x, y);
+    });
+
+    return cell;
+  }
+
+  // Main process (top, full width)
+  const mainCell = createCell(PROCESSES[layout.mainIdx]);
+  mainCell.classList.add('tap-cell-main');
+  grid.appendChild(mainCell);
+
+  // Next process (bottom-left)
+  if (layout.nextIdx >= 0) {
+    const nextCell = createCell(PROCESSES[layout.nextIdx]);
+    nextCell.classList.add('tap-cell-next');
+    grid.appendChild(nextCell);
+  }
+
+  // Rest processes (bottom-right, stacked)
+  if (layout.restIndices.length > 0) {
+    const restWrap = document.createElement('div');
+    restWrap.className = 'tap-cell-rest-wrap';
+    layout.restIndices.forEach(idx => {
+      restWrap.appendChild(createCell(PROCESSES[idx]));
+    });
+    grid.appendChild(restWrap);
+  }
+}
+
+function updateCellHeaders() {
   PROCESSES.forEach(p => {
-    const btn = document.createElement('button');
-    btn.className = `sticker-btn ${p.btnCls}`;
-    btn.innerHTML = `<span class="icon">${p.icon}</span><span>${p.label}</span>`;
-    btn.addEventListener('click', () => addSticker(p.id));
-    container.appendChild(btn);
+    const cell = document.querySelector(`.tap-cell[data-process="${p.id}"]`);
+    if (!cell) return;
+    const progress = cell.querySelector('.tap-cell-header .progress');
+    if (progress) {
+      progress.textContent = `${getTotal(p.id)}/${state.totalPages}`;
+    }
   });
 }
 
 // ── Particles ──
-function emitParticles(targetEl, color) {
-  const rect = targetEl.getBoundingClientRect();
-  const stickerArea = document.getElementById('stickerArea');
-  const areaRect = stickerArea.getBoundingClientRect();
-
-  const cx = rect.left + rect.width / 2 - areaRect.left;
-  const cy = rect.top + rect.height / 2 - areaRect.top;
-
-  const count = 4 + Math.floor(Math.random() * 2); // 4-5 particles
+function emitParticles(containerEl, x, y, color) {
+  const count = 4 + Math.floor(Math.random() * 2);
   for (let i = 0; i < count; i++) {
     const particle = document.createElement('div');
     particle.className = 'particle';
     particle.style.background = color;
-    particle.style.left = cx + 'px';
-    particle.style.top = cy + 'px';
+    particle.style.left = x + 'px';
+    particle.style.top = y + 'px';
+    particle.style.position = 'absolute';
 
     const angle = (Math.PI * 2 / count) * i + (Math.random() - 0.5) * 0.5;
-    const dist = 20 + Math.random() * 20;
+    const dist = 15 + Math.random() * 15;
     const tx = Math.cos(angle) * dist;
     const ty = Math.sin(angle) * dist;
-    particle.style.setProperty('--tx', tx + 'px');
-    particle.style.setProperty('--ty', ty + 'px');
-    particle.style.animation = 'none';
     particle.style.width = (4 + Math.random() * 3) + 'px';
     particle.style.height = particle.style.width;
 
-    stickerArea.appendChild(particle);
+    containerEl.appendChild(particle);
 
-    // Animate manually for directional movement
     requestAnimationFrame(() => {
       particle.style.transition = 'transform 0.45s ease-out, opacity 0.45s ease-out';
       particle.style.transform = `translate(${tx}px, ${ty}px) scale(0.3)`;
@@ -912,58 +1006,189 @@ function emitParticles(targetEl, color) {
 }
 
 // ── Stickers ──
-function addSticker(processId) {
+function addSticker(processId, xPct, yPct) {
   const total = getTotal(processId);
   if (total >= state.totalPages) {
     showToast(`${PROCESSES.find(p => p.id === processId).label}は全ページ完了済みです`);
     return;
   }
-  state.stickers.push({ process: processId, timestamp: Date.now() });
 
-  // Haptic feedback
+  // Add random offset (±8px equivalent in %)
+  const offsetX = (Math.random() - 0.5) * 10;
+  const offsetY = (Math.random() - 0.5) * 10;
+  const finalX = Math.max(5, Math.min(85, xPct + offsetX));
+  const finalY = Math.max(5, Math.min(85, yPct + offsetY));
+
+  // Remember current layout to detect main process change
+  const prevLayout = calcGridLayout();
+
+  state.stickers.push({ process: processId, x: finalX, y: finalY, timestamp: Date.now() });
+
   if (navigator.vibrate) navigator.vibrate(15);
 
-  renderStickers();
-  renderSummary();
-
-  // Emit particles after sticker is rendered
-  requestAnimationFrame(() => {
-    const stickers = document.querySelectorAll('#stickerArea .sticker');
-    const lastSticker = stickers[stickers.length - 1];
-    if (lastSticker) {
-      const proc = PROCESSES.find(p => p.id === processId);
-      emitParticles(lastSticker, proc.color);
-    }
-  });
+  // Check if main process changed (process fully completed → next becomes main)
+  const newLayout = calcGridLayout();
+  if (newLayout.mainIdx !== prevLayout.mainIdx) {
+    // Rebuild the grid with new layout
+    createTapGrid();
+    renderStickers();
+  } else {
+    // Just update CSS variables for smooth transition
+    updateGridLayout();
+    renderStickers();
+    updateCellHeaders();
+  }
 }
 
-function removeSticker(index) {
-  const el = document.querySelectorAll('#stickerArea .sticker')[index];
+function removeSticker(processId, stickerIndex, slideOut) {
+  // Find the sticker element
+  const container = document.querySelector(`.tap-cell-stickers[data-process="${processId}"]`);
+  if (!container) return;
+  const stickers = container.querySelectorAll('.sticker');
+  const el = stickers[stickerIndex];
   if (el) {
-    el.classList.add('removing');
+    el.classList.add(slideOut ? 'removing' : 'removing-shrink');
     setTimeout(() => {
-      state.stickers.splice(index, 1);
-      renderStickers();
-      renderSummary();
+      // Find the actual index in state.stickers
+      const processStickers = state.stickers
+        .map((s, i) => ({ ...s, idx: i }))
+        .filter(s => s.process === processId);
+      const prevLayout = calcGridLayout();
+      if (processStickers[stickerIndex]) {
+        state.stickers.splice(processStickers[stickerIndex].idx, 1);
+      }
+      const newLayout = calcGridLayout();
+      if (newLayout.mainIdx !== prevLayout.mainIdx) {
+        createTapGrid();
+        renderStickers();
+      } else {
+        updateGridLayout();
+        renderStickers();
+        updateCellHeaders();
+      }
     }, 280);
   }
 }
 
 function renderStickers() {
-  const area = document.getElementById('stickerArea');
-  const hint = document.getElementById('emptyHint');
-  hint.style.display = state.stickers.length === 0 ? '' : 'none';
+  PROCESSES.forEach(p => {
+    const container = document.querySelector(`.tap-cell-stickers[data-process="${p.id}"]`);
+    if (!container) return;
+    container.querySelectorAll('.sticker, .particle').forEach(el => el.remove());
 
-  area.querySelectorAll('.sticker').forEach(el => el.remove());
+    const processStickers = state.stickers.filter(s => s.process === p.id);
+    processStickers.forEach((s, i) => {
+      const el = document.createElement('div');
+      el.className = `sticker ${p.stickerCls}`;
+      el.textContent = p.icon;
+      el.style.left = `calc(${s.x}% - 18px)`;
+      el.style.top = `calc(${s.y}% - 18px)`;
 
-  state.stickers.forEach((s, i) => {
-    const p = PROCESSES.find(pr => pr.id === s.process);
-    const el = document.createElement('div');
-    el.className = `sticker ${p.stickerCls}`;
-    el.textContent = p.icon;
-    el.title = `${p.label}（タップで取消）`;
-    el.addEventListener('click', () => removeSticker(i));
-    area.appendChild(el);
+      // Swipe/drag to delete
+      setupStickerSwipe(el, p.id, i);
+
+      container.appendChild(el);
+    });
+
+    // Emit particles for the newest sticker
+    if (processStickers.length > 0) {
+      const newest = processStickers[processStickers.length - 1];
+      const rect = container.getBoundingClientRect();
+      if (newest.timestamp > Date.now() - 100) {
+        const px = (newest.x / 100) * rect.width;
+        const py = (newest.y / 100) * rect.height;
+        emitParticles(container, px, py, p.color);
+      }
+    }
+  });
+}
+
+// ── Swipe-to-delete on stickers ──
+function setupStickerSwipe(el, processId, stickerIndex) {
+  let startX = 0, startY = 0, isDragging = false, startTime = 0;
+  let longPressTimer = null;
+
+  function onStart(clientX, clientY, e) {
+    startX = clientX;
+    startY = clientY;
+    isDragging = true;
+    startTime = Date.now();
+    // Long press fallback
+    longPressTimer = setTimeout(() => {
+      if (isDragging) {
+        isDragging = false;
+        removeSticker(processId, stickerIndex, false);
+      }
+    }, 500);
+  }
+
+  function onMove(clientX, clientY) {
+    if (!isDragging) return;
+    const dx = clientX - startX;
+    const dy = clientY - startY;
+    // If horizontal movement > threshold, show visual feedback
+    if (Math.abs(dx) > 10) {
+      el.style.transform = `translateX(${dx}px)`;
+      el.style.opacity = Math.max(0.3, 1 - Math.abs(dx) / 100);
+      clearTimeout(longPressTimer);
+    }
+  }
+
+  function onEnd(clientX) {
+    clearTimeout(longPressTimer);
+    if (!isDragging) return;
+    isDragging = false;
+    const dx = clientX - startX;
+
+    if (Math.abs(dx) >= 50) {
+      // Swipe delete
+      removeSticker(processId, stickerIndex, true);
+    } else {
+      // Reset position
+      el.style.transform = '';
+      el.style.opacity = '';
+    }
+  }
+
+  // Touch events
+  el.addEventListener('touchstart', (e) => {
+    e.stopPropagation();
+    const t = e.touches[0];
+    onStart(t.clientX, t.clientY, e);
+  }, { passive: true });
+
+  el.addEventListener('touchmove', (e) => {
+    e.stopPropagation();
+    const t = e.touches[0];
+    onMove(t.clientX, t.clientY);
+  }, { passive: true });
+
+  el.addEventListener('touchend', (e) => {
+    e.stopPropagation();
+    const t = e.changedTouches[0];
+    onEnd(t.clientX);
+    e.preventDefault(); // prevent click from firing
+  });
+
+  // Mouse events
+  el.addEventListener('mousedown', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    onStart(e.clientX, e.clientY, e);
+
+    const onMouseMove = (me) => onMove(me.clientX, me.clientY);
+    const onMouseUp = (me) => {
+      onEnd(me.clientX);
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
+
+  // Prevent click from bubbling to cell (which would add a sticker)
+  el.addEventListener('click', (e) => {
+    e.stopPropagation();
   });
 }
 
@@ -992,9 +1217,8 @@ function renderGantt() {
   const chart = document.getElementById('ganttChart');
   chart.innerHTML = '';
 
-  // Get the available width for bars
-  const chartWidth = chart.clientWidth - 24; // minus padding
-  const barAreaWidth = chartWidth - 50; // minus label space
+  const chartWidth = chart.clientWidth - 24;
+  const barAreaWidth = chartWidth - 50;
 
   // ── Date axis ──
   const dateAxis = document.createElement('div');
@@ -1018,7 +1242,7 @@ function renderGantt() {
   timeline.className = 'gantt-timeline';
   timeline.style.width = barAreaWidth + 'px';
 
-  // ── Connected plan bar (draggable boundaries) ──
+  // ── Connected plan bar ──
   const connectedBar = document.createElement('div');
   connectedBar.className = 'gantt-connected-bar';
   connectedBar.style.width = '100%';
@@ -1038,7 +1262,6 @@ function renderGantt() {
     connectedBar.appendChild(seg);
   });
 
-  // Drag handles (3 handles between 4 processes)
   for (let i = 0; i < 3; i++) {
     const handle = document.createElement('div');
     handle.className = 'gantt-drag-handle';
@@ -1048,15 +1271,11 @@ function renderGantt() {
   }
 
   timeline.appendChild(connectedBar);
-
-  // Position drag handles after layout
   requestAnimationFrame(() => positionDragHandles(connectedBar));
 
-  // ── Compute chained forecast data ──
-  // Each process's forecast starts where the previous one ends.
-  // Processes with no pace data split the remaining time equally.
-  const forecastData = []; // { startFrac, widthFrac, hasPace }
-  let chainEndDayOffset = 0; // days from project start where last forecast ended
+  // ── Forecast data ──
+  const forecastData = [];
+  let chainEndDayOffset = 0;
 
   PROCESSES.forEach((p, idx) => {
     const pace = calcPace(p.id);
@@ -1067,30 +1286,23 @@ function renderGantt() {
       forecastData.push({ startFrac, widthFrac, hasPace: true });
       chainEndDayOffset += forecastDays;
     } else {
-      // Placeholder — will be filled after we know the chain
       forecastData.push({ startFrac: 0, widthFrac: 0, hasPace: false });
     }
   });
 
-  // Fill in processes with no pace data:
-  // They share the remaining time equally, starting from chainEndDayOffset.
   const noPaceIndices = forecastData
     .map((d, i) => d.hasPace ? -1 : i)
     .filter(i => i >= 0);
 
   if (noPaceIndices.length > 0) {
-    // Find the last process that has pace data, to know where the chain ended
     let lastPaceEnd = 0;
     for (let i = 0; i < forecastData.length; i++) {
       if (forecastData[i].hasPace) {
         lastPaceEnd = forecastData[i].startFrac + forecastData[i].widthFrac;
       }
     }
-
-    // Remaining fraction of timeline for no-pace processes
     const remainingFrac = Math.max(0, 1 - lastPaceEnd);
     const eachFrac = noPaceIndices.length > 0 ? remainingFrac / noPaceIndices.length : 0;
-
     let cursor = lastPaceEnd;
     noPaceIndices.forEach(i => {
       forecastData[i].startFrac = cursor;
@@ -1099,7 +1311,7 @@ function renderGantt() {
     });
   }
 
-  // ── Process rows (actual + forecast) ──
+  // ── Process rows ──
   PROCESSES.forEach((p, idx) => {
     const row = document.createElement('div');
     row.className = 'gantt-row';
@@ -1112,7 +1324,6 @@ function renderGantt() {
     const track = document.createElement('div');
     track.className = 'gantt-bar-track';
 
-    // Plan bar (background showing planned period)
     const planStartFrac = state.planRatios.slice(0, idx).reduce((a, b) => a + b, 0);
     const planWidthFrac = state.planRatios[idx];
 
@@ -1123,7 +1334,6 @@ function renderGantt() {
     planBar.style.background = p.color;
     track.appendChild(planBar);
 
-    // Actual progress bar
     const done = getTotal(p.id);
     const actualFrac = planWidthFrac * (done / pages);
 
@@ -1141,10 +1351,8 @@ function renderGantt() {
     }
     track.appendChild(actualBar);
 
-    // Forecast overlay (chained)
     const fc = forecastData[idx];
     if (fc.widthFrac > 0) {
-      // Compare forecast end with plan end
       const planEndFrac = planStartFrac + planWidthFrac;
       const forecastEndFrac = fc.startFrac + fc.widthFrac;
       const isLate = forecastEndFrac > planEndFrac + 0.01;
@@ -1153,7 +1361,6 @@ function renderGantt() {
       forecastBar.className = `gantt-forecast-bar ${isLate ? 'late' : 'on-track'}`;
       forecastBar.style.left = (fc.startFrac * 100) + '%';
       forecastBar.style.width = (fc.widthFrac * 100) + '%';
-
       track.appendChild(forecastBar);
     }
 
@@ -1163,7 +1370,7 @@ function renderGantt() {
 
   // ── Today line ──
   const todayPct = Math.min(100, Math.max(0, (todayOffset / totalDays) * 100));
-  const totalTimelineHeight = 36 + 12 + (36 + 6) * 4; // connected bar + gap + 4 rows
+  const totalTimelineHeight = 36 + 12 + (36 + 6) * 4;
   const todayLine = document.createElement('div');
   todayLine.className = 'gantt-vline today-line';
   todayLine.style.left = todayPct + '%';
@@ -1181,47 +1388,20 @@ function renderGantt() {
 
   chart.appendChild(timeline);
 
-  // ── Info panel ──
+  // ── Info panel (simplified) ──
   const info = document.getElementById('ganttInfo');
   const daysLeft = daysBetween(today, deadline);
-  const totalDone = PROCESSES.reduce((sum, p) => sum + getTotal(p.id), 0);
-  const totalTasks = pages * 4;
 
-  let infoHtml = `
-    締切まで <strong>${daysLeft}日</strong> ｜
-    全体進捗 <strong>${totalDone}/${totalTasks}</strong>（${Math.round(totalDone / totalTasks * 100)}%）<br>
-    今日のシール: <strong>${state.stickers.length}枚</strong>
-  `;
-
-  // Per-process pace info + chained forecast summary
-  const paceInfos = [];
-  PROCESSES.forEach((p, idx) => {
-    const pace = calcPace(p.id);
-    const fc = forecastData[idx];
-    if (pace) {
-      const remaining = pages - getTotal(p.id);
-      const forecastDays = Math.ceil(pages / pace.pace);
-      paceInfos.push(`${p.label}: ${pace.pace.toFixed(1)}枚/日（想定${forecastDays}日）`);
-    } else {
-      paceInfos.push(`${p.label}: データなし（想定で等分）`);
-    }
-  });
-
-  // Total forecast end (chained)
   const lastFc = forecastData[forecastData.length - 1];
   const totalForecastEndFrac = lastFc.startFrac + lastFc.widthFrac;
   const totalForecastDays = Math.ceil(totalForecastEndFrac * totalDays);
-  const forecastEndDate = new Date(projStart.getTime() + totalForecastDays * 86400000);
   const overUnder = totalForecastDays - totalDays;
 
-  if (paceInfos.length > 0) {
-    infoHtml += `<br><br><strong>ペース分析:</strong><br>` + paceInfos.join('<br>');
-    infoHtml += `<br><br>`;
-    if (overUnder > 0) {
-      infoHtml += `⚠ 全工程想定: <strong>${totalForecastDays}日</strong>（締切を${overUnder}日超過）`;
-    } else {
-      infoHtml += `✓ 全工程想定: <strong>${totalForecastDays}日</strong>（${Math.abs(overUnder)}日の余裕）`;
-    }
+  let infoHtml;
+  if (overUnder > 0) {
+    infoHtml = `締切まで <strong>${daysLeft}日</strong> ｜ 想定 <strong>${totalForecastDays}日</strong>（⚠ ${overUnder}日超過）`;
+  } else {
+    infoHtml = `締切まで <strong>${daysLeft}日</strong> ｜ 想定 <strong>${totalForecastDays}日</strong>（${Math.abs(overUnder)}日の余裕）`;
   }
 
   info.innerHTML = infoHtml;
@@ -1261,12 +1441,11 @@ function setupDragHandle(handle, index, connectedBar) {
     const deltaRatio = dx / barWidth;
 
     const newRatios = [...startRatios];
-    const minRatio = 0.08; // minimum 8% per process
+    const minRatio = 0.08;
 
     newRatios[index] = startRatios[index] + deltaRatio;
     newRatios[index + 1] = startRatios[index + 1] - deltaRatio;
 
-    // Clamp
     if (newRatios[index] < minRatio) {
       newRatios[index + 1] -= (minRatio - newRatios[index]);
       newRatios[index] = minRatio;
@@ -1276,18 +1455,15 @@ function setupDragHandle(handle, index, connectedBar) {
       newRatios[index + 1] = minRatio;
     }
 
-    // Validate all ratios are positive
     if (newRatios.some(r => r < minRatio)) return;
 
     state.planRatios = newRatios;
 
-    // Update segments
     const segments = connectedBar.querySelectorAll('.gantt-connected-segment');
     segments.forEach((seg, i) => {
       seg.style.flex = state.planRatios[i];
     });
 
-    // Reposition handles
     positionDragHandles(connectedBar);
   }
 
@@ -1297,11 +1473,9 @@ function setupDragHandle(handle, index, connectedBar) {
     handle.classList.remove('dragging');
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
-    // Re-render to update forecast bars with new plan ratios
     renderGantt();
   }
 
-  // Mouse events
   handle.addEventListener('mousedown', e => {
     e.preventDefault();
     e.stopPropagation();
@@ -1310,7 +1484,6 @@ function setupDragHandle(handle, index, connectedBar) {
   document.addEventListener('mousemove', e => onMove(e.clientX));
   document.addEventListener('mouseup', () => onEnd());
 
-  // Touch events
   handle.addEventListener('touchstart', e => {
     e.preventDefault();
     e.stopPropagation();
@@ -1326,13 +1499,12 @@ function setupDragHandle(handle, index, connectedBar) {
 ['projPages', 'projStart', 'projDeadline'].forEach(id => {
   document.getElementById(id).addEventListener('change', () => {
     state.totalPages = parseInt(document.getElementById('projPages').value) || 16;
-    renderSummary();
+    updateCellHeaders();
   });
 });
 
 // ── Init ──
-createStickerButtons();
-renderSummary();
+createTapGrid();
 renderStickers();
 goToPage(1);
 </script>
