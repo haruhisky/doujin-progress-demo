@@ -6,6 +6,7 @@ function createWindow() {
     width: 420,
     height: 800,
     autoHideMenuBar: true,
+    icon: path.join(__dirname, 'icon.ico'),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,

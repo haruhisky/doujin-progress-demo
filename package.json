@@ -4,9 +4,26 @@
   "description": "同人わんたっぷ - 同人誌進捗管理アプリ",
   "main": "electron-main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build": "electron-builder --win",
+    "build:dir": "electron-builder --win --dir"
   },
-  "dependencies": {
-    "electron": "^28.3.3"
+  "build": {
+    "appId": "com.doujin.wantap",
+    "productName": "同人わんたっぷ",
+    "files": [
+      "electron-main.js",
+      "demo.html",
+      "icon.ico"
+    ],
+    "win": {
+      "target": "portable",
+      "icon": "icon.ico",
+      "signAndEditExecutable": false
+    }
+  },
+  "devDependencies": {
+    "electron": "^28.3.3",
+    "electron-builder": "^24.13.3"
   }
 }
