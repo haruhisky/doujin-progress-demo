@@ -130,6 +130,52 @@ body {
   box-shadow: 0 4px 12px rgba(102,126,234,0.4);
 }
 
+/* ── WorkMate State Buttons ── */
+.wm-state-controls {
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.wm-state-btn {
+  padding: 0.5rem 1.1rem;
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(224,221,216,0.6);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+.wm-state-btn:hover {
+  border-color: rgba(255,255,255,0.3);
+  color: #e0ddd8;
+}
+.wm-state-btn.active { color: #fff; }
+.wm-state-btn[data-state="work"].active {
+  border-color: #667eea;
+  background: rgba(102,126,234,0.25);
+}
+.wm-state-btn[data-state="slacking"].active {
+  border-color: #f093fb;
+  background: rgba(240,147,251,0.25);
+}
+.wm-state-btn[data-state="break"].active {
+  border-color: #11998e;
+  background: rgba(17,153,142,0.25);
+}
+.wm-state-btn[data-state="away"].active {
+  border-color: #6c7086;
+  background: rgba(108,112,134,0.25);
+}
+.wm-hint {
+  font-size: 0.8rem;
+  color: rgba(224,221,216,0.5);
+  text-align: center;
+}
+
 /* ── Footer ── */
 .footer-note {
   width: 100%;
@@ -2570,7 +2616,14 @@ goToPage(1);
     <div class="app-title">Work Mate</div>
     <div class="app-tagline">あなたの作業を、静かに見守る。<br>クリエイターのためのアンビエント作業トラッカー。</div>
   </div>
-  <iframe src="https://haruhisky.github.io/workmate/demo-embed.html" loading="lazy" allow="autoplay"></iframe>
+  <iframe id="wmDemoFrame" src="https://haruhisky.github.io/workmate/demo-embed.html" loading="lazy" allow="autoplay"></iframe>
+  <div class="wm-state-controls">
+    <button class="wm-state-btn active" data-state="work">作業中</button>
+    <button class="wm-state-btn" data-state="slacking">ひと息中</button>
+    <button class="wm-state-btn" data-state="break">休憩中</button>
+    <button class="wm-state-btn" data-state="away">離席中</button>
+  </div>
+  <p class="wm-hint">↑ ボタンで状態を切り替えてみてください</p>
   <a class="wm-link" href="https://haruhisky.github.io/workmate/" target="_blank" rel="noopener">
     Work Mate の詳細を見る →
   </a>
@@ -2578,5 +2631,19 @@ goToPage(1);
 
 <p class="footer-note">&copy; haruhisky</p>
 
+<script>
+// WorkMate demo state controls
+(function() {
+  var frame = document.getElementById('wmDemoFrame');
+  var btns = document.querySelectorAll('.wm-state-btn');
+  btns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var state = this.getAttribute('data-state');
+      frame.contentWindow.postMessage({ type: 'setState', state: state }, '*');
+      btns.forEach(function(b) { b.classList.toggle('active', b.getAttribute('data-state') === state); });
+    });
+  });
+})();
+</script>
 </body>
 </html>
