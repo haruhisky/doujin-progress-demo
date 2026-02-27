@@ -848,16 +848,47 @@ document.getElementById('todayDate').textContent = `${today.getMonth() + 1}月${
 document.getElementById('todayWeekday').textContent = `${WEEKDAYS[today.getDay()]}曜日`;
 
 // ── Grid layout calculation ──
-function calcGridLayout() {
-  // Find main process: first process that is not fully completed
-  let mainIdx = 0;
+function getPlannedProcessIndex() {
+  const startStr = document.getElementById('projStart').value;
+  const deadlineStr = document.getElementById('projDeadline').value;
+  const projStart = parseDate(startStr);
+  const deadline = parseDate(deadlineStr);
+  const totalDays = daysBetween(projStart, deadline);
+  if (totalDays <= 0) return 0;
+  const todayOffset = daysBetween(projStart, today);
+  const todayFrac = todayOffset / totalDays;
+
+  let cumulative = 0;
   for (let i = 0; i < PROCESSES.length; i++) {
-    if (getTotal(PROCESSES[i].id) < state.totalPages) {
-      mainIdx = i;
-      break;
+    cumulative += state.planRatios[i];
+    if (todayFrac < cumulative) return i;
+  }
+  return PROCESSES.length - 1;
+}
+
+function calcGridLayout() {
+  // Find main process: planned process for today
+  let mainIdx = getPlannedProcessIndex();
+
+  // If that process is fully completed, fall back to next incomplete
+  if (getTotal(PROCESSES[mainIdx].id) >= state.totalPages) {
+    let found = false;
+    for (let i = mainIdx + 1; i < PROCESSES.length; i++) {
+      if (getTotal(PROCESSES[i].id) < state.totalPages) {
+        mainIdx = i;
+        found = true;
+        break;
+      }
     }
-    // If all are complete, main stays at last
-    if (i === PROCESSES.length - 1) mainIdx = i;
+    // If no later process is incomplete, try earlier ones
+    if (!found) {
+      for (let i = 0; i < mainIdx; i++) {
+        if (getTotal(PROCESSES[i].id) < state.totalPages) {
+          mainIdx = i;
+          break;
+        }
+      }
+    }
   }
 
   // Next process: next incomplete after main
@@ -1474,6 +1505,8 @@ function setupDragHandle(handle, index, connectedBar) {
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
     renderGantt();
+    createTapGrid();
+    renderStickers();
   }
 
   handle.addEventListener('mousedown', e => {
