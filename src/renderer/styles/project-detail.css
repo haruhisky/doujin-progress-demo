@@ -1,0 +1,125 @@
+.detail-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.detail-title-group {
+  flex: 1;
+}
+
+.detail-title-group h2 {
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+
+.detail-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.detail-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.detail-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+
+.tab {
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s;
+}
+
+.tab:hover {
+  color: var(--text-primary);
+}
+
+.tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.detail-content {
+  min-height: 300px;
+}
+
+.phase-progress-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.phase-progress-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.manual-control {
+  min-width: 140px;
+}
+
+.manual-input-group {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.manual-input-group input {
+  width: 60px;
+  padding: 4px 8px;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+/* Phases editor in form */
+.phases-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.phase-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.phase-row input,
+.phase-row select {
+  padding: 8px 10px;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.phase-row input:first-child {
+  flex: 1;
+}
+
+.phase-row input:nth-child(2) {
+  flex: 1;
+}
+
+.phase-row select {
+  width: 120px;
+}

@@ -1,0 +1,12 @@
+{
+  "name": "doujin-wantap",
+  "version": "1.0.0",
+  "description": "同人わんたっぷ - 同人誌進捗管理アプリ",
+  "main": "electron-main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "electron": "^28.3.3"
+  }
+}

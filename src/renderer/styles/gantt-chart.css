@@ -1,0 +1,33 @@
+.gantt-chart-wrapper {
+  position: relative;
+  overflow-x: auto;
+  padding: 8px 0;
+}
+
+.gantt-chart-svg {
+  display: block;
+}
+
+.gantt-chart-svg text {
+  font-family: 'Segoe UI', 'Meiryo', sans-serif;
+}
+
+.gantt-empty {
+  text-align: center;
+  padding: 48px;
+  color: var(--text-muted);
+}
+
+.gantt-tooltip {
+  position: fixed;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  color: var(--text-primary);
+  pointer-events: none;
+  z-index: 100;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}

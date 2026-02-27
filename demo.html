@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>同人ぽちぽち進捗</title>
+<title>同人わんたっぷ</title>
 <style>
 :root {
   --bg: #faf8f5;
@@ -22,6 +22,11 @@
   --finish-color: #82b89a;
   --finish-bg: #eef7f2;
 
+  --daily-color: #c4a6d4;
+  --daily-bg: #f5eef8;
+  --event-color: #d4b896;
+  --event-bg: #faf3ea;
+
   --today-line: #e07070;
   --deadline-line: #c04040;
 }
@@ -30,25 +35,123 @@
 
 body {
   font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
-  background: #e8e4df;
+  background: var(--bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='%23e8e0d8' opacity='0.18'%3E%3Cellipse cx='30' cy='38' rx='10' ry='9'/%3E%3Cellipse cx='20' cy='22' rx='5' ry='5.5'/%3E%3Cellipse cx='40' cy='22' rx='5' ry='5.5'/%3E%3Cellipse cx='14' cy='30' rx='4' ry='4.5'/%3E%3Cellipse cx='46' cy='30' rx='4' ry='4.5'/%3E%3C/g%3E%3C/svg%3E");
   color: var(--text);
   overflow: hidden;
-  height: 100dvh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  height: 100vh;
+  margin: 0;
 }
 
-.phone-frame {
-  width: 390px;
-  height: 760px;
-  background: var(--bg);
-  border-radius: 32px;
-  overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-  position: relative;
+#app {
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Project tabs */
+.project-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 16px 6px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.project-tab {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 14px;
+  border: 1.5px solid var(--border);
+  background: var(--card-bg);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.project-tab:hover {
+  border-color: var(--text-light);
+}
+.project-tab.active {
+  font-weight: 600;
+  color: var(--text);
+  background: var(--name-bg);
+  border-color: var(--name-color);
+}
+.project-tab-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Calendar project bars */
+.cal-project-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-top: 1px;
+}
+.cal-project-bar {
+  height: 3px;
+  border-radius: 1px;
+  opacity: 0.6;
+}
+
+/* Calendar event add */
+.cal-event-add-form {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.cal-event-add-btn {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 6px;
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  background: none;
+  color: var(--text-light);
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.cal-event-add-btn:hover {
+  border-color: var(--text-light);
+  color: var(--text);
+}
+
+/* Settings project management */
+.project-manage-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.project-manage-row:last-of-type { border-bottom: none; }
+.project-manage-dot {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.project-manage-info { flex: 1; }
+.project-manage-dates {
+  font-size: 11px;
+  color: var(--text-light);
+}
+.project-color-picker {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
 }
 
 /* ── Header ── */
@@ -62,18 +165,27 @@ body {
   font-weight: 600;
   color: var(--text);
   letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.header-dog-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
 }
 
 /* ── Nav labels ── */
 .nav-labels {
   display: flex;
   justify-content: center;
-  gap: 24px;
+  gap: 12px;
   padding: 0 0 10px;
   flex-shrink: 0;
 }
 .nav-label {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-light);
   cursor: pointer;
   padding: 4px 8px;
@@ -114,22 +226,42 @@ body {
 }
 .swipe-track {
   display: flex;
-  width: 300%;
+  width: 400%;
   height: 100%;
   transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 .page {
-  width: 33.3333%;
+  width: 25%;
   height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   padding: 0 16px 20px;
 }
+.page::-webkit-scrollbar {
+  width: 6px;
+}
+.page::-webkit-scrollbar-track {
+  background: transparent;
+}
+.page::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+.page::-webkit-scrollbar-thumb:hover {
+  background: var(--text-light);
+}
+#pageToday {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
 
-/* ── Today page ── */
+/* ── Today page: variable grid ── */
 .date-display {
   text-align: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
+  flex-shrink: 0;
 }
 .date-display .date {
   font-size: 20px;
@@ -141,83 +273,172 @@ body {
   margin-top: 2px;
 }
 
-.summary-row {
+/* ── Daily / Event task row ── */
+.daily-event-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-  justify-content: center;
+  margin-bottom: 10px;
+  flex-shrink: 0;
 }
-.summary-chip {
-  font-size: 12px;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-weight: 500;
-}
-.summary-chip.name { background: var(--name-bg); color: #b06078; }
-.summary-chip.draft { background: var(--draft-bg); color: #a07840; }
-.summary-chip.ink { background: var(--ink-bg); color: #5080a0; }
-.summary-chip.finish { background: var(--finish-bg); color: #508068; }
-
-.sticker-area {
-  background: var(--card-bg);
-  border-radius: 16px;
-  min-height: 300px;
-  padding: 16px;
-  box-shadow: 0 2px 8px var(--shadow);
-  display: flex;
-  flex-wrap: wrap;
-  align-content: flex-start;
-  gap: 6px;
-  position: relative;
-  margin-bottom: 16px;
-}
-.sticker-area-empty {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: var(--text-light);
-  font-size: 13px;
-  pointer-events: none;
-  text-align: center;
-  line-height: 1.6;
-}
-
-.sticker {
-  width: 42px; height: 42px;
-  border-radius: 50%;
+.de-card {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  background: var(--card-bg);
+  box-shadow: 0 1px 4px var(--shadow);
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 0.1s;
+}
+.de-card-label {
   font-size: 11px;
   font-weight: 600;
-  color: #fff;
+  white-space: nowrap;
+}
+.de-card-slots {
+  display: flex;
+  gap: 3px;
+}
+.de-paw-slot {
+  width: 22px;
+  height: 22px;
+  position: relative;
+  cursor: pointer;
+}
+.de-paw-slot svg { width: 100%; height: 100%; }
+.de-paw-slot .paw-outline { opacity: 0.3; }
+.de-paw-slot .paw-filled { opacity: 0; transition: opacity 0.15s; }
+.de-paw-slot.done .paw-filled { opacity: 1; }
+.de-paw-slot.done .paw-outline { opacity: 0; }
+.de-paw-slot.bounce { animation: dePawBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.de-paw-slot.unbounce { animation: dePawUnbounce 0.3s ease-in; }
+
+@keyframes dePawBounce {
+  0%   { transform: scale(0.3); }
+  50%  { transform: scale(1.25); }
+  75%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+@keyframes dePawUnbounce {
+  0%   { transform: scale(1); opacity: 1; }
+  50%  { transform: scale(1.15); opacity: 0.7; }
+  100% { transform: scale(0.3); opacity: 0; }
+}
+
+.tap-grid {
+  display: grid;
+  grid-template-columns: var(--left-ratio, 1fr) var(--right-ratio, 1fr);
+  grid-template-rows: var(--top-ratio, 1fr) var(--bottom-ratio, 1fr);
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+  transition: grid-template-columns 0.5s ease, grid-template-rows 0.5s ease;
+}
+
+.tap-cell {
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.1s;
+}
+.tap-cell:active { transform: scale(0.98); }
+
+.tap-cell-main {
+  grid-column: 1 / -1;
+}
+.tap-cell-next {
+  grid-row: 2;
+  grid-column: 1;
+}
+.tap-cell-rest-wrap {
+  grid-row: 2;
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tap-cell-rest-wrap .tap-cell {
+  flex: 1;
+  min-height: 0;
+}
+
+.tap-cell.name-cell { background: var(--name-bg); }
+.tap-cell.draft-cell { background: var(--draft-bg); }
+.tap-cell.ink-cell { background: var(--ink-bg); }
+.tap-cell.finish-cell { background: var(--finish-bg); }
+
+.tap-cell-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  pointer-events: none;
+  z-index: 2;
+}
+.tap-cell-header .icon { font-size: 16px; }
+.tap-cell-header .progress {
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tap-cell.name-cell .tap-cell-header { color: #b06078; }
+.tap-cell.draft-cell .tap-cell-header { color: #a07840; }
+.tap-cell.ink-cell .tap-cell-header { color: #5080a0; }
+.tap-cell.finish-cell .tap-cell-header { color: #508068; }
+
+.tap-cell-stickers {
+  flex: 1;
+  position: relative;
+  pointer-events: none;
+}
+
+/* ── Paw-shaped stickers ── */
+.sticker {
+  width: 40px; height: 40px;
+  position: absolute;
   animation: stickerBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   cursor: pointer;
-  transition: transform 0.15s, opacity 0.2s;
-  position: relative;
+  pointer-events: auto;
+  transition: opacity 0.2s;
+  z-index: 1;
+  touch-action: none;
+  filter: drop-shadow(1px 2px 2px rgba(0,0,0,0.18));
 }
-.sticker:active { transform: scale(0.9); }
+.sticker svg { width: 100%; height: 100%; display: block; }
+
 .sticker.removing {
+  animation: stickerSlideOut 0.3s ease-in forwards;
+}
+.sticker.removing-shrink {
   animation: stickerRemove 0.3s ease-in forwards;
 }
-.sticker.name-s { background: var(--name-color); }
-.sticker.draft-s { background: var(--draft-color); }
-.sticker.ink-s { background: var(--ink-color); }
-.sticker.finish-s { background: var(--finish-color); }
 
 @keyframes stickerBounce {
   0%   { transform: scale(0); opacity: 0; }
-  40%  { transform: scale(1.3); opacity: 1; }
-  55%  { transform: scale(0.9); }
-  70%  { transform: scale(1.05); }
-  85%  { transform: scale(0.98); }
+  40%  { transform: scale(1.3) scaleY(0.85); opacity: 1; }
+  55%  { transform: scale(0.9) scaleY(1.08); }
+  70%  { transform: scale(1.08); }
+  85%  { transform: scale(0.97); }
   100% { transform: scale(1); opacity: 1; }
 }
 @keyframes stickerRemove {
   0% { transform: scale(1); opacity: 1; }
   100% { transform: scale(0); opacity: 0; }
+}
+@keyframes stickerSlideOut {
+  0% { transform: translateX(0); opacity: 1; }
+  100% { transform: translateX(80px); opacity: 0; }
 }
 
 /* Particle */
@@ -226,44 +447,8 @@ body {
   width: 6px; height: 6px;
   border-radius: 50%;
   pointer-events: none;
-  animation: particleFly 0.5s ease-out forwards;
+  z-index: 5;
 }
-@keyframes particleFly {
-  0% { transform: translate(0, 0) scale(1); opacity: 1; }
-  100% { opacity: 0; }
-}
-
-.sticker-buttons {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
-.sticker-btn {
-  flex: 1;
-  max-width: 80px;
-  aspect-ratio: 1;
-  border: none;
-  border-radius: 16px;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  font-size: 10px;
-  font-weight: 600;
-  color: #fff;
-  box-shadow: 0 3px 10px var(--shadow);
-  transition: transform 0.12s;
-  -webkit-user-select: none;
-  user-select: none;
-}
-.sticker-btn:active { transform: scale(0.92); }
-.sticker-btn .icon { font-size: 22px; }
-.sticker-btn.name-btn { background: var(--name-color); }
-.sticker-btn.draft-btn { background: var(--draft-color); }
-.sticker-btn.ink-btn { background: var(--ink-color); }
-.sticker-btn.finish-btn { background: var(--finish-color); }
 
 /* ── Gantt page ── */
 .gantt-section-title {
@@ -291,9 +476,16 @@ body {
   border-radius: 3px;
 }
 .legend-swatch.plan { background: var(--text-light); opacity: 0.4; }
-.legend-swatch.actual { background: var(--text); }
-.legend-swatch.forecast-ok { background: #82b89a; opacity: 0.45; }
-.legend-swatch.forecast-late { background: #e07070; opacity: 0.45; }
+.legend-swatch.forecast-combined {
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(130, 184, 154, 0.5),
+    rgba(130, 184, 154, 0.5) 2px,
+    transparent 2px,
+    transparent 4px
+  );
+  border: 1px dashed #82b89a;
+}
 
 .gantt-chart {
   background: var(--card-bg);
@@ -301,6 +493,7 @@ body {
   padding: 16px 12px;
   box-shadow: 0 2px 8px var(--shadow);
   position: relative;
+  overflow: hidden;
 }
 
 /* Date axis */
@@ -350,7 +543,7 @@ body {
   overflow: visible;
 }
 
-/* Plan bar (light, full planned area) */
+/* Plan bar */
 .gantt-plan-bar {
   position: absolute;
   height: 100%;
@@ -436,7 +629,7 @@ body {
   height: 28px;
 }
 
-/* Vertical lines (today / deadline) */
+/* Vertical lines */
 .gantt-vline {
   position: absolute;
   top: -24px;
@@ -461,7 +654,7 @@ body {
 .gantt-vline.today-line .gantt-vline-label { color: var(--today-line); }
 .gantt-vline.deadline-line .gantt-vline-label { color: var(--deadline-line); }
 
-/* Connected plan bar (single row showing 4 processes as a merged bar) */
+/* Connected plan bar */
 .gantt-connected-bar {
   position: relative;
   height: 36px;
@@ -492,12 +685,151 @@ body {
 
 .gantt-info {
   margin-top: 12px;
-  padding: 12px;
+  padding: 10px 14px;
   background: var(--name-bg);
   border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #806068;
+  text-align: center;
+}
+
+/* ── Pace Analysis ── */
+.pace-analysis {
+  margin-top: 12px;
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+.pace-analysis-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+.pace-process {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
   font-size: 12px;
   line-height: 1.6;
-  color: #806068;
+}
+.pace-process:last-child { border-bottom: none; }
+.pace-process-name {
+  font-weight: 600;
+}
+.pace-process-detail {
+  color: var(--text-light);
+  font-size: 11px;
+  padding-left: 8px;
+}
+.pace-summary {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+.pace-summary.over { background: #fdf0f0; color: #c04040; }
+.pace-summary.ok { background: #eef7f2; color: #508068; }
+
+/* ── Calendar page ── */
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+.cal-nav-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--text);
+  padding: 4px 8px;
+}
+.cal-month-label {
+  font-size: 16px;
+  font-weight: 600;
+}
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.cal-weekday-header {
+  text-align: center;
+  font-size: 10px;
+  color: var(--text-light);
+  padding: 4px 0;
+}
+.cal-day {
+  min-height: 56px;
+  background: var(--card-bg);
+  border-radius: 8px;
+  padding: 4px;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+}
+.cal-day.today {
+  border: 2px solid var(--name-color);
+}
+.cal-day.other-month {
+  opacity: 0.3;
+}
+.cal-day.selected {
+  background: var(--name-bg);
+}
+.cal-day-num {
+  font-size: 11px;
+  font-weight: 500;
+}
+.cal-day-dots {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+.cal-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.calendar-detail {
+  margin-top: 12px;
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 8px var(--shadow);
+  min-height: 60px;
+}
+.cal-detail-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.cal-detail-item {
+  font-size: 12px;
+  padding: 3px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cal-detail-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.cal-detail-empty {
+  font-size: 12px;
+  color: var(--text-light);
+  text-align: center;
+  padding: 10px 0;
 }
 
 /* ── Settings page ── */
@@ -555,10 +887,96 @@ body {
   border-radius: 50%;
   flex-shrink: 0;
 }
+.setting-task-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.setting-task-row:last-child { border-bottom: none; }
+.setting-task-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.setting-task-info {
+  flex: 1;
+}
+.setting-task-meta {
+  font-size: 11px;
+  color: var(--text-light);
+}
+
+/* ── Task edit UI ── */
+.task-edit-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.task-edit-row:last-child { border-bottom: none; }
+.task-edit-colors {
+  display: flex;
+  gap: 4px;
+}
+.task-color-btn {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.task-color-btn.selected {
+  border-color: var(--text);
+}
+.task-edit-input {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-size: 12px;
+  color: var(--text);
+  background: var(--bg);
+}
+.task-edit-input-name { width: 70px; }
+.task-edit-input-count { width: 36px; text-align: center; }
+.task-edit-input-date { width: 110px; }
+.task-delete-btn {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 2px 4px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.task-delete-btn:hover { color: #e07070; }
+.task-add-btn {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px;
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  background: none;
+  color: var(--text-light);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.task-add-btn:hover {
+  border-color: var(--text-light);
+  color: var(--text);
+}
 
 /* ── Toast ── */
 .toast {
-  position: absolute;
+  position: fixed;
   bottom: 80px;
   left: 50%;
   transform: translateX(-50%) translateY(20px);
@@ -578,34 +996,47 @@ body {
   transform: translateX(-50%) translateY(0);
 }
 
-@media (max-width: 420px) {
-  body { align-items: flex-start; }
-  .phone-frame {
-    width: 100%;
-    height: 100dvh;
-    border-radius: 0;
-    box-shadow: none;
-  }
-}
 </style>
 </head>
 <body>
 
-<div class="phone-frame">
+<div id="app">
   <div class="header">
-    <h1>同人ぽちぽち進捗</h1>
+    <h1>
+      <svg class="header-dog-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="22" cy="30" rx="16" ry="24" fill="#d4a574" transform="rotate(-15 22 30)"/>
+        <ellipse cx="78" cy="30" rx="16" ry="24" fill="#d4a574" transform="rotate(15 78 30)"/>
+        <ellipse cx="23" cy="32" rx="10" ry="17" fill="#e8c4a0" transform="rotate(-15 23 32)"/>
+        <ellipse cx="77" cy="32" rx="10" ry="17" fill="#e8c4a0" transform="rotate(15 77 32)"/>
+        <ellipse cx="50" cy="55" rx="32" ry="30" fill="#e8c4a0"/>
+        <ellipse cx="38" cy="48" rx="4" ry="4.5" fill="#4a4a4a"/>
+        <ellipse cx="62" cy="48" rx="4" ry="4.5" fill="#4a4a4a"/>
+        <ellipse cx="39.5" cy="46.5" rx="1.5" ry="1.5" fill="#fff"/>
+        <ellipse cx="63.5" cy="46.5" rx="1.5" ry="1.5" fill="#fff"/>
+        <ellipse cx="50" cy="60" rx="6" ry="4.5" fill="#4a4a4a"/>
+        <ellipse cx="50" cy="59" rx="2" ry="1.2" fill="#7a7a7a"/>
+        <path d="M44 64 Q50 70 56 64" stroke="#4a4a4a" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <ellipse cx="30" cy="58" rx="6" ry="4" fill="#f0b0a0" opacity="0.35"/>
+        <ellipse cx="70" cy="58" rx="6" ry="4" fill="#f0b0a0" opacity="0.35"/>
+      </svg>
+      同人わんたっぷ
+    </h1>
   </div>
+
+  <div class="project-tabs" id="projectTabs"></div>
 
   <div class="nav-labels">
     <div class="nav-label" data-page="0">ガントチャート</div>
     <div class="nav-label active" data-page="1">今日の進捗</div>
-    <div class="nav-label" data-page="2">設定</div>
+    <div class="nav-label" data-page="2">カレンダー</div>
+    <div class="nav-label" data-page="3">設定</div>
   </div>
 
   <div class="nav-dots">
     <div class="nav-dot" data-page="0"></div>
     <div class="nav-dot active" data-page="1"></div>
     <div class="nav-dot" data-page="2"></div>
+    <div class="nav-dot" data-page="3"></div>
   </div>
 
   <div class="swipe-container">
@@ -616,12 +1047,11 @@ body {
         <div class="gantt-section-title">ガントチャート</div>
         <div class="gantt-legend">
           <span><span class="legend-swatch plan"></span>計画</span>
-          <span><span class="legend-swatch actual"></span>実績</span>
-          <span><span class="legend-swatch forecast-ok"></span>想定(順調)</span>
-          <span><span class="legend-swatch forecast-late"></span>想定(遅延)</span>
+          <span><span class="legend-swatch forecast-combined"></span>想定</span>
         </div>
         <div class="gantt-chart" id="ganttChart"></div>
         <div class="gantt-info" id="ganttInfo"></div>
+        <div id="paceAnalysis"></div>
       </div>
 
       <!-- 今日の進捗 -->
@@ -630,15 +1060,28 @@ body {
           <div class="date" id="todayDate"></div>
           <div class="weekday" id="todayWeekday"></div>
         </div>
-        <div class="summary-row" id="summaryRow"></div>
-        <div class="sticker-area" id="stickerArea">
-          <div class="sticker-area-empty" id="emptyHint">シールボタンをタップして<br>今日の進捗を記録しよう</div>
+        <div class="daily-event-row" id="dailyEventRow"></div>
+        <div class="tap-grid" id="tapGrid"></div>
+      </div>
+
+      <!-- カレンダー -->
+      <div class="page" id="pageCalendar">
+        <div class="calendar-header">
+          <button class="cal-nav-btn" id="calPrev">◀</button>
+          <span class="cal-month-label" id="calMonthLabel"></span>
+          <button class="cal-nav-btn" id="calNext">▶</button>
         </div>
-        <div class="sticker-buttons" id="stickerButtons"></div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+        <div class="calendar-detail" id="calendarDetail"></div>
       </div>
 
       <!-- 設定 -->
       <div class="page" id="pageSettings">
+        <div class="settings-card" id="settingsProjectManage">
+          <h3>プロジェクト管理</h3>
+          <div id="projectManageList"></div>
+          <button class="task-add-btn" id="addProjectBtn">＋ プロジェクトを追加</button>
+        </div>
         <div class="settings-card">
           <h3>プロジェクト情報</h3>
           <div class="setting-row">
@@ -679,10 +1122,18 @@ body {
             </div>
           </div>
         </div>
+        <div class="settings-card" id="settingsDailyCard">
+          <h3>デイリータスク</h3>
+          <div id="settingsDailyList"></div>
+        </div>
+        <div class="settings-card" id="settingsEventCard">
+          <h3>イベントタスク</h3>
+          <div id="settingsEventList"></div>
+        </div>
         <div class="settings-card">
-          <h3>このデモについて</h3>
+          <h3>このアプリについて</h3>
           <p style="font-size:12px;color:var(--text-light);line-height:1.6;">
-            シール式進捗管理のコンセプトデモ v2です。シールをタップして進捗を記録し、ガントチャートで進捗状況を確認できます。工程境界をドラッグして計画を調整できます。データはページ内のみに保持されます。
+            同人わんたっぷ v1.0 — シール式進捗管理アプリ。各エリアをタップしてシールを貼り、横スワイプで剥がせます。データはlocalStorageに保存されます。
           </p>
         </div>
       </div>
@@ -696,38 +1147,260 @@ body {
 <script>
 // ── Process definitions ──
 const PROCESSES = [
-  { id: 'name', label: 'ネーム', icon: '✏️', cls: 'name', btnCls: 'name-btn', stickerCls: 'name-s', chipCls: 'name', color: '#e8a0b4' },
-  { id: 'draft', label: '下書き', icon: '📝', cls: 'draft', btnCls: 'draft-btn', stickerCls: 'draft-s', chipCls: 'draft', color: '#e8b472' },
-  { id: 'ink', label: 'ペン入れ', icon: '🖊️', cls: 'ink', btnCls: 'ink-btn', stickerCls: 'ink-s', chipCls: 'ink', color: '#7baed4' },
-  { id: 'finish', label: '仕上げ', icon: '✨', cls: 'finish', btnCls: 'finish-btn', stickerCls: 'finish-s', chipCls: 'finish', color: '#82b89a' },
+  { id: 'name', label: 'ネーム', icon: '✏️', cls: 'name', stickerCls: 'name-s', cellCls: 'name-cell', color: '#e8a0b4' },
+  { id: 'draft', label: '下書き', icon: '📝', cls: 'draft', stickerCls: 'draft-s', cellCls: 'draft-cell', color: '#e8b472' },
+  { id: 'ink', label: 'ペン入れ', icon: '🖊️', cls: 'ink', stickerCls: 'ink-s', cellCls: 'ink-cell', color: '#7baed4' },
+  { id: 'finish', label: '仕上げ', icon: '✨', cls: 'finish', stickerCls: 'finish-s', cellCls: 'finish-cell', color: '#82b89a' },
 ];
 
-// ── Sample sticker log (historical data for demo) ──
-const stickerLog = [
-  // ネーム: 2/20〜2/25 で 7枚
-  { process: 'name', date: '2026-02-20', count: 2 },
-  { process: 'name', date: '2026-02-21', count: 2 },
-  { process: 'name', date: '2026-02-22', count: 1 },
-  { process: 'name', date: '2026-02-24', count: 1 },
-  { process: 'name', date: '2026-02-25', count: 1 },
-  // 下書き: 2/23〜2/26 で 3枚
-  { process: 'draft', date: '2026-02-23', count: 1 },
-  { process: 'draft', date: '2026-02-25', count: 1 },
-  { process: 'draft', date: '2026-02-26', count: 1 },
-];
+const PROJECT_COLORS = ['#e8a0b4', '#e8b472', '#7baed4', '#82b89a', '#c4a6d4', '#d4a6b8', '#d4b896'];
 
-// ── State ──
-const state = {
-  currentPage: 1,
-  totalPages: 16,
-  stickers: [], // today's stickers: { process, timestamp }
-  planRatios: [0.25, 0.25, 0.25, 0.25], // sum = 1.0
-};
-
-// ── Helpers ──
+// ── Daily / Event task definitions (mutable for editing) ──
 const today = new Date();
 const todayStr = today.toISOString().slice(0, 10);
 
+const TASK_COLORS = ['#c4a6d4', '#d4a6b8', '#d4b896', '#a6c4b8', '#a6b8d4'];
+let nextTaskId = 100;
+
+// ── Multi-project: localStorage persistence ──
+function createDefaultProject() {
+  return {
+    id: 'proj_' + Date.now(),
+    name: '夏コミ新刊',
+    totalPages: 16,
+    startDate: '2026-02-20',
+    deadline: '2026-04-15',
+    color: '#e8a0b4',
+    planRatios: [0.25, 0.25, 0.25, 0.25],
+    stickerLog: [
+      { process: 'name', date: '2026-02-20', count: 2 },
+      { process: 'name', date: '2026-02-21', count: 2 },
+      { process: 'name', date: '2026-02-22', count: 1 },
+      { process: 'name', date: '2026-02-24', count: 1 },
+      { process: 'name', date: '2026-02-25', count: 1 },
+      { process: 'draft', date: '2026-02-23', count: 1 },
+      { process: 'draft', date: '2026-02-25', count: 1 },
+      { process: 'draft', date: '2026-02-26', count: 1 },
+    ],
+    createdAt: new Date().toISOString(),
+  };
+}
+
+// ── Global daily/event tasks (project-independent) ──
+function loadGlobalTasks() {
+  try {
+    const dt = localStorage.getItem('wantap_dailyTasks');
+    const et = localStorage.getItem('wantap_eventTasks');
+    const dl = localStorage.getItem('wantap_dailyLog');
+    const el = localStorage.getItem('wantap_eventLog');
+    return {
+      dailyTasks: dt ? JSON.parse(dt) : null,
+      eventTasks: et ? JSON.parse(et) : null,
+      dailyLog: dl ? JSON.parse(dl) : null,
+      eventLog: el ? JSON.parse(el) : null,
+    };
+  } catch(e) { console.warn('Failed to load global tasks', e); }
+  return {};
+}
+
+function saveGlobalTasks() {
+  localStorage.setItem('wantap_dailyTasks', JSON.stringify(DAILY_TASKS));
+  localStorage.setItem('wantap_eventTasks', JSON.stringify(EVENT_TASKS));
+  // Save daily done for today
+  const dailyLog = JSON.parse(localStorage.getItem('wantap_dailyLog') || '{}');
+  dailyLog[todayStr] = { ...state.dailyDone };
+  localStorage.setItem('wantap_dailyLog', JSON.stringify(dailyLog));
+  // Save event done
+  const eventLog = JSON.parse(localStorage.getItem('wantap_eventLog') || '{}');
+  Object.keys(state.eventDone).forEach(k => {
+    eventLog[k] = state.eventDone[k];
+  });
+  localStorage.setItem('wantap_eventLog', JSON.stringify(eventLog));
+}
+
+function loadProjects() {
+  try {
+    const raw = localStorage.getItem('wantap_projects');
+    if (raw) return JSON.parse(raw);
+  } catch(e) { console.warn('Failed to load projects', e); }
+  return null;
+}
+
+function saveProjects() {
+  writeBackToProject();
+  localStorage.setItem('wantap_projects', JSON.stringify(projects));
+  localStorage.setItem('wantap_activeProjectId', activeProjectId);
+  saveGlobalTasks();
+}
+
+let saveTimer = null;
+function debouncedSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveProjects, 100);
+}
+
+// Initialize projects
+let projects = loadProjects();
+if (!projects || projects.length === 0) {
+  projects = [createDefaultProject()];
+}
+let activeProjectId = localStorage.getItem('wantap_activeProjectId') || projects[0].id;
+if (!projects.find(p => p.id === activeProjectId)) {
+  activeProjectId = projects[0].id;
+}
+
+// Working variables (populated from active project)
+let DAILY_TASKS = [];
+let EVENT_TASKS = [];
+let stickerLog = [];
+
+const state = {
+  currentPage: 1,
+  totalPages: 16,
+  stickers: [],
+  planRatios: [0.25, 0.25, 0.25, 0.25],
+  dailyDone: {},
+  eventDone: {},
+  calYear: today.getFullYear(),
+  calMonth: today.getMonth(),
+  calSelectedDate: todayStr,
+};
+
+function getActiveProject() {
+  return projects.find(p => p.id === activeProjectId) || projects[0];
+}
+
+function writeBackToProject() {
+  const proj = getActiveProject();
+  if (!proj) return;
+  proj.totalPages = state.totalPages;
+  proj.planRatios = [...state.planRatios];
+  proj.name = document.getElementById('projName').value || proj.name;
+  proj.startDate = document.getElementById('projStart').value || proj.startDate;
+  proj.deadline = document.getElementById('projDeadline').value || proj.deadline;
+  proj.stickerLog = stickerLog;
+
+  // Save today's sticker counts into stickerLog
+  syncTodayStickersToLog();
+}
+
+function syncTodayStickersToLog() {
+  // Remove any existing today entries from stickerLog
+  stickerLog = stickerLog.filter(e => e.date !== todayStr);
+  // Add from current stickers
+  const counts = {};
+  state.stickers.forEach(s => {
+    counts[s.process] = (counts[s.process] || 0) + 1;
+  });
+  Object.keys(counts).forEach(process => {
+    stickerLog.push({ process, date: todayStr, count: counts[process] });
+  });
+}
+
+function loadFromProject(proj) {
+  state.totalPages = proj.totalPages || 16;
+  state.planRatios = proj.planRatios ? [...proj.planRatios] : [0.25, 0.25, 0.25, 0.25];
+  stickerLog = proj.stickerLog ? [...proj.stickerLog] : [];
+
+  // Restore today's stickers from stickerLog (random positions)
+  state.stickers = [];
+  const todayEntries = stickerLog.filter(e => e.date === todayStr);
+  todayEntries.forEach(entry => {
+    for (let i = 0; i < entry.count; i++) {
+      state.stickers.push({
+        process: entry.process,
+        x: 10 + Math.random() * 75,
+        y: 10 + Math.random() * 75,
+        timestamp: 0,
+      });
+    }
+  });
+
+  // Update settings UI
+  document.getElementById('projName').value = proj.name;
+  document.getElementById('projPages').value = proj.totalPages;
+  document.getElementById('projStart').value = proj.startDate;
+  document.getElementById('projDeadline').value = proj.deadline;
+}
+
+function switchProject(projId) {
+  writeBackToProject();
+  saveProjects();
+  activeProjectId = projId;
+  const proj = getActiveProject();
+  loadFromProject(proj);
+  renderAll();
+  updateProjectSelectorBtn();
+}
+
+function renderAll() {
+  renderDailyEventRow();
+  renderSettingsCards();
+  renderProjectManageList();
+  createTapGrid();
+  renderStickers();
+  if (state.currentPage === 0) renderGantt();
+  if (state.currentPage === 2) renderCalendar();
+}
+
+function updateProjectSelectorBtn() {
+  renderProjectTabs();
+}
+
+// Load initial project
+loadFromProject(getActiveProject());
+
+// Load global daily/event tasks
+(function initGlobalTasks() {
+  const saved = loadGlobalTasks();
+  // Migrate from old project-embedded data if global storage is empty
+  const proj = getActiveProject();
+  if (saved.dailyTasks) {
+    DAILY_TASKS = saved.dailyTasks;
+  } else if (proj.dailyTasks && proj.dailyTasks.length > 0) {
+    DAILY_TASKS = [...proj.dailyTasks];
+  } else {
+    DAILY_TASKS = [
+      { id: 'stretch', label: 'ストレッチ', count: 1, color: '#c4a6d4' },
+      { id: 'practice', label: '練習', count: 2, color: '#d4a6b8' },
+    ];
+  }
+  if (saved.eventTasks) {
+    EVENT_TASKS = saved.eventTasks;
+  } else if (proj.eventTasks && proj.eventTasks.length > 0) {
+    EVENT_TASKS = [...proj.eventTasks];
+  } else {
+    EVENT_TASKS = [
+      { id: 'evt1', label: '申込締切', date: todayStr, color: '#d4b896' },
+    ];
+  }
+  // Restore daily done state for today
+  state.dailyDone = {};
+  DAILY_TASKS.forEach(t => { state.dailyDone[t.id] = 0; });
+  const dailyLogSrc = saved.dailyLog || (proj.dailyLog ? proj.dailyLog : null);
+  if (dailyLogSrc && dailyLogSrc[todayStr]) {
+    Object.keys(dailyLogSrc[todayStr]).forEach(k => {
+      if (state.dailyDone.hasOwnProperty(k)) state.dailyDone[k] = dailyLogSrc[todayStr][k];
+    });
+  }
+  // Restore event done state
+  state.eventDone = {};
+  EVENT_TASKS.forEach(t => { state.eventDone[t.id] = false; });
+  const eventLogSrc = saved.eventLog || (proj.eventLog ? proj.eventLog : null);
+  if (eventLogSrc) {
+    Object.keys(eventLogSrc).forEach(k => {
+      if (eventLogSrc[k]) state.eventDone[k] = true;
+    });
+  }
+  // Update nextTaskId
+  const allIds = [...DAILY_TASKS, ...EVENT_TASKS].map(t => {
+    const m = String(t.id).match(/\d+/);
+    return m ? parseInt(m[0]) : 0;
+  });
+  nextTaskId = Math.max(nextTaskId, ...allIds, 100) + 1;
+})();
+
+// ── Helpers ──
 function parseDate(str) {
   const [y, m, d] = str.split('-').map(Number);
   return new Date(y, m - 1, d);
@@ -737,9 +1410,13 @@ function daysBetween(d1, d2) {
   return Math.round((d2 - d1) / 86400000);
 }
 
+function formatDateStr(y, m, d) {
+  return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+}
+
 function getHistoryCount(processId) {
   return stickerLog
-    .filter(e => e.process === processId)
+    .filter(e => e.process === processId && e.date !== todayStr)
     .reduce((sum, e) => sum + e.count, 0);
 }
 
@@ -751,20 +1428,49 @@ function getTotal(processId) {
   return getHistoryCount(processId) + getTodayCount(processId);
 }
 
+// ── Paw SVG helper ──
+function pawSVG(color, withGloss) {
+  const gloss = withGloss
+    ? `<ellipse cx="50" cy="58" rx="14" ry="8" fill="white" opacity="0.25"/>
+       <ellipse cx="28" cy="30" rx="5" ry="4" fill="white" opacity="0.2"/>
+       <ellipse cx="42" cy="24" rx="5" ry="4" fill="white" opacity="0.2"/>`
+    : '';
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="pg_${color.replace('#','')}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${color}" stop-opacity="1"/>
+        <stop offset="100%" stop-color="${color}" stop-opacity="0.65"/>
+      </linearGradient>
+    </defs>
+    <ellipse cx="50" cy="68" rx="22" ry="20" fill="url(#pg_${color.replace('#','')})"/>
+    <ellipse cx="28" cy="38" rx="10" ry="11" fill="url(#pg_${color.replace('#','')})"/>
+    <ellipse cx="50" cy="30" rx="10" ry="11" fill="url(#pg_${color.replace('#','')})"/>
+    <ellipse cx="72" cy="38" rx="10" ry="11" fill="url(#pg_${color.replace('#','')})"/>
+    ${gloss}
+  </svg>`;
+}
+
+function pawOutlineSVG(color) {
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="50" cy="68" rx="22" ry="20" fill="none" stroke="${color}" stroke-width="2.5" opacity="0.5"/>
+    <ellipse cx="28" cy="38" rx="10" ry="11" fill="none" stroke="${color}" stroke-width="2.5" opacity="0.5"/>
+    <ellipse cx="50" cy="30" rx="10" ry="11" fill="none" stroke="${color}" stroke-width="2.5" opacity="0.5"/>
+    <ellipse cx="72" cy="38" rx="10" ry="11" fill="none" stroke="${color}" stroke-width="2.5" opacity="0.5"/>
+  </svg>`;
+}
+
 // ── Pace calculation ──
 function calcPace(processId) {
   const startStr = document.getElementById('projStart').value;
   const projStart = parseDate(startStr);
 
-  // Gather all entries for this process (log + today's stickers)
-  const logEntries = stickerLog.filter(e => e.process === processId);
+  const logEntries = stickerLog.filter(e => e.process === processId && e.date !== todayStr);
   const todayCount = getTodayCount(processId);
 
-  // Build a date→count map
   const dateMap = {};
   logEntries.forEach(e => { dateMap[e.date] = (dateMap[e.date] || 0) + e.count; });
   if (todayCount > 0) {
-    dateMap[todayStr] = (dateMap[todayStr] || 0) + todayCount;
+    dateMap[todayStr] = todayCount;
   }
 
   const dates = Object.keys(dateMap).sort();
@@ -778,24 +1484,15 @@ function calcPace(processId) {
 
   let periodStart;
   if (processId === 'name') {
-    // ネーム: from project start
     periodStart = projStart;
   } else {
-    // Other processes: from their first sticker date
     periodStart = firstDate;
   }
 
-  const days = Math.max(1, daysBetween(periodStart, lastDate) + 1); // inclusive
-  const pace = totalStickers / days; // pages per day
+  const days = Math.max(1, daysBetween(periodStart, lastDate) + 1);
+  const pace = totalStickers / days;
 
-  return {
-    pace,
-    totalStickers,
-    firstDate,
-    lastDate,
-    periodStart,
-    days,
-  };
+  return { pace, totalStickers, firstDate, lastDate, periodStart, days };
 }
 
 // ── Navigation ──
@@ -805,10 +1502,13 @@ const navLabels = document.querySelectorAll('.nav-label');
 
 function goToPage(idx) {
   state.currentPage = idx;
-  swipeTrack.style.transform = `translateX(-${idx * 33.3333}%)`;
+  swipeTrack.style.transform = `translateX(-${idx * 25}%)`;
   navDots.forEach((d, i) => d.classList.toggle('active', i === idx));
   navLabels.forEach((l, i) => l.classList.toggle('active', i === idx));
   if (idx === 0) renderGantt();
+  if (idx === 1) renderDailyEventRow();
+  if (idx === 2) renderCalendar();
+  if (idx === 3) { renderSettingsCards(); renderProjectManageList(); }
 }
 
 navDots.forEach(d => d.addEventListener('click', () => goToPage(+d.dataset.page)));
@@ -830,11 +1530,11 @@ swipeContainer.addEventListener('touchend', e => {
   const dx = e.changedTouches[0].clientX - touchStartX;
   const dy = e.changedTouches[0].clientY - touchStartY;
   if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
-  if (dx < 0 && state.currentPage < 2) goToPage(state.currentPage + 1);
+  if (dx < 0 && state.currentPage < 3) goToPage(state.currentPage + 1);
   if (dx > 0 && state.currentPage > 0) goToPage(state.currentPage - 1);
 }, { passive: true });
 
-// Swipe (mouse)
+// Swipe (mouse - page navigation)
 let mouseDown = false, mouseStartX = 0;
 swipeContainer.addEventListener('mousedown', e => { mouseDown = true; mouseStartX = e.clientX; });
 swipeContainer.addEventListener('mouseup', e => {
@@ -842,7 +1542,7 @@ swipeContainer.addEventListener('mouseup', e => {
   mouseDown = false;
   const dx = e.clientX - mouseStartX;
   if (Math.abs(dx) < 50) return;
-  if (dx < 0 && state.currentPage < 2) goToPage(state.currentPage + 1);
+  if (dx < 0 && state.currentPage < 3) goToPage(state.currentPage + 1);
   if (dx > 0 && state.currentPage > 0) goToPage(state.currentPage - 1);
 });
 
@@ -851,56 +1551,280 @@ const WEEKDAYS = ['日', '月', '火', '水', '木', '金', '土'];
 document.getElementById('todayDate').textContent = `${today.getMonth() + 1}月${today.getDate()}日`;
 document.getElementById('todayWeekday').textContent = `${WEEKDAYS[today.getDay()]}曜日`;
 
-// ── Summary ──
-function renderSummary() {
-  const row = document.getElementById('summaryRow');
-  row.innerHTML = PROCESSES.map(p =>
-    `<div class="summary-chip ${p.chipCls}">${p.label} ${getTotal(p.id)}/${state.totalPages}</div>`
-  ).join('');
+// ── Daily / Event row (変更2: スロット個別クリック) ──
+function renderDailyEventRow() {
+  const row = document.getElementById('dailyEventRow');
+  row.innerHTML = '';
+
+  // Daily tasks
+  DAILY_TASKS.forEach(task => {
+    const card = document.createElement('div');
+    card.className = 'de-card';
+
+    const label = document.createElement('span');
+    label.className = 'de-card-label';
+    label.style.color = task.color;
+    label.textContent = task.label;
+    card.appendChild(label);
+
+    const slots = document.createElement('div');
+    slots.className = 'de-card-slots';
+
+    for (let i = 0; i < task.count; i++) {
+      const slot = document.createElement('div');
+      slot.className = 'de-paw-slot';
+      slot.dataset.taskId = task.id;
+      slot.dataset.slotIndex = i;
+
+      if (i < state.dailyDone[task.id]) {
+        slot.classList.add('done');
+        slot.innerHTML = `<span class="paw-filled">${pawSVG(task.color, true)}</span>`;
+      } else {
+        slot.innerHTML = `<span class="paw-outline">${pawOutlineSVG(task.color)}</span>`;
+      }
+
+      // Individual slot click
+      slot.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isDone = i < state.dailyDone[task.id];
+        if (isDone) {
+          state.dailyDone[task.id] = i;
+          debouncedSave();
+          if (navigator.vibrate) navigator.vibrate(10);
+          renderDailyEventRow();
+        } else {
+          state.dailyDone[task.id] = i + 1;
+          debouncedSave();
+          if (navigator.vibrate) navigator.vibrate(15);
+          renderDailyEventRow();
+          // Bounce the newly filled slot
+          const newSlots = row.querySelectorAll(`.de-paw-slot[data-task-id="${task.id}"]`);
+          const filledSlot = newSlots[i];
+          if (filledSlot) filledSlot.classList.add('bounce');
+        }
+      });
+
+      slots.appendChild(slot);
+    }
+
+    card.appendChild(slots);
+    row.appendChild(card);
+  });
+
+  // Event tasks (today only)
+  EVENT_TASKS.filter(t => t.date === todayStr).forEach(task => {
+    const card = document.createElement('div');
+    card.className = 'de-card';
+
+    const label = document.createElement('span');
+    label.className = 'de-card-label';
+    label.style.color = task.color;
+    label.textContent = task.label;
+    card.appendChild(label);
+
+    const slots = document.createElement('div');
+    slots.className = 'de-card-slots';
+
+    const slot = document.createElement('div');
+    slot.className = 'de-paw-slot';
+    if (state.eventDone[task.id]) {
+      slot.classList.add('done');
+      slot.innerHTML = `<span class="paw-filled">${pawSVG(task.color, true)}</span>`;
+    } else {
+      slot.innerHTML = `<span class="paw-outline">${pawOutlineSVG(task.color)}</span>`;
+    }
+
+    // Individual slot click for toggle
+    slot.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (state.eventDone[task.id]) {
+        state.eventDone[task.id] = false;
+        debouncedSave();
+        if (navigator.vibrate) navigator.vibrate(10);
+        renderDailyEventRow();
+      } else {
+        state.eventDone[task.id] = true;
+        debouncedSave();
+        if (navigator.vibrate) navigator.vibrate(15);
+        renderDailyEventRow();
+        const newSlot = row.querySelector(`.de-paw-slot.done`);
+        if (newSlot) newSlot.classList.add('bounce');
+      }
+    });
+
+    slots.appendChild(slot);
+    card.appendChild(slots);
+    row.appendChild(card);
+  });
 }
 
-// ── Sticker buttons ──
-function createStickerButtons() {
-  const container = document.getElementById('stickerButtons');
+// ── Grid layout calculation ──
+function getPlannedProcessIndex() {
+  const startStr = document.getElementById('projStart').value;
+  const deadlineStr = document.getElementById('projDeadline').value;
+  const projStart = parseDate(startStr);
+  const deadline = parseDate(deadlineStr);
+  const totalDays = daysBetween(projStart, deadline);
+  if (totalDays <= 0) return 0;
+  const todayOffset = daysBetween(projStart, today);
+  const todayFrac = todayOffset / totalDays;
+
+  let cumulative = 0;
+  for (let i = 0; i < PROCESSES.length; i++) {
+    cumulative += state.planRatios[i];
+    if (todayFrac < cumulative) return i;
+  }
+  return PROCESSES.length - 1;
+}
+
+function calcGridLayout() {
+  let mainIdx = getPlannedProcessIndex();
+
+  if (getTotal(PROCESSES[mainIdx].id) >= state.totalPages) {
+    let found = false;
+    for (let i = mainIdx + 1; i < PROCESSES.length; i++) {
+      if (getTotal(PROCESSES[i].id) < state.totalPages) {
+        mainIdx = i;
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      for (let i = 0; i < mainIdx; i++) {
+        if (getTotal(PROCESSES[i].id) < state.totalPages) {
+          mainIdx = i;
+          break;
+        }
+      }
+    }
+  }
+
+  let nextIdx = -1;
+  for (let i = mainIdx + 1; i < PROCESSES.length; i++) {
+    if (getTotal(PROCESSES[i].id) < state.totalPages) {
+      nextIdx = i;
+      break;
+    }
+  }
+
+  const restIndices = [];
+  for (let i = 0; i < PROCESSES.length; i++) {
+    if (i !== mainIdx && i !== nextIdx) {
+      restIndices.push(i);
+    }
+  }
+
+  const mainDone = getTotal(PROCESSES[mainIdx].id);
+  const mainProgress = mainDone / state.totalPages;
+  const transition = Math.max(0, Math.min(1, (mainProgress - 0.6) / 0.4));
+
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const topRatio = lerp(55, 30, transition);
+  const bottomRatio = 100 - topRatio;
+  const leftPct = lerp(50, 65, transition);
+
+  return { mainIdx, nextIdx, restIndices, topRatio, bottomRatio, leftPct };
+}
+
+function updateGridLayout() {
+  const grid = document.getElementById('tapGrid');
+  const layout = calcGridLayout();
+
+  grid.style.setProperty('--top-ratio', `${layout.topRatio}fr`);
+  grid.style.setProperty('--bottom-ratio', `${layout.bottomRatio}fr`);
+  grid.style.setProperty('--left-ratio', `${layout.leftPct}fr`);
+  grid.style.setProperty('--right-ratio', `${100 - layout.leftPct}fr`);
+}
+
+// ── Variable Tap Grid ──
+function createTapGrid() {
+  const grid = document.getElementById('tapGrid');
+  grid.innerHTML = '';
+
+  const layout = calcGridLayout();
+
+  grid.style.setProperty('--top-ratio', `${layout.topRatio}fr`);
+  grid.style.setProperty('--bottom-ratio', `${layout.bottomRatio}fr`);
+  grid.style.setProperty('--left-ratio', `${layout.leftPct}fr`);
+  grid.style.setProperty('--right-ratio', `${100 - layout.leftPct}fr`);
+
+  function createCell(p) {
+    const cell = document.createElement('div');
+    cell.className = `tap-cell ${p.cellCls}`;
+    cell.dataset.process = p.id;
+
+    const header = document.createElement('div');
+    header.className = 'tap-cell-header';
+    header.innerHTML = `<span class="icon">${p.icon}</span><span>${p.label}</span><span class="progress">${getTotal(p.id)}/${state.totalPages}</span>`;
+    cell.appendChild(header);
+
+    const stickersArea = document.createElement('div');
+    stickersArea.className = 'tap-cell-stickers';
+    stickersArea.dataset.process = p.id;
+    cell.appendChild(stickersArea);
+
+    cell.addEventListener('click', (e) => {
+      if (e.target.closest('.sticker')) return;
+      const rect = stickersArea.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      addSticker(p.id, x, y);
+    });
+
+    return cell;
+  }
+
+  const mainCell = createCell(PROCESSES[layout.mainIdx]);
+  mainCell.classList.add('tap-cell-main');
+  grid.appendChild(mainCell);
+
+  if (layout.nextIdx >= 0) {
+    const nextCell = createCell(PROCESSES[layout.nextIdx]);
+    nextCell.classList.add('tap-cell-next');
+    grid.appendChild(nextCell);
+  }
+
+  if (layout.restIndices.length > 0) {
+    const restWrap = document.createElement('div');
+    restWrap.className = 'tap-cell-rest-wrap';
+    layout.restIndices.forEach(idx => {
+      restWrap.appendChild(createCell(PROCESSES[idx]));
+    });
+    grid.appendChild(restWrap);
+  }
+}
+
+function updateCellHeaders() {
   PROCESSES.forEach(p => {
-    const btn = document.createElement('button');
-    btn.className = `sticker-btn ${p.btnCls}`;
-    btn.innerHTML = `<span class="icon">${p.icon}</span><span>${p.label}</span>`;
-    btn.addEventListener('click', () => addSticker(p.id));
-    container.appendChild(btn);
+    const cell = document.querySelector(`.tap-cell[data-process="${p.id}"]`);
+    if (!cell) return;
+    const progress = cell.querySelector('.tap-cell-header .progress');
+    if (progress) {
+      progress.textContent = `${getTotal(p.id)}/${state.totalPages}`;
+    }
   });
 }
 
 // ── Particles ──
-function emitParticles(targetEl, color) {
-  const rect = targetEl.getBoundingClientRect();
-  const stickerArea = document.getElementById('stickerArea');
-  const areaRect = stickerArea.getBoundingClientRect();
-
-  const cx = rect.left + rect.width / 2 - areaRect.left;
-  const cy = rect.top + rect.height / 2 - areaRect.top;
-
-  const count = 4 + Math.floor(Math.random() * 2); // 4-5 particles
+function emitParticles(containerEl, x, y, color) {
+  const count = 4 + Math.floor(Math.random() * 2);
   for (let i = 0; i < count; i++) {
     const particle = document.createElement('div');
     particle.className = 'particle';
     particle.style.background = color;
-    particle.style.left = cx + 'px';
-    particle.style.top = cy + 'px';
+    particle.style.left = x + 'px';
+    particle.style.top = y + 'px';
+    particle.style.position = 'absolute';
 
     const angle = (Math.PI * 2 / count) * i + (Math.random() - 0.5) * 0.5;
-    const dist = 20 + Math.random() * 20;
+    const dist = 15 + Math.random() * 15;
     const tx = Math.cos(angle) * dist;
     const ty = Math.sin(angle) * dist;
-    particle.style.setProperty('--tx', tx + 'px');
-    particle.style.setProperty('--ty', ty + 'px');
-    particle.style.animation = 'none';
     particle.style.width = (4 + Math.random() * 3) + 'px';
     particle.style.height = particle.style.width;
 
-    stickerArea.appendChild(particle);
+    containerEl.appendChild(particle);
 
-    // Animate manually for directional movement
     requestAnimationFrame(() => {
       particle.style.transition = 'transform 0.45s ease-out, opacity 0.45s ease-out';
       particle.style.transform = `translate(${tx}px, ${ty}px) scale(0.3)`;
@@ -912,58 +1836,175 @@ function emitParticles(targetEl, color) {
 }
 
 // ── Stickers ──
-function addSticker(processId) {
+function addSticker(processId, xPct, yPct) {
   const total = getTotal(processId);
   if (total >= state.totalPages) {
     showToast(`${PROCESSES.find(p => p.id === processId).label}は全ページ完了済みです`);
     return;
   }
-  state.stickers.push({ process: processId, timestamp: Date.now() });
 
-  // Haptic feedback
+  const offsetX = (Math.random() - 0.5) * 10;
+  const offsetY = (Math.random() - 0.5) * 10;
+  const finalX = Math.max(5, Math.min(85, xPct + offsetX));
+  const finalY = Math.max(5, Math.min(85, yPct + offsetY));
+
+  const prevLayout = calcGridLayout();
+
+  state.stickers.push({ process: processId, x: finalX, y: finalY, timestamp: Date.now() });
+  debouncedSave();
+
   if (navigator.vibrate) navigator.vibrate(15);
 
-  renderStickers();
-  renderSummary();
-
-  // Emit particles after sticker is rendered
-  requestAnimationFrame(() => {
-    const stickers = document.querySelectorAll('#stickerArea .sticker');
-    const lastSticker = stickers[stickers.length - 1];
-    if (lastSticker) {
-      const proc = PROCESSES.find(p => p.id === processId);
-      emitParticles(lastSticker, proc.color);
-    }
-  });
+  const newLayout = calcGridLayout();
+  if (newLayout.mainIdx !== prevLayout.mainIdx) {
+    createTapGrid();
+    renderStickers();
+  } else {
+    updateGridLayout();
+    renderStickers();
+    updateCellHeaders();
+  }
 }
 
-function removeSticker(index) {
-  const el = document.querySelectorAll('#stickerArea .sticker')[index];
+function removeSticker(processId, stickerIndex, slideOut) {
+  const container = document.querySelector(`.tap-cell-stickers[data-process="${processId}"]`);
+  if (!container) return;
+  const stickers = container.querySelectorAll('.sticker');
+  const el = stickers[stickerIndex];
   if (el) {
-    el.classList.add('removing');
+    el.classList.add(slideOut ? 'removing' : 'removing-shrink');
     setTimeout(() => {
-      state.stickers.splice(index, 1);
-      renderStickers();
-      renderSummary();
+      const processStickers = state.stickers
+        .map((s, i) => ({ ...s, idx: i }))
+        .filter(s => s.process === processId);
+      const prevLayout = calcGridLayout();
+      if (processStickers[stickerIndex]) {
+        state.stickers.splice(processStickers[stickerIndex].idx, 1);
+      }
+      debouncedSave();
+      const newLayout = calcGridLayout();
+      if (newLayout.mainIdx !== prevLayout.mainIdx) {
+        createTapGrid();
+        renderStickers();
+      } else {
+        updateGridLayout();
+        renderStickers();
+        updateCellHeaders();
+      }
     }, 280);
   }
 }
 
 function renderStickers() {
-  const area = document.getElementById('stickerArea');
-  const hint = document.getElementById('emptyHint');
-  hint.style.display = state.stickers.length === 0 ? '' : 'none';
+  PROCESSES.forEach(p => {
+    const container = document.querySelector(`.tap-cell-stickers[data-process="${p.id}"]`);
+    if (!container) return;
+    container.querySelectorAll('.sticker, .particle').forEach(el => el.remove());
 
-  area.querySelectorAll('.sticker').forEach(el => el.remove());
+    const processStickers = state.stickers.filter(s => s.process === p.id);
+    processStickers.forEach((s, i) => {
+      const el = document.createElement('div');
+      el.className = `sticker`;
+      el.innerHTML = pawSVG(p.color, true);
+      el.style.left = `calc(${s.x}% - 20px)`;
+      el.style.top = `calc(${s.y}% - 20px)`;
 
-  state.stickers.forEach((s, i) => {
-    const p = PROCESSES.find(pr => pr.id === s.process);
-    const el = document.createElement('div');
-    el.className = `sticker ${p.stickerCls}`;
-    el.textContent = p.icon;
-    el.title = `${p.label}（タップで取消）`;
-    el.addEventListener('click', () => removeSticker(i));
-    area.appendChild(el);
+      setupStickerSwipe(el, p.id, i);
+
+      container.appendChild(el);
+    });
+
+    if (processStickers.length > 0) {
+      const newest = processStickers[processStickers.length - 1];
+      const rect = container.getBoundingClientRect();
+      if (newest.timestamp > Date.now() - 100) {
+        const px = (newest.x / 100) * rect.width;
+        const py = (newest.y / 100) * rect.height;
+        emitParticles(container, px, py, p.color);
+      }
+    }
+  });
+}
+
+// ── Swipe-to-delete on stickers ──
+function setupStickerSwipe(el, processId, stickerIndex) {
+  let startX = 0, startY = 0, isDragging = false, startTime = 0;
+  let longPressTimer = null;
+
+  function onStart(clientX, clientY, e) {
+    startX = clientX;
+    startY = clientY;
+    isDragging = true;
+    startTime = Date.now();
+    longPressTimer = setTimeout(() => {
+      if (isDragging) {
+        isDragging = false;
+        removeSticker(processId, stickerIndex, false);
+      }
+    }, 500);
+  }
+
+  function onMove(clientX, clientY) {
+    if (!isDragging) return;
+    const dx = clientX - startX;
+    const dy = clientY - startY;
+    if (Math.abs(dx) > 10) {
+      el.style.transform = `translateX(${dx}px)`;
+      el.style.opacity = Math.max(0.3, 1 - Math.abs(dx) / 100);
+      clearTimeout(longPressTimer);
+    }
+  }
+
+  function onEnd(clientX) {
+    clearTimeout(longPressTimer);
+    if (!isDragging) return;
+    isDragging = false;
+    const dx = clientX - startX;
+
+    if (Math.abs(dx) >= 50) {
+      removeSticker(processId, stickerIndex, true);
+    } else {
+      el.style.transform = '';
+      el.style.opacity = '';
+    }
+  }
+
+  el.addEventListener('touchstart', (e) => {
+    e.stopPropagation();
+    const t = e.touches[0];
+    onStart(t.clientX, t.clientY, e);
+  }, { passive: true });
+
+  el.addEventListener('touchmove', (e) => {
+    e.stopPropagation();
+    const t = e.touches[0];
+    onMove(t.clientX, t.clientY);
+  }, { passive: true });
+
+  el.addEventListener('touchend', (e) => {
+    e.stopPropagation();
+    const t = e.changedTouches[0];
+    onEnd(t.clientX);
+    e.preventDefault();
+  });
+
+  el.addEventListener('mousedown', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    onStart(e.clientX, e.clientY, e);
+
+    const onMouseMove = (me) => onMove(me.clientX, me.clientY);
+    const onMouseUp = (me) => {
+      onEnd(me.clientX);
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
+
+  el.addEventListener('click', (e) => {
+    e.stopPropagation();
   });
 }
 
@@ -992,9 +2033,8 @@ function renderGantt() {
   const chart = document.getElementById('ganttChart');
   chart.innerHTML = '';
 
-  // Get the available width for bars
-  const chartWidth = chart.clientWidth - 24; // minus padding
-  const barAreaWidth = chartWidth - 50; // minus label space
+  const chartWidth = chart.clientWidth - 24;
+  const barAreaWidth = chartWidth - 50;
 
   // ── Date axis ──
   const dateAxis = document.createElement('div');
@@ -1018,7 +2058,7 @@ function renderGantt() {
   timeline.className = 'gantt-timeline';
   timeline.style.width = barAreaWidth + 'px';
 
-  // ── Connected plan bar (draggable boundaries) ──
+  // ── Connected plan bar ──
   const connectedBar = document.createElement('div');
   connectedBar.className = 'gantt-connected-bar';
   connectedBar.style.width = '100%';
@@ -1038,7 +2078,6 @@ function renderGantt() {
     connectedBar.appendChild(seg);
   });
 
-  // Drag handles (3 handles between 4 processes)
   for (let i = 0; i < 3; i++) {
     const handle = document.createElement('div');
     handle.className = 'gantt-drag-handle';
@@ -1048,15 +2087,11 @@ function renderGantt() {
   }
 
   timeline.appendChild(connectedBar);
-
-  // Position drag handles after layout
   requestAnimationFrame(() => positionDragHandles(connectedBar));
 
-  // ── Compute chained forecast data ──
-  // Each process's forecast starts where the previous one ends.
-  // Processes with no pace data split the remaining time equally.
-  const forecastData = []; // { startFrac, widthFrac, hasPace }
-  let chainEndDayOffset = 0; // days from project start where last forecast ended
+  // ── Forecast data ──
+  const forecastData = [];
+  let chainEndDayOffset = 0;
 
   PROCESSES.forEach((p, idx) => {
     const pace = calcPace(p.id);
@@ -1067,30 +2102,23 @@ function renderGantt() {
       forecastData.push({ startFrac, widthFrac, hasPace: true });
       chainEndDayOffset += forecastDays;
     } else {
-      // Placeholder — will be filled after we know the chain
       forecastData.push({ startFrac: 0, widthFrac: 0, hasPace: false });
     }
   });
 
-  // Fill in processes with no pace data:
-  // They share the remaining time equally, starting from chainEndDayOffset.
   const noPaceIndices = forecastData
     .map((d, i) => d.hasPace ? -1 : i)
     .filter(i => i >= 0);
 
   if (noPaceIndices.length > 0) {
-    // Find the last process that has pace data, to know where the chain ended
     let lastPaceEnd = 0;
     for (let i = 0; i < forecastData.length; i++) {
       if (forecastData[i].hasPace) {
         lastPaceEnd = forecastData[i].startFrac + forecastData[i].widthFrac;
       }
     }
-
-    // Remaining fraction of timeline for no-pace processes
     const remainingFrac = Math.max(0, 1 - lastPaceEnd);
     const eachFrac = noPaceIndices.length > 0 ? remainingFrac / noPaceIndices.length : 0;
-
     let cursor = lastPaceEnd;
     noPaceIndices.forEach(i => {
       forecastData[i].startFrac = cursor;
@@ -1099,7 +2127,7 @@ function renderGantt() {
     });
   }
 
-  // ── Process rows (actual + forecast) ──
+  // ── Process rows ──
   PROCESSES.forEach((p, idx) => {
     const row = document.createElement('div');
     row.className = 'gantt-row';
@@ -1112,7 +2140,6 @@ function renderGantt() {
     const track = document.createElement('div');
     track.className = 'gantt-bar-track';
 
-    // Plan bar (background showing planned period)
     const planStartFrac = state.planRatios.slice(0, idx).reduce((a, b) => a + b, 0);
     const planWidthFrac = state.planRatios[idx];
 
@@ -1123,7 +2150,6 @@ function renderGantt() {
     planBar.style.background = p.color;
     track.appendChild(planBar);
 
-    // Actual progress bar
     const done = getTotal(p.id);
     const actualFrac = planWidthFrac * (done / pages);
 
@@ -1141,10 +2167,8 @@ function renderGantt() {
     }
     track.appendChild(actualBar);
 
-    // Forecast overlay (chained)
     const fc = forecastData[idx];
     if (fc.widthFrac > 0) {
-      // Compare forecast end with plan end
       const planEndFrac = planStartFrac + planWidthFrac;
       const forecastEndFrac = fc.startFrac + fc.widthFrac;
       const isLate = forecastEndFrac > planEndFrac + 0.01;
@@ -1153,7 +2177,6 @@ function renderGantt() {
       forecastBar.className = `gantt-forecast-bar ${isLate ? 'late' : 'on-track'}`;
       forecastBar.style.left = (fc.startFrac * 100) + '%';
       forecastBar.style.width = (fc.widthFrac * 100) + '%';
-
       track.appendChild(forecastBar);
     }
 
@@ -1163,7 +2186,7 @@ function renderGantt() {
 
   // ── Today line ──
   const todayPct = Math.min(100, Math.max(0, (todayOffset / totalDays) * 100));
-  const totalTimelineHeight = 36 + 12 + (36 + 6) * 4; // connected bar + gap + 4 rows
+  const totalTimelineHeight = 36 + 12 + (36 + 6) * 4;
   const todayLine = document.createElement('div');
   todayLine.className = 'gantt-vline today-line';
   todayLine.style.left = todayPct + '%';
@@ -1184,47 +2207,96 @@ function renderGantt() {
   // ── Info panel ──
   const info = document.getElementById('ganttInfo');
   const daysLeft = daysBetween(today, deadline);
-  const totalDone = PROCESSES.reduce((sum, p) => sum + getTotal(p.id), 0);
-  const totalTasks = pages * 4;
 
-  let infoHtml = `
-    締切まで <strong>${daysLeft}日</strong> ｜
-    全体進捗 <strong>${totalDone}/${totalTasks}</strong>（${Math.round(totalDone / totalTasks * 100)}%）<br>
-    今日のシール: <strong>${state.stickers.length}枚</strong>
-  `;
-
-  // Per-process pace info + chained forecast summary
-  const paceInfos = [];
-  PROCESSES.forEach((p, idx) => {
-    const pace = calcPace(p.id);
-    const fc = forecastData[idx];
-    if (pace) {
-      const remaining = pages - getTotal(p.id);
-      const forecastDays = Math.ceil(pages / pace.pace);
-      paceInfos.push(`${p.label}: ${pace.pace.toFixed(1)}枚/日（想定${forecastDays}日）`);
-    } else {
-      paceInfos.push(`${p.label}: データなし（想定で等分）`);
-    }
-  });
-
-  // Total forecast end (chained)
   const lastFc = forecastData[forecastData.length - 1];
   const totalForecastEndFrac = lastFc.startFrac + lastFc.widthFrac;
   const totalForecastDays = Math.ceil(totalForecastEndFrac * totalDays);
-  const forecastEndDate = new Date(projStart.getTime() + totalForecastDays * 86400000);
   const overUnder = totalForecastDays - totalDays;
 
-  if (paceInfos.length > 0) {
-    infoHtml += `<br><br><strong>ペース分析:</strong><br>` + paceInfos.join('<br>');
-    infoHtml += `<br><br>`;
-    if (overUnder > 0) {
-      infoHtml += `⚠ 全工程想定: <strong>${totalForecastDays}日</strong>（締切を${overUnder}日超過）`;
-    } else {
-      infoHtml += `✓ 全工程想定: <strong>${totalForecastDays}日</strong>（${Math.abs(overUnder)}日の余裕）`;
-    }
+  let infoHtml;
+  if (overUnder > 0) {
+    infoHtml = `締切まで <strong>${daysLeft}日</strong> ｜ 想定 <strong>${totalForecastDays}日</strong>（⚠ ${overUnder}日超過）`;
+  } else {
+    infoHtml = `締切まで <strong>${daysLeft}日</strong> ｜ 想定 <strong>${totalForecastDays}日</strong>（${Math.abs(overUnder)}日の余裕）`;
   }
 
   info.innerHTML = infoHtml;
+
+  // ── Pace Analysis (変更4) ──
+  renderPaceAnalysis();
+}
+
+// ── Pace Analysis ──
+function renderPaceAnalysis() {
+  const container = document.getElementById('paceAnalysis');
+  const pages = state.totalPages;
+  const startStr = document.getElementById('projStart').value;
+  const deadlineStr = document.getElementById('projDeadline').value;
+  const projStart = parseDate(startStr);
+  const deadline = parseDate(deadlineStr);
+  const totalDays = Math.max(1, daysBetween(projStart, deadline));
+  const daysLeft = daysBetween(today, deadline);
+
+  let html = '<div class="pace-analysis"><div class="pace-analysis-title">工程別ペース分析</div>';
+  let totalDeviation = 0; // 計画に対する合計差分（正=超過、負=余裕）
+  let hasAnyPace = false;
+
+  PROCESSES.forEach((p, idx) => {
+    const pace = calcPace(p.id);
+    const done = getTotal(p.id);
+    const remaining = Math.max(0, pages - done);
+    const planDays = Math.round(state.planRatios[idx] * totalDays);
+
+    if (pace) {
+      hasAnyPace = true;
+      const forecastTotal = Math.ceil(pages / pace.pace);
+      const forecastRemaining = remaining > 0 ? Math.ceil(remaining / pace.pace) : 0;
+      const deviation = forecastTotal - planDays; // 計画比の差分
+
+      totalDeviation += deviation;
+
+      html += `<div class="pace-process">`;
+      html += `<span class="pace-process-name" style="color:${p.color}">${p.label}</span>: ${done}/${pages}ページ`;
+      html += ` (${pace.days}日間で${pace.totalStickers}ページ = ${pace.pace.toFixed(1)}ページ/日)`;
+      html += `<div class="pace-process-detail">`;
+      html += `計画${planDays}日 → 想定${forecastTotal}日`;
+      if (deviation > 0) {
+        html += ` (⚠ +${deviation}日)`;
+      } else if (deviation < 0) {
+        html += ` (${deviation}日)`;
+      } else {
+        html += ` (±0)`;
+      }
+      if (remaining > 0) {
+        html += ` ｜ 残り${remaining}ページ → 約${forecastRemaining}日`;
+      } else {
+        html += ` ｜ 完了済み`;
+      }
+      html += `</div></div>`;
+    } else {
+      // ペースデータなし → 計画通りと仮定（差分0）
+      html += `<div class="pace-process">`;
+      html += `<span class="pace-process-name" style="color:${p.color}">${p.label}</span>: ${done}/${pages}ページ`;
+      html += `<div class="pace-process-detail">計画${planDays}日 (データ不足 → 計画通りと仮定)</div>`;
+      html += `</div>`;
+    }
+  });
+
+  if (!hasAnyPace) {
+    html += `<div class="cal-detail-empty">まだ十分なデータがありません</div>`;
+  } else {
+    const devDays = Math.round(totalDeviation);
+    if (devDays > 0) {
+      html += `<div class="pace-summary over">計画に対して ⚠ ${devDays}日超過 ｜ 締切まで${daysLeft}日</div>`;
+    } else if (devDays < 0) {
+      html += `<div class="pace-summary ok">計画に対して ${Math.abs(devDays)}日の余裕 ｜ 締切まで${daysLeft}日</div>`;
+    } else {
+      html += `<div class="pace-summary ok">計画通りのペース ｜ 締切まで${daysLeft}日</div>`;
+    }
+  }
+
+  html += '</div>';
+  container.innerHTML = html;
 }
 
 // ── Drag handle logic ──
@@ -1261,12 +2333,11 @@ function setupDragHandle(handle, index, connectedBar) {
     const deltaRatio = dx / barWidth;
 
     const newRatios = [...startRatios];
-    const minRatio = 0.08; // minimum 8% per process
+    const minRatio = 0.08;
 
     newRatios[index] = startRatios[index] + deltaRatio;
     newRatios[index + 1] = startRatios[index + 1] - deltaRatio;
 
-    // Clamp
     if (newRatios[index] < minRatio) {
       newRatios[index + 1] -= (minRatio - newRatios[index]);
       newRatios[index] = minRatio;
@@ -1276,18 +2347,15 @@ function setupDragHandle(handle, index, connectedBar) {
       newRatios[index + 1] = minRatio;
     }
 
-    // Validate all ratios are positive
     if (newRatios.some(r => r < minRatio)) return;
 
     state.planRatios = newRatios;
 
-    // Update segments
     const segments = connectedBar.querySelectorAll('.gantt-connected-segment');
     segments.forEach((seg, i) => {
       seg.style.flex = state.planRatios[i];
     });
 
-    // Reposition handles
     positionDragHandles(connectedBar);
   }
 
@@ -1297,11 +2365,12 @@ function setupDragHandle(handle, index, connectedBar) {
     handle.classList.remove('dragging');
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
-    // Re-render to update forecast bars with new plan ratios
+    debouncedSave();
     renderGantt();
+    createTapGrid();
+    renderStickers();
   }
 
-  // Mouse events
   handle.addEventListener('mousedown', e => {
     e.preventDefault();
     e.stopPropagation();
@@ -1310,7 +2379,6 @@ function setupDragHandle(handle, index, connectedBar) {
   document.addEventListener('mousemove', e => onMove(e.clientX));
   document.addEventListener('mouseup', () => onEnd());
 
-  // Touch events
   handle.addEventListener('touchstart', e => {
     e.preventDefault();
     e.stopPropagation();
@@ -1322,18 +2390,561 @@ function setupDragHandle(handle, index, connectedBar) {
   document.addEventListener('touchend', () => onEnd());
 }
 
+// ── Calendar (変更1) ──
+function renderCalendar() {
+  const year = state.calYear;
+  const month = state.calMonth;
+
+  // Update label
+  document.getElementById('calMonthLabel').textContent = `${month + 1}月 ${year}`;
+
+  const grid = document.getElementById('calendarGrid');
+  grid.innerHTML = '';
+
+  // Weekday headers
+  const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+  weekdays.forEach(w => {
+    const hdr = document.createElement('div');
+    hdr.className = 'cal-weekday-header';
+    hdr.textContent = w;
+    grid.appendChild(hdr);
+  });
+
+  // First day of month
+  const firstDay = new Date(year, month, 1);
+  const startWeekday = firstDay.getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  // Previous month fill
+  const prevMonthDays = new Date(year, month, 0).getDate();
+  for (let i = startWeekday - 1; i >= 0; i--) {
+    const day = prevMonthDays - i;
+    const prevMonth = month === 0 ? 11 : month - 1;
+    const prevYear = month === 0 ? year - 1 : year;
+    const dateStr = formatDateStr(prevYear, prevMonth, day);
+    grid.appendChild(createCalDay(day, dateStr, true));
+  }
+
+  // Current month
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = formatDateStr(year, month, d);
+    grid.appendChild(createCalDay(d, dateStr, false));
+  }
+
+  // Next month fill
+  const totalCells = startWeekday + daysInMonth;
+  const remaining = (7 - (totalCells % 7)) % 7;
+  for (let d = 1; d <= remaining; d++) {
+    const nextMonth = month === 11 ? 0 : month + 1;
+    const nextYear = month === 11 ? year + 1 : year;
+    const dateStr = formatDateStr(nextYear, nextMonth, d);
+    grid.appendChild(createCalDay(d, dateStr, true));
+  }
+
+  // Render detail for selected date
+  renderCalendarDetail(state.calSelectedDate);
+}
+
+function createCalDay(dayNum, dateStr, isOtherMonth) {
+  const cell = document.createElement('div');
+  cell.className = 'cal-day';
+  if (isOtherMonth) cell.classList.add('other-month');
+  if (dateStr === todayStr) cell.classList.add('today');
+  if (dateStr === state.calSelectedDate) cell.classList.add('selected');
+
+  const num = document.createElement('div');
+  num.className = 'cal-day-num';
+  num.textContent = dayNum;
+  cell.appendChild(num);
+
+  // Dots for activity
+  const dots = document.createElement('div');
+  dots.className = 'cal-day-dots';
+
+  const dayData = getDayData(dateStr);
+
+  // Sequential task dot (any process sticker on this day)
+  if (dayData.hasSequential) {
+    const dot = document.createElement('div');
+    dot.className = 'cal-dot';
+    dot.style.background = '#e8a0b4';
+    dots.appendChild(dot);
+  }
+
+  // Daily task dot
+  if (dayData.hasDaily) {
+    const dot = document.createElement('div');
+    dot.className = 'cal-dot';
+    dot.style.background = '#c4a6d4';
+    dots.appendChild(dot);
+  }
+
+  // Event task dot
+  if (dayData.hasEvent) {
+    const dot = document.createElement('div');
+    dot.className = 'cal-dot';
+    dot.style.background = '#d4b896';
+    dots.appendChild(dot);
+  }
+
+  cell.appendChild(dots);
+
+  // Project period bars
+  const bars = getProjectBarsForDate(dateStr);
+  if (bars.length > 0) {
+    const barsDiv = document.createElement('div');
+    barsDiv.className = 'cal-project-bars';
+    bars.forEach(b => {
+      const bar = document.createElement('div');
+      bar.className = 'cal-project-bar';
+      bar.style.background = b.color;
+      barsDiv.appendChild(bar);
+    });
+    cell.appendChild(barsDiv);
+  }
+
+  cell.addEventListener('click', () => {
+    state.calSelectedDate = dateStr;
+    document.querySelectorAll('.cal-day.selected').forEach(el => el.classList.remove('selected'));
+    cell.classList.add('selected');
+    renderCalendarDetail(dateStr);
+  });
+
+  return cell;
+}
+
+function getProjectBarsForDate(dateStr) {
+  const bars = [];
+  projects.forEach(p => {
+    if (p.startDate && p.deadline && dateStr >= p.startDate && dateStr <= p.deadline) {
+      bars.push({ color: p.color, name: p.name });
+    }
+  });
+  return bars;
+}
+
+function getDayData(dateStr) {
+  const result = { hasSequential: false, hasDaily: false, hasEvent: false, details: [] };
+
+  // Check sticker log for sequential tasks
+  if (dateStr === todayStr) {
+    // Today: use live stickers only (stickerLog today entries are synced from these)
+    PROCESSES.forEach(p => {
+      const count = state.stickers.filter(s => s.process === p.id).length;
+      if (count > 0) {
+        result.hasSequential = true;
+        result.details.push({ type: 'sequential', label: p.label, count, color: p.color });
+      }
+    });
+
+    // Daily tasks for today
+    DAILY_TASKS.forEach(t => {
+      const done = state.dailyDone[t.id] || 0;
+      if (done > 0) {
+        result.hasDaily = true;
+        result.details.push({ type: 'daily', label: t.label, count: done, total: t.count, color: t.color });
+      }
+    });
+
+    // Event tasks for today
+    EVENT_TASKS.filter(t => t.date === dateStr).forEach(t => {
+      if (state.eventDone[t.id]) {
+        result.hasEvent = true;
+        result.details.push({ type: 'event', label: t.label, done: true, color: t.color });
+      }
+    });
+  } else {
+    // Past/future: check stickerLog
+    PROCESSES.forEach(p => {
+      const count = stickerLog.filter(e => e.process === p.id && e.date === dateStr).reduce((s, e) => s + e.count, 0);
+      if (count > 0) {
+        result.hasSequential = true;
+        result.details.push({ type: 'sequential', label: p.label, count, color: p.color });
+      }
+    });
+
+    // Event tasks on this date
+    EVENT_TASKS.filter(t => t.date === dateStr).forEach(t => {
+      result.hasEvent = true;
+      result.details.push({ type: 'event', label: t.label, done: false, color: t.color });
+    });
+  }
+
+  return result;
+}
+
+// Calendar navigation
+document.getElementById('calPrev').addEventListener('click', () => {
+  state.calMonth--;
+  if (state.calMonth < 0) { state.calMonth = 11; state.calYear--; }
+  renderCalendar();
+});
+document.getElementById('calNext').addEventListener('click', () => {
+  state.calMonth++;
+  if (state.calMonth > 11) { state.calMonth = 0; state.calYear++; }
+  renderCalendar();
+});
+
+// ── Settings: Daily / Event cards (変更3: 編集対応) ──
+function renderSettingsCards() {
+  const dailyList = document.getElementById('settingsDailyList');
+  dailyList.innerHTML = '';
+
+  DAILY_TASKS.forEach((t, idx) => {
+    const row = document.createElement('div');
+    row.className = 'task-edit-row';
+
+    // Color selector
+    const colors = document.createElement('div');
+    colors.className = 'task-edit-colors';
+    TASK_COLORS.forEach(c => {
+      const btn = document.createElement('div');
+      btn.className = 'task-color-btn' + (c === t.color ? ' selected' : '');
+      btn.style.background = c;
+      btn.addEventListener('click', () => {
+        t.color = c;
+        debouncedSave();
+        renderSettingsCards();
+        renderDailyEventRow();
+      });
+      colors.appendChild(btn);
+    });
+    row.appendChild(colors);
+
+    const nameInput = document.createElement('input');
+    nameInput.className = 'task-edit-input task-edit-input-name';
+    nameInput.type = 'text';
+    nameInput.value = t.label;
+    nameInput.addEventListener('change', () => {
+      t.label = nameInput.value || t.label;
+      debouncedSave();
+      renderDailyEventRow();
+    });
+    row.appendChild(nameInput);
+
+    const countInput = document.createElement('input');
+    countInput.className = 'task-edit-input task-edit-input-count';
+    countInput.type = 'number';
+    countInput.min = '1';
+    countInput.max = '10';
+    countInput.value = t.count;
+    countInput.addEventListener('change', () => {
+      const newCount = Math.max(1, Math.min(10, parseInt(countInput.value) || 1));
+      t.count = newCount;
+      if (state.dailyDone[t.id] > newCount) state.dailyDone[t.id] = newCount;
+      debouncedSave();
+      renderDailyEventRow();
+    });
+    row.appendChild(countInput);
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'task-delete-btn';
+    delBtn.textContent = '×';
+    delBtn.addEventListener('click', () => {
+      DAILY_TASKS.splice(idx, 1);
+      delete state.dailyDone[t.id];
+      debouncedSave();
+      renderSettingsCards();
+      renderDailyEventRow();
+    });
+    row.appendChild(delBtn);
+
+    dailyList.appendChild(row);
+  });
+
+  // Add button for daily
+  const addDailyBtn = document.createElement('button');
+  addDailyBtn.className = 'task-add-btn';
+  addDailyBtn.textContent = '＋ デイリータスクを追加';
+  addDailyBtn.addEventListener('click', () => {
+    const newId = 'daily_' + (nextTaskId++);
+    DAILY_TASKS.push({ id: newId, label: '新しいタスク', count: 1, color: TASK_COLORS[DAILY_TASKS.length % TASK_COLORS.length] });
+    state.dailyDone[newId] = 0;
+    debouncedSave();
+    renderSettingsCards();
+    renderDailyEventRow();
+  });
+  dailyList.appendChild(addDailyBtn);
+
+  // Event tasks
+  const eventList = document.getElementById('settingsEventList');
+  eventList.innerHTML = '';
+
+  EVENT_TASKS.forEach((t, idx) => {
+    const row = document.createElement('div');
+    row.className = 'task-edit-row';
+
+    const colors = document.createElement('div');
+    colors.className = 'task-edit-colors';
+    TASK_COLORS.forEach(c => {
+      const btn = document.createElement('div');
+      btn.className = 'task-color-btn' + (c === t.color ? ' selected' : '');
+      btn.style.background = c;
+      btn.addEventListener('click', () => {
+        t.color = c;
+        debouncedSave();
+        renderSettingsCards();
+        renderDailyEventRow();
+      });
+      colors.appendChild(btn);
+    });
+    row.appendChild(colors);
+
+    const nameInput = document.createElement('input');
+    nameInput.className = 'task-edit-input task-edit-input-name';
+    nameInput.type = 'text';
+    nameInput.value = t.label;
+    nameInput.addEventListener('change', () => {
+      t.label = nameInput.value || t.label;
+      debouncedSave();
+      renderDailyEventRow();
+    });
+    row.appendChild(nameInput);
+
+    const dateInput = document.createElement('input');
+    dateInput.className = 'task-edit-input task-edit-input-date';
+    dateInput.type = 'date';
+    dateInput.value = t.date;
+    dateInput.addEventListener('change', () => {
+      t.date = dateInput.value;
+      debouncedSave();
+      renderDailyEventRow();
+    });
+    row.appendChild(dateInput);
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'task-delete-btn';
+    delBtn.textContent = '×';
+    delBtn.addEventListener('click', () => {
+      EVENT_TASKS.splice(idx, 1);
+      delete state.eventDone[t.id];
+      debouncedSave();
+      renderSettingsCards();
+      renderDailyEventRow();
+    });
+    row.appendChild(delBtn);
+
+    eventList.appendChild(row);
+  });
+
+  const addEventBtn = document.createElement('button');
+  addEventBtn.className = 'task-add-btn';
+  addEventBtn.textContent = '＋ イベントタスクを追加';
+  addEventBtn.addEventListener('click', () => {
+    const newId = 'evt_' + (nextTaskId++);
+    EVENT_TASKS.push({ id: newId, label: '新しいイベント', date: todayStr, color: TASK_COLORS[(EVENT_TASKS.length + 2) % TASK_COLORS.length] });
+    state.eventDone[newId] = false;
+    debouncedSave();
+    renderSettingsCards();
+    renderDailyEventRow();
+  });
+  eventList.appendChild(addEventBtn);
+}
+
 // ── Settings change listeners ──
-['projPages', 'projStart', 'projDeadline'].forEach(id => {
+['projPages', 'projStart', 'projDeadline', 'projName'].forEach(id => {
   document.getElementById(id).addEventListener('change', () => {
     state.totalPages = parseInt(document.getElementById('projPages').value) || 16;
-    renderSummary();
+    debouncedSave();
+    updateCellHeaders();
+    updateProjectSelectorBtn();
   });
 });
 
+// ── Project tabs ──
+function renderProjectTabs() {
+  const container = document.getElementById('projectTabs');
+  container.innerHTML = '';
+  projects.forEach(p => {
+    const tab = document.createElement('div');
+    tab.className = 'project-tab' + (p.id === activeProjectId ? ' active' : '');
+    tab.innerHTML = `<div class="project-tab-dot" style="background:${p.color}"></div>${p.name}`;
+    tab.addEventListener('click', () => {
+      if (p.id !== activeProjectId) switchProject(p.id);
+    });
+    container.appendChild(tab);
+  });
+}
+
+// ── Project management (settings) ──
+function renderProjectManageList() {
+  const list = document.getElementById('projectManageList');
+  list.innerHTML = '';
+  projects.forEach((p, idx) => {
+    const row = document.createElement('div');
+    row.className = 'project-manage-row';
+
+    const dot = document.createElement('div');
+    dot.className = 'project-manage-dot';
+    dot.style.background = p.color;
+    row.appendChild(dot);
+
+    const info = document.createElement('div');
+    info.className = 'project-manage-info';
+    info.style.cursor = 'pointer';
+    info.innerHTML = `<div>${p.name}${p.id === activeProjectId ? ' (選択中)' : ''}</div>
+      <div class="project-manage-dates">${p.startDate} 〜 ${p.deadline}</div>`;
+    info.addEventListener('click', () => {
+      if (p.id !== activeProjectId) switchProject(p.id);
+    });
+    row.appendChild(info);
+
+    if (p.id === activeProjectId) {
+      row.style.background = 'var(--name-bg)';
+      row.style.borderRadius = '8px';
+      row.style.padding = '8px';
+      row.style.margin = '-0px -0px';
+    }
+
+    if (projects.length > 1) {
+      const delBtn = document.createElement('button');
+      delBtn.className = 'task-delete-btn';
+      delBtn.textContent = '×';
+      delBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!confirm(`「${p.name}」を削除しますか？`)) return;
+        projects.splice(idx, 1);
+        if (p.id === activeProjectId) {
+          activeProjectId = projects[0].id;
+          loadFromProject(getActiveProject());
+          renderAll();
+          updateProjectSelectorBtn();
+        }
+        debouncedSave();
+        renderProjectManageList();
+      });
+      row.appendChild(delBtn);
+    }
+
+    list.appendChild(row);
+  });
+}
+
+document.getElementById('addProjectBtn').addEventListener('click', () => {
+  const newProj = {
+    id: 'proj_' + Date.now(),
+    name: '新しいプロジェクト',
+    totalPages: 16,
+    startDate: todayStr,
+    deadline: formatDateStr(today.getFullYear(), today.getMonth() + 1, today.getDate()),
+    color: PROJECT_COLORS[projects.length % PROJECT_COLORS.length],
+    planRatios: [0.25, 0.25, 0.25, 0.25],
+    stickerLog: [],
+    createdAt: new Date().toISOString(),
+  };
+  // Set deadline ~2 months out
+  const dl = new Date(today);
+  dl.setMonth(dl.getMonth() + 2);
+  newProj.deadline = dl.toISOString().slice(0, 10);
+
+  projects.push(newProj);
+  debouncedSave();
+  switchProject(newProj.id);
+});
+
+// ── Calendar: event add from detail ──
+function renderCalendarDetail(dateStr) {
+  const detail = document.getElementById('calendarDetail');
+  const d = parseDate(dateStr);
+  const dayData = getDayData(dateStr);
+
+  let html = `<div class="cal-detail-title">${d.getMonth()+1}月${d.getDate()}日 (${WEEKDAYS[d.getDay()]})</div>`;
+
+  if (dayData.details.length === 0) {
+    html += `<div class="cal-detail-empty">この日の記録はありません</div>`;
+  } else {
+    dayData.details.forEach(item => {
+      html += `<div class="cal-detail-item">`;
+      html += `<div class="cal-detail-dot" style="background:${item.color}"></div>`;
+      if (item.type === 'sequential') {
+        html += `${item.label}: ${item.count}ページ`;
+      } else if (item.type === 'daily') {
+        html += `${item.label}: ${item.count}/${item.total}回`;
+      } else if (item.type === 'event') {
+        html += `${item.label}${item.done ? ' (完了)' : ''}`;
+      }
+      html += `</div>`;
+    });
+  }
+
+  detail.innerHTML = html;
+
+  // Add event button
+  const addBtn = document.createElement('button');
+  addBtn.className = 'cal-event-add-btn';
+  addBtn.textContent = '＋ イベントを追加';
+  addBtn.addEventListener('click', () => {
+    addBtn.style.display = 'none';
+    const form = document.createElement('div');
+    form.className = 'cal-event-add-form';
+
+    const nameIn = document.createElement('input');
+    nameIn.className = 'task-edit-input';
+    nameIn.type = 'text';
+    nameIn.placeholder = 'イベント名';
+    nameIn.style.width = '100px';
+    form.appendChild(nameIn);
+
+    const colors = document.createElement('div');
+    colors.className = 'task-edit-colors';
+    let selectedColor = TASK_COLORS[0];
+    TASK_COLORS.forEach(c => {
+      const btn = document.createElement('div');
+      btn.className = 'task-color-btn' + (c === selectedColor ? ' selected' : '');
+      btn.style.background = c;
+      btn.addEventListener('click', () => {
+        selectedColor = c;
+        colors.querySelectorAll('.task-color-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
+      colors.appendChild(btn);
+    });
+    form.appendChild(colors);
+
+    const okBtn = document.createElement('button');
+    okBtn.className = 'task-add-btn';
+    okBtn.style.width = 'auto';
+    okBtn.style.marginTop = '0';
+    okBtn.style.padding = '4px 12px';
+    okBtn.textContent = '追加';
+    okBtn.addEventListener('click', () => {
+      const name = nameIn.value.trim();
+      if (!name) return;
+      const newId = 'evt_' + (nextTaskId++);
+      EVENT_TASKS.push({ id: newId, label: name, date: dateStr, color: selectedColor });
+      state.eventDone[newId] = false;
+      // Immediate save (not debounced) to ensure persistence
+      saveGlobalTasks();
+      saveProjects();
+      renderCalendar();
+      renderDailyEventRow();
+      renderSettingsCards();
+    });
+    form.appendChild(okBtn);
+
+    detail.appendChild(form);
+    nameIn.focus();
+  });
+  detail.appendChild(addBtn);
+}
+
+// ── Window resize handler ──
+let resizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (state.currentPage === 0) renderGantt();
+  }, 150);
+});
+
 // ── Init ──
-createStickerButtons();
-renderSummary();
+updateProjectSelectorBtn();
+renderDailyEventRow();
+renderSettingsCards();
+renderProjectManageList();
+createTapGrid();
 renderStickers();
+renderCalendar();
 goToPage(1);
 </script>
 </body>
