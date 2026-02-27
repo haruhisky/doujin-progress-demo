@@ -43,20 +43,47 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem 1rem;
-  gap: 2rem;
+  padding: 0;
+  gap: 0;
 }
 
-/* ── Links Section ── */
-.links-section {
-  max-width: 420px;
+/* ── App Section (wantap / workmate) ── */
+.app-section {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
   align-items: center;
+  padding: 2.5rem 1rem;
+  gap: 1.5rem;
 }
-.links-section .dl-btn {
+.app-section.wantap-area {
+  background: #e8e4df;
+}
+.app-section.workmate-area {
+  background: #2a2a3e;
+  color: #e0ddd8;
+}
+.app-section .app-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.app-section .app-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+.wantap-area .app-title { color: var(--text); }
+.workmate-area .app-title { color: #e0ddd8; }
+.app-section .app-tagline {
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+.wantap-area .app-tagline { color: var(--text-light); }
+.workmate-area .app-tagline { color: rgba(224,221,216,0.7); }
+
+/* ── Download Button ── */
+.dl-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -70,40 +97,21 @@ body {
   box-shadow: 0 2px 8px rgba(232,160,180,0.3);
   transition: transform 0.15s, box-shadow 0.15s;
 }
-.links-section .dl-btn:hover {
+.dl-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(232,160,180,0.4);
 }
 
 /* ── WorkMate Section ── */
-.workmate-section {
-  max-width: 440px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-.workmate-section h2 {
-  font-size: 1.1rem;
-  color: var(--text);
-  font-weight: 600;
-}
-.workmate-section .wm-desc {
-  font-size: 0.85rem;
-  color: var(--text-light);
-  text-align: center;
-  line-height: 1.6;
-}
-.workmate-section iframe {
+.workmate-area iframe {
   width: 100%;
   max-width: 420px;
   height: 720px;
   border: none;
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
 }
-.workmate-section .wm-link {
+.wm-link {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -117,15 +125,19 @@ body {
   box-shadow: 0 2px 8px rgba(102,126,234,0.3);
   transition: transform 0.15s, box-shadow 0.15s;
 }
-.workmate-section .wm-link:hover {
+.wm-link:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(102,126,234,0.4);
 }
+
+/* ── Footer ── */
 .footer-note {
+  width: 100%;
   font-size: 0.75rem;
-  color: var(--text-light);
+  color: rgba(224,221,216,0.5);
   text-align: center;
-  padding-bottom: 1rem;
+  padding: 1rem;
+  background: #2a2a3e;
 }
 
 .phone-frame {
@@ -962,19 +974,24 @@ body {
 }
 
 @media (max-width: 420px) {
-  body { align-items: flex-start; padding: 0; gap: 1.5rem; }
   .phone-frame {
     width: 100%;
     height: 100dvh;
     border-radius: 0;
     box-shadow: none;
   }
-  .links-section, .workmate-section { padding: 0 1rem; }
-  .workmate-section iframe { height: 600px; border-radius: 12px; }
+  .workmate-area iframe { height: 600px; border-radius: 12px; }
 }
 </style>
 </head>
 <body>
+
+<!-- ══ 同人わんたっぷ エリア ══ -->
+<div class="app-section wantap-area">
+  <div class="app-header">
+    <div class="app-title">同人わんたっぷ</div>
+    <div class="app-tagline">作業が進んだら、タップするだけ。<br>ワンタップで進捗管理。</div>
+  </div>
 
 <div class="phone-frame">
   <div class="header">
@@ -2542,22 +2559,22 @@ renderCalendar();
 goToPage(1);
 </script>
 
-<!-- ── Download & Links ── -->
-<div class="links-section">
   <a class="dl-btn" href="https://github.com/haruhisky/doujin-progress-demo/releases/latest" target="_blank" rel="noopener">
     📥 簡易PC版をダウンロード（Windows）
   </a>
-</div>
+</div><!-- /.wantap-area -->
 
-<!-- ── Work Mate Demo ── -->
-<div class="workmate-section">
-  <h2>Work Mate — あなたの作業を、静かに見守る</h2>
-  <p class="wm-desc">クリエイターのためのアンビエント作業トラッカー。<br>作業を始めると一緒にがんばり、手が止まったら静かに待っている。</p>
+<!-- ══ Work Mate エリア ══ -->
+<div class="app-section workmate-area">
+  <div class="app-header">
+    <div class="app-title">Work Mate</div>
+    <div class="app-tagline">あなたの作業を、静かに見守る。<br>クリエイターのためのアンビエント作業トラッカー。</div>
+  </div>
   <iframe src="https://haruhisky.github.io/workmate/demo-embed.html" loading="lazy" allow="autoplay"></iframe>
   <a class="wm-link" href="https://haruhisky.github.io/workmate/" target="_blank" rel="noopener">
     Work Mate の詳細を見る →
   </a>
-</div>
+</div><!-- /.workmate-area -->
 
 <p class="footer-note">&copy; haruhisky</p>
 
