@@ -35,26 +35,123 @@
 
 body {
   font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
-  background: #e8e4df;
-  color: var(--text);
-  overflow: hidden;
-  height: 100dvh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.phone-frame {
-  width: 390px;
-  height: 760px;
   background: var(--bg);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='%23e8e0d8' opacity='0.18'%3E%3Cellipse cx='30' cy='38' rx='10' ry='9'/%3E%3Cellipse cx='20' cy='22' rx='5' ry='5.5'/%3E%3Cellipse cx='40' cy='22' rx='5' ry='5.5'/%3E%3Cellipse cx='14' cy='30' rx='4' ry='4.5'/%3E%3Cellipse cx='46' cy='30' rx='4' ry='4.5'/%3E%3C/g%3E%3C/svg%3E");
-  border-radius: 32px;
+  color: var(--text);
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-  position: relative;
+  height: 100vh;
+  margin: 0;
+}
+
+#app {
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Project tabs */
+.project-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 16px 6px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.project-tab {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 14px;
+  border: 1.5px solid var(--border);
+  background: var(--card-bg);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.project-tab:hover {
+  border-color: var(--text-light);
+}
+.project-tab.active {
+  font-weight: 600;
+  color: var(--text);
+  background: var(--name-bg);
+  border-color: var(--name-color);
+}
+.project-tab-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Calendar project bars */
+.cal-project-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-top: 1px;
+}
+.cal-project-bar {
+  height: 3px;
+  border-radius: 1px;
+  opacity: 0.6;
+}
+
+/* Calendar event add */
+.cal-event-add-form {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.cal-event-add-btn {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 6px;
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  background: none;
+  color: var(--text-light);
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.cal-event-add-btn:hover {
+  border-color: var(--text-light);
+  color: var(--text);
+}
+
+/* Settings project management */
+.project-manage-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.project-manage-row:last-of-type { border-bottom: none; }
+.project-manage-dot {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.project-manage-info { flex: 1; }
+.project-manage-dates {
+  font-size: 11px;
+  color: var(--text-light);
+}
+.project-color-picker {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
 }
 
 /* ── Header ── */
@@ -137,14 +234,34 @@ body {
   width: 25%;
   height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   padding: 0 16px 20px;
+}
+.page::-webkit-scrollbar {
+  width: 6px;
+}
+.page::-webkit-scrollbar-track {
+  background: transparent;
+}
+.page::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+.page::-webkit-scrollbar-thumb:hover {
+  background: var(--text-light);
+}
+#pageToday {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* ── Today page: variable grid ── */
 .date-display {
   text-align: center;
   margin-bottom: 10px;
+  flex-shrink: 0;
 }
 .date-display .date {
   font-size: 20px;
@@ -162,6 +279,7 @@ body {
   flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 10px;
+  flex-shrink: 0;
 }
 .de-card {
   display: flex;
@@ -216,7 +334,7 @@ body {
   grid-template-rows: var(--top-ratio, 1fr) var(--bottom-ratio, 1fr);
   gap: 10px;
   flex: 1;
-  height: calc(100% - 100px);
+  min-height: 0;
   transition: grid-template-columns 0.5s ease, grid-template-rows 0.5s ease;
 }
 
@@ -299,9 +417,6 @@ body {
 }
 .sticker svg { width: 100%; height: 100%; display: block; }
 
-.sticker.removing {
-  animation: stickerSlideOut 0.3s ease-in forwards;
-}
 .sticker.removing-shrink {
   animation: stickerRemove 0.3s ease-in forwards;
 }
@@ -318,11 +433,6 @@ body {
   0% { transform: scale(1); opacity: 1; }
   100% { transform: scale(0); opacity: 0; }
 }
-@keyframes stickerSlideOut {
-  0% { transform: translateX(0); opacity: 1; }
-  100% { transform: translateX(80px); opacity: 0; }
-}
-
 /* Particle */
 .particle {
   position: absolute;
@@ -375,6 +485,7 @@ body {
   padding: 16px 12px;
   box-shadow: 0 2px 8px var(--shadow);
   position: relative;
+  overflow: hidden;
 }
 
 /* Date axis */
@@ -647,7 +758,7 @@ body {
   padding: 4px 0;
 }
 .cal-day {
-  min-height: 44px;
+  min-height: 56px;
   background: var(--card-bg);
   border-radius: 8px;
   padding: 4px;
@@ -857,7 +968,7 @@ body {
 
 /* ── Toast ── */
 .toast {
-  position: absolute;
+  position: fixed;
   bottom: 80px;
   left: 50%;
   transform: translateX(-50%) translateY(20px);
@@ -877,47 +988,34 @@ body {
   transform: translateX(-50%) translateY(0);
 }
 
-@media (max-width: 420px) {
-  body { align-items: flex-start; }
-  .phone-frame {
-    width: 100%;
-    height: 100dvh;
-    border-radius: 0;
-    box-shadow: none;
-  }
-}
 </style>
 </head>
 <body>
 
-<div class="phone-frame">
+<div id="app">
   <div class="header">
     <h1>
       <svg class="header-dog-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- Ears -->
         <ellipse cx="22" cy="30" rx="16" ry="24" fill="#d4a574" transform="rotate(-15 22 30)"/>
         <ellipse cx="78" cy="30" rx="16" ry="24" fill="#d4a574" transform="rotate(15 78 30)"/>
         <ellipse cx="23" cy="32" rx="10" ry="17" fill="#e8c4a0" transform="rotate(-15 23 32)"/>
         <ellipse cx="77" cy="32" rx="10" ry="17" fill="#e8c4a0" transform="rotate(15 77 32)"/>
-        <!-- Face -->
         <ellipse cx="50" cy="55" rx="32" ry="30" fill="#e8c4a0"/>
-        <!-- Eyes -->
         <ellipse cx="38" cy="48" rx="4" ry="4.5" fill="#4a4a4a"/>
         <ellipse cx="62" cy="48" rx="4" ry="4.5" fill="#4a4a4a"/>
         <ellipse cx="39.5" cy="46.5" rx="1.5" ry="1.5" fill="#fff"/>
         <ellipse cx="63.5" cy="46.5" rx="1.5" ry="1.5" fill="#fff"/>
-        <!-- Nose -->
         <ellipse cx="50" cy="60" rx="6" ry="4.5" fill="#4a4a4a"/>
         <ellipse cx="50" cy="59" rx="2" ry="1.2" fill="#7a7a7a"/>
-        <!-- Mouth -->
         <path d="M44 64 Q50 70 56 64" stroke="#4a4a4a" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-        <!-- Cheeks -->
         <ellipse cx="30" cy="58" rx="6" ry="4" fill="#f0b0a0" opacity="0.35"/>
         <ellipse cx="70" cy="58" rx="6" ry="4" fill="#f0b0a0" opacity="0.35"/>
       </svg>
       同人わんたっぷ
     </h1>
   </div>
+
+  <div class="project-tabs" id="projectTabs"></div>
 
   <div class="nav-labels">
     <div class="nav-label" data-page="0">ガントチャート</div>
@@ -971,6 +1069,11 @@ body {
 
       <!-- 設定 -->
       <div class="page" id="pageSettings">
+        <div class="settings-card" id="settingsProjectManage">
+          <h3>プロジェクト管理</h3>
+          <div id="projectManageList"></div>
+          <button class="task-add-btn" id="addProjectBtn">＋ プロジェクトを追加</button>
+        </div>
         <div class="settings-card">
           <h3>プロジェクト情報</h3>
           <div class="setting-row">
@@ -1020,9 +1123,9 @@ body {
           <div id="settingsEventList"></div>
         </div>
         <div class="settings-card">
-          <h3>このデモについて</h3>
+          <h3>このアプリについて</h3>
           <p style="font-size:12px;color:var(--text-light);line-height:1.6;">
-            シール式進捗管理のコンセプトデモ v5です。各エリアをタップしてシールを貼り、横スワイプで剥がせます。データはページ内のみに保持されます。
+            同人わんたっぷ v1.0 — シール式進捗管理アプリ。各エリアをタップしてシールを貼り、横スワイプで剥がせます。データはlocalStorageに保存されます。
           </p>
         </div>
       </div>
@@ -1042,6 +1145,8 @@ const PROCESSES = [
   { id: 'finish', label: '仕上げ', icon: '✨', cls: 'finish', stickerCls: 'finish-s', cellCls: 'finish-cell', color: '#82b89a' },
 ];
 
+const PROJECT_COLORS = ['#e8a0b4', '#e8b472', '#7baed4', '#82b89a', '#c4a6d4', '#d4a6b8', '#d4b896'];
+
 // ── Daily / Event task definitions (mutable for editing) ──
 const today = new Date();
 const todayStr = today.toISOString().slice(0, 10);
@@ -1049,43 +1154,232 @@ const todayStr = today.toISOString().slice(0, 10);
 const TASK_COLORS = ['#c4a6d4', '#d4a6b8', '#d4b896', '#a6c4b8', '#a6b8d4'];
 let nextTaskId = 100;
 
-let DAILY_TASKS = [
-  { id: 'stretch', label: 'ストレッチ', count: 1, color: '#c4a6d4' },
-  { id: 'practice', label: '練習', count: 2, color: '#d4a6b8' },
-];
+// ── Multi-project: localStorage persistence ──
+function createDefaultProject() {
+  const start = new Date();
+  const dl = new Date();
+  dl.setMonth(dl.getMonth() + 2);
+  return {
+    id: 'proj_' + Date.now(),
+    name: '新しいプロジェクト',
+    totalPages: 16,
+    startDate: start.toISOString().slice(0, 10),
+    deadline: dl.toISOString().slice(0, 10),
+    color: '#e8a0b4',
+    planRatios: [0.25, 0.25, 0.25, 0.25],
+    stickerLog: [],
+    createdAt: new Date().toISOString(),
+  };
+}
 
-let EVENT_TASKS = [
-  { id: 'evt1', label: '申込締切', date: todayStr, color: '#d4b896' },
-];
+// ── Global daily/event tasks (project-independent) ──
+function loadGlobalTasks() {
+  try {
+    const dt = localStorage.getItem('wantap_dailyTasks');
+    const et = localStorage.getItem('wantap_eventTasks');
+    const dl = localStorage.getItem('wantap_dailyLog');
+    const el = localStorage.getItem('wantap_eventLog');
+    return {
+      dailyTasks: dt ? JSON.parse(dt) : null,
+      eventTasks: et ? JSON.parse(et) : null,
+      dailyLog: dl ? JSON.parse(dl) : null,
+      eventLog: el ? JSON.parse(el) : null,
+    };
+  } catch(e) { console.warn('Failed to load global tasks', e); }
+  return {};
+}
 
-// ── Sample sticker log (historical data for demo) ──
-const stickerLog = [
-  { process: 'name', date: '2026-02-20', count: 2 },
-  { process: 'name', date: '2026-02-21', count: 2 },
-  { process: 'name', date: '2026-02-22', count: 1 },
-  { process: 'name', date: '2026-02-24', count: 1 },
-  { process: 'name', date: '2026-02-25', count: 1 },
-  { process: 'draft', date: '2026-02-23', count: 1 },
-  { process: 'draft', date: '2026-02-25', count: 1 },
-  { process: 'draft', date: '2026-02-26', count: 1 },
-];
+function saveGlobalTasks() {
+  localStorage.setItem('wantap_dailyTasks', JSON.stringify(DAILY_TASKS));
+  localStorage.setItem('wantap_eventTasks', JSON.stringify(EVENT_TASKS));
+  // Save daily done for today
+  const dailyLog = JSON.parse(localStorage.getItem('wantap_dailyLog') || '{}');
+  dailyLog[todayStr] = { ...state.dailyDone };
+  localStorage.setItem('wantap_dailyLog', JSON.stringify(dailyLog));
+  // Save event done
+  const eventLog = JSON.parse(localStorage.getItem('wantap_eventLog') || '{}');
+  Object.keys(state.eventDone).forEach(k => {
+    eventLog[k] = state.eventDone[k];
+  });
+  localStorage.setItem('wantap_eventLog', JSON.stringify(eventLog));
+}
 
-// ── State ──
+function loadProjects() {
+  try {
+    const raw = localStorage.getItem('wantap_projects');
+    if (raw) return JSON.parse(raw);
+  } catch(e) { console.warn('Failed to load projects', e); }
+  return null;
+}
+
+function saveProjects() {
+  writeBackToProject();
+  localStorage.setItem('wantap_projects', JSON.stringify(projects));
+  localStorage.setItem('wantap_activeProjectId', activeProjectId);
+  saveGlobalTasks();
+}
+
+let saveTimer = null;
+function debouncedSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveProjects, 100);
+}
+
+// Initialize projects
+let projects = loadProjects();
+if (!projects || projects.length === 0) {
+  projects = [createDefaultProject()];
+}
+let activeProjectId = localStorage.getItem('wantap_activeProjectId') || projects[0].id;
+if (!projects.find(p => p.id === activeProjectId)) {
+  activeProjectId = projects[0].id;
+}
+
+// Working variables (populated from active project)
+let DAILY_TASKS = [];
+let EVENT_TASKS = [];
+let stickerLog = [];
+
 const state = {
   currentPage: 1,
   totalPages: 16,
-  stickers: [], // today's stickers: { process, x, y, timestamp }
+  stickers: [],
   planRatios: [0.25, 0.25, 0.25, 0.25],
-  dailyDone: {},   // { 'stretch': 0, 'practice': 0 }
-  eventDone: {},   // { 'evt1': false }
+  dailyDone: {},
+  eventDone: {},
   calYear: today.getFullYear(),
   calMonth: today.getMonth(),
   calSelectedDate: todayStr,
 };
 
-// Initialize daily/event state
-DAILY_TASKS.forEach(t => { state.dailyDone[t.id] = 0; });
-EVENT_TASKS.forEach(t => { state.eventDone[t.id] = false; });
+function getActiveProject() {
+  return projects.find(p => p.id === activeProjectId) || projects[0];
+}
+
+function writeBackToProject() {
+  const proj = getActiveProject();
+  if (!proj) return;
+  proj.totalPages = state.totalPages;
+  proj.planRatios = [...state.planRatios];
+  proj.name = document.getElementById('projName').value || proj.name;
+  proj.startDate = document.getElementById('projStart').value || proj.startDate;
+  proj.deadline = document.getElementById('projDeadline').value || proj.deadline;
+  proj.stickerLog = stickerLog;
+
+  // Save today's sticker counts into stickerLog
+  syncTodayStickersToLog();
+}
+
+function syncTodayStickersToLog() {
+  // Remove any existing today entries from stickerLog
+  stickerLog = stickerLog.filter(e => e.date !== todayStr);
+  // Add from current stickers
+  const counts = {};
+  state.stickers.forEach(s => {
+    counts[s.process] = (counts[s.process] || 0) + 1;
+  });
+  Object.keys(counts).forEach(process => {
+    stickerLog.push({ process, date: todayStr, count: counts[process] });
+  });
+}
+
+function loadFromProject(proj) {
+  state.totalPages = proj.totalPages || 16;
+  state.planRatios = proj.planRatios ? [...proj.planRatios] : [0.25, 0.25, 0.25, 0.25];
+  stickerLog = proj.stickerLog ? [...proj.stickerLog] : [];
+
+  // Restore today's stickers from stickerLog (random positions)
+  state.stickers = [];
+  const todayEntries = stickerLog.filter(e => e.date === todayStr);
+  todayEntries.forEach(entry => {
+    for (let i = 0; i < entry.count; i++) {
+      state.stickers.push({
+        process: entry.process,
+        x: 10 + Math.random() * 75,
+        y: 10 + Math.random() * 75,
+        timestamp: 0,
+      });
+    }
+  });
+
+  // Update settings UI
+  document.getElementById('projName').value = proj.name;
+  document.getElementById('projPages').value = proj.totalPages;
+  document.getElementById('projStart').value = proj.startDate;
+  document.getElementById('projDeadline').value = proj.deadline;
+}
+
+function switchProject(projId) {
+  writeBackToProject();
+  saveProjects();
+  activeProjectId = projId;
+  const proj = getActiveProject();
+  loadFromProject(proj);
+  renderAll();
+  updateProjectSelectorBtn();
+}
+
+function renderAll() {
+  renderDailyEventRow();
+  renderSettingsCards();
+  renderProjectManageList();
+  createTapGrid();
+  renderStickers();
+  if (state.currentPage === 0) renderGantt();
+  if (state.currentPage === 2) renderCalendar();
+}
+
+function updateProjectSelectorBtn() {
+  renderProjectTabs();
+}
+
+// Load initial project
+loadFromProject(getActiveProject());
+
+// Load global daily/event tasks
+(function initGlobalTasks() {
+  const saved = loadGlobalTasks();
+  // Migrate from old project-embedded data if global storage is empty
+  const proj = getActiveProject();
+  if (saved.dailyTasks) {
+    DAILY_TASKS = saved.dailyTasks;
+  } else if (proj.dailyTasks && proj.dailyTasks.length > 0) {
+    DAILY_TASKS = [...proj.dailyTasks];
+  } else {
+    DAILY_TASKS = [];
+  }
+  if (saved.eventTasks) {
+    EVENT_TASKS = saved.eventTasks;
+  } else if (proj.eventTasks && proj.eventTasks.length > 0) {
+    EVENT_TASKS = [...proj.eventTasks];
+  } else {
+    EVENT_TASKS = [];
+  }
+  // Restore daily done state for today
+  state.dailyDone = {};
+  DAILY_TASKS.forEach(t => { state.dailyDone[t.id] = 0; });
+  const dailyLogSrc = saved.dailyLog || (proj.dailyLog ? proj.dailyLog : null);
+  if (dailyLogSrc && dailyLogSrc[todayStr]) {
+    Object.keys(dailyLogSrc[todayStr]).forEach(k => {
+      if (state.dailyDone.hasOwnProperty(k)) state.dailyDone[k] = dailyLogSrc[todayStr][k];
+    });
+  }
+  // Restore event done state
+  state.eventDone = {};
+  EVENT_TASKS.forEach(t => { state.eventDone[t.id] = false; });
+  const eventLogSrc = saved.eventLog || (proj.eventLog ? proj.eventLog : null);
+  if (eventLogSrc) {
+    Object.keys(eventLogSrc).forEach(k => {
+      if (eventLogSrc[k]) state.eventDone[k] = true;
+    });
+  }
+  // Update nextTaskId
+  const allIds = [...DAILY_TASKS, ...EVENT_TASKS].map(t => {
+    const m = String(t.id).match(/\d+/);
+    return m ? parseInt(m[0]) : 0;
+  });
+  nextTaskId = Math.max(nextTaskId, ...allIds, 100) + 1;
+})();
 
 // ── Helpers ──
 function parseDate(str) {
@@ -1103,7 +1397,7 @@ function formatDateStr(y, m, d) {
 
 function getHistoryCount(processId) {
   return stickerLog
-    .filter(e => e.process === processId)
+    .filter(e => e.process === processId && e.date !== todayStr)
     .reduce((sum, e) => sum + e.count, 0);
 }
 
@@ -1151,13 +1445,13 @@ function calcPace(processId) {
   const startStr = document.getElementById('projStart').value;
   const projStart = parseDate(startStr);
 
-  const logEntries = stickerLog.filter(e => e.process === processId);
+  const logEntries = stickerLog.filter(e => e.process === processId && e.date !== todayStr);
   const todayCount = getTodayCount(processId);
 
   const dateMap = {};
   logEntries.forEach(e => { dateMap[e.date] = (dateMap[e.date] || 0) + e.count; });
   if (todayCount > 0) {
-    dateMap[todayStr] = (dateMap[todayStr] || 0) + todayCount;
+    dateMap[todayStr] = todayCount;
   }
 
   const dates = Object.keys(dateMap).sort();
@@ -1193,7 +1487,9 @@ function goToPage(idx) {
   navDots.forEach((d, i) => d.classList.toggle('active', i === idx));
   navLabels.forEach((l, i) => l.classList.toggle('active', i === idx));
   if (idx === 0) renderGantt();
+  if (idx === 1) renderDailyEventRow();
   if (idx === 2) renderCalendar();
+  if (idx === 3) { renderSettingsCards(); renderProjectManageList(); }
 }
 
 navDots.forEach(d => d.addEventListener('click', () => goToPage(+d.dataset.page)));
@@ -1273,13 +1569,13 @@ function renderDailyEventRow() {
         e.stopPropagation();
         const isDone = i < state.dailyDone[task.id];
         if (isDone) {
-          // Undo this slot: set done count to this index
           state.dailyDone[task.id] = i;
+          debouncedSave();
           if (navigator.vibrate) navigator.vibrate(10);
           renderDailyEventRow();
         } else {
-          // Fill up to and including this slot
           state.dailyDone[task.id] = i + 1;
+          debouncedSave();
           if (navigator.vibrate) navigator.vibrate(15);
           renderDailyEventRow();
           // Bounce the newly filled slot
@@ -1323,13 +1619,13 @@ function renderDailyEventRow() {
     slot.addEventListener('click', (e) => {
       e.stopPropagation();
       if (state.eventDone[task.id]) {
-        // Undo
         state.eventDone[task.id] = false;
+        debouncedSave();
         if (navigator.vibrate) navigator.vibrate(10);
         renderDailyEventRow();
       } else {
-        // Complete
         state.eventDone[task.id] = true;
+        debouncedSave();
         if (navigator.vibrate) navigator.vibrate(15);
         renderDailyEventRow();
         const newSlot = row.querySelector(`.de-paw-slot.done`);
@@ -1536,6 +1832,7 @@ function addSticker(processId, xPct, yPct) {
   const prevLayout = calcGridLayout();
 
   state.stickers.push({ process: processId, x: finalX, y: finalY, timestamp: Date.now() });
+  debouncedSave();
 
   if (navigator.vibrate) navigator.vibrate(15);
 
@@ -1565,6 +1862,7 @@ function removeSticker(processId, stickerIndex, slideOut) {
       if (processStickers[stickerIndex]) {
         state.stickers.splice(processStickers[stickerIndex].idx, 1);
       }
+      debouncedSave();
       const newLayout = calcGridLayout();
       if (newLayout.mainIdx !== prevLayout.mainIdx) {
         createTapGrid();
@@ -1592,7 +1890,7 @@ function renderStickers() {
       el.style.left = `calc(${s.x}% - 20px)`;
       el.style.top = `calc(${s.y}% - 20px)`;
 
-      setupStickerSwipe(el, p.id, i);
+      setupStickerTap(el, p.id, i);
 
       container.appendChild(el);
     });
@@ -1609,85 +1907,11 @@ function renderStickers() {
   });
 }
 
-// ── Swipe-to-delete on stickers ──
-function setupStickerSwipe(el, processId, stickerIndex) {
-  let startX = 0, startY = 0, isDragging = false, startTime = 0;
-  let longPressTimer = null;
-
-  function onStart(clientX, clientY, e) {
-    startX = clientX;
-    startY = clientY;
-    isDragging = true;
-    startTime = Date.now();
-    longPressTimer = setTimeout(() => {
-      if (isDragging) {
-        isDragging = false;
-        removeSticker(processId, stickerIndex, false);
-      }
-    }, 500);
-  }
-
-  function onMove(clientX, clientY) {
-    if (!isDragging) return;
-    const dx = clientX - startX;
-    const dy = clientY - startY;
-    if (Math.abs(dx) > 10) {
-      el.style.transform = `translateX(${dx}px)`;
-      el.style.opacity = Math.max(0.3, 1 - Math.abs(dx) / 100);
-      clearTimeout(longPressTimer);
-    }
-  }
-
-  function onEnd(clientX) {
-    clearTimeout(longPressTimer);
-    if (!isDragging) return;
-    isDragging = false;
-    const dx = clientX - startX;
-
-    if (Math.abs(dx) >= 50) {
-      removeSticker(processId, stickerIndex, true);
-    } else {
-      el.style.transform = '';
-      el.style.opacity = '';
-    }
-  }
-
-  el.addEventListener('touchstart', (e) => {
-    e.stopPropagation();
-    const t = e.touches[0];
-    onStart(t.clientX, t.clientY, e);
-  }, { passive: true });
-
-  el.addEventListener('touchmove', (e) => {
-    e.stopPropagation();
-    const t = e.touches[0];
-    onMove(t.clientX, t.clientY);
-  }, { passive: true });
-
-  el.addEventListener('touchend', (e) => {
-    e.stopPropagation();
-    const t = e.changedTouches[0];
-    onEnd(t.clientX);
-    e.preventDefault();
-  });
-
-  el.addEventListener('mousedown', (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    onStart(e.clientX, e.clientY, e);
-
-    const onMouseMove = (me) => onMove(me.clientX, me.clientY);
-    const onMouseUp = (me) => {
-      onEnd(me.clientX);
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-    };
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-  });
-
+// ── Tap-to-remove stickers ──
+function setupStickerTap(el, processId, stickerIndex) {
   el.addEventListener('click', (e) => {
     e.stopPropagation();
+    removeSticker(processId, stickerIndex, false);
   });
 }
 
@@ -2048,6 +2272,7 @@ function setupDragHandle(handle, index, connectedBar) {
     handle.classList.remove('dragging');
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
+    debouncedSave();
     renderGantt();
     createTapGrid();
     renderStickers();
@@ -2171,9 +2396,22 @@ function createCalDay(dayNum, dateStr, isOtherMonth) {
 
   cell.appendChild(dots);
 
+  // Project period bars
+  const bars = getProjectBarsForDate(dateStr);
+  if (bars.length > 0) {
+    const barsDiv = document.createElement('div');
+    barsDiv.className = 'cal-project-bars';
+    bars.forEach(b => {
+      const bar = document.createElement('div');
+      bar.className = 'cal-project-bar';
+      bar.style.background = b.color;
+      barsDiv.appendChild(bar);
+    });
+    cell.appendChild(barsDiv);
+  }
+
   cell.addEventListener('click', () => {
     state.calSelectedDate = dateStr;
-    // Update selection styling
     document.querySelectorAll('.cal-day.selected').forEach(el => el.classList.remove('selected'));
     cell.classList.add('selected');
     renderCalendarDetail(dateStr);
@@ -2182,30 +2420,27 @@ function createCalDay(dayNum, dateStr, isOtherMonth) {
   return cell;
 }
 
+function getProjectBarsForDate(dateStr) {
+  const bars = [];
+  projects.forEach(p => {
+    if (p.startDate && p.deadline && dateStr >= p.startDate && dateStr <= p.deadline) {
+      bars.push({ color: p.color, name: p.name });
+    }
+  });
+  return bars;
+}
+
 function getDayData(dateStr) {
   const result = { hasSequential: false, hasDaily: false, hasEvent: false, details: [] };
 
   // Check sticker log for sequential tasks
   if (dateStr === todayStr) {
-    // Today: use live stickers
+    // Today: use live stickers only (stickerLog today entries are synced from these)
     PROCESSES.forEach(p => {
       const count = state.stickers.filter(s => s.process === p.id).length;
       if (count > 0) {
         result.hasSequential = true;
         result.details.push({ type: 'sequential', label: p.label, count, color: p.color });
-      }
-    });
-    // Also check stickerLog for today
-    PROCESSES.forEach(p => {
-      const logCount = stickerLog.filter(e => e.process === p.id && e.date === dateStr).reduce((s, e) => s + e.count, 0);
-      if (logCount > 0) {
-        result.hasSequential = true;
-        const existing = result.details.find(d => d.type === 'sequential' && d.label === p.label);
-        if (existing) {
-          existing.count += logCount;
-        } else {
-          result.details.push({ type: 'sequential', label: p.label, count: logCount, color: p.color });
-        }
       }
     });
 
@@ -2245,33 +2480,6 @@ function getDayData(dateStr) {
   return result;
 }
 
-function renderCalendarDetail(dateStr) {
-  const detail = document.getElementById('calendarDetail');
-  const d = parseDate(dateStr);
-  const dayData = getDayData(dateStr);
-
-  let html = `<div class="cal-detail-title">${d.getMonth()+1}月${d.getDate()}日 (${WEEKDAYS[d.getDay()]})</div>`;
-
-  if (dayData.details.length === 0) {
-    html += `<div class="cal-detail-empty">この日の記録はありません</div>`;
-  } else {
-    dayData.details.forEach(item => {
-      html += `<div class="cal-detail-item">`;
-      html += `<div class="cal-detail-dot" style="background:${item.color}"></div>`;
-      if (item.type === 'sequential') {
-        html += `${item.label}: ${item.count}ページ`;
-      } else if (item.type === 'daily') {
-        html += `${item.label}: ${item.count}/${item.total}回`;
-      } else if (item.type === 'event') {
-        html += `${item.label}${item.done ? ' (完了)' : ''}`;
-      }
-      html += `</div>`;
-    });
-  }
-
-  detail.innerHTML = html;
-}
-
 // Calendar navigation
 document.getElementById('calPrev').addEventListener('click', () => {
   state.calMonth--;
@@ -2302,6 +2510,7 @@ function renderSettingsCards() {
       btn.style.background = c;
       btn.addEventListener('click', () => {
         t.color = c;
+        debouncedSave();
         renderSettingsCards();
         renderDailyEventRow();
       });
@@ -2309,18 +2518,17 @@ function renderSettingsCards() {
     });
     row.appendChild(colors);
 
-    // Name input
     const nameInput = document.createElement('input');
     nameInput.className = 'task-edit-input task-edit-input-name';
     nameInput.type = 'text';
     nameInput.value = t.label;
     nameInput.addEventListener('change', () => {
       t.label = nameInput.value || t.label;
+      debouncedSave();
       renderDailyEventRow();
     });
     row.appendChild(nameInput);
 
-    // Count input
     const countInput = document.createElement('input');
     countInput.className = 'task-edit-input task-edit-input-count';
     countInput.type = 'number';
@@ -2330,19 +2538,19 @@ function renderSettingsCards() {
     countInput.addEventListener('change', () => {
       const newCount = Math.max(1, Math.min(10, parseInt(countInput.value) || 1));
       t.count = newCount;
-      // Reset done count if it exceeds new count
       if (state.dailyDone[t.id] > newCount) state.dailyDone[t.id] = newCount;
+      debouncedSave();
       renderDailyEventRow();
     });
     row.appendChild(countInput);
 
-    // Delete button
     const delBtn = document.createElement('button');
     delBtn.className = 'task-delete-btn';
     delBtn.textContent = '×';
     delBtn.addEventListener('click', () => {
       DAILY_TASKS.splice(idx, 1);
       delete state.dailyDone[t.id];
+      debouncedSave();
       renderSettingsCards();
       renderDailyEventRow();
     });
@@ -2359,6 +2567,7 @@ function renderSettingsCards() {
     const newId = 'daily_' + (nextTaskId++);
     DAILY_TASKS.push({ id: newId, label: '新しいタスク', count: 1, color: TASK_COLORS[DAILY_TASKS.length % TASK_COLORS.length] });
     state.dailyDone[newId] = 0;
+    debouncedSave();
     renderSettingsCards();
     renderDailyEventRow();
   });
@@ -2372,7 +2581,6 @@ function renderSettingsCards() {
     const row = document.createElement('div');
     row.className = 'task-edit-row';
 
-    // Color selector
     const colors = document.createElement('div');
     colors.className = 'task-edit-colors';
     TASK_COLORS.forEach(c => {
@@ -2381,6 +2589,7 @@ function renderSettingsCards() {
       btn.style.background = c;
       btn.addEventListener('click', () => {
         t.color = c;
+        debouncedSave();
         renderSettingsCards();
         renderDailyEventRow();
       });
@@ -2388,35 +2597,35 @@ function renderSettingsCards() {
     });
     row.appendChild(colors);
 
-    // Name input
     const nameInput = document.createElement('input');
     nameInput.className = 'task-edit-input task-edit-input-name';
     nameInput.type = 'text';
     nameInput.value = t.label;
     nameInput.addEventListener('change', () => {
       t.label = nameInput.value || t.label;
+      debouncedSave();
       renderDailyEventRow();
     });
     row.appendChild(nameInput);
 
-    // Date input
     const dateInput = document.createElement('input');
     dateInput.className = 'task-edit-input task-edit-input-date';
     dateInput.type = 'date';
     dateInput.value = t.date;
     dateInput.addEventListener('change', () => {
       t.date = dateInput.value;
+      debouncedSave();
       renderDailyEventRow();
     });
     row.appendChild(dateInput);
 
-    // Delete button
     const delBtn = document.createElement('button');
     delBtn.className = 'task-delete-btn';
     delBtn.textContent = '×';
     delBtn.addEventListener('click', () => {
       EVENT_TASKS.splice(idx, 1);
       delete state.eventDone[t.id];
+      debouncedSave();
       renderSettingsCards();
       renderDailyEventRow();
     });
@@ -2425,7 +2634,6 @@ function renderSettingsCards() {
     eventList.appendChild(row);
   });
 
-  // Add button for events
   const addEventBtn = document.createElement('button');
   addEventBtn.className = 'task-add-btn';
   addEventBtn.textContent = '＋ イベントタスクを追加';
@@ -2433,6 +2641,7 @@ function renderSettingsCards() {
     const newId = 'evt_' + (nextTaskId++);
     EVENT_TASKS.push({ id: newId, label: '新しいイベント', date: todayStr, color: TASK_COLORS[(EVENT_TASKS.length + 2) % TASK_COLORS.length] });
     state.eventDone[newId] = false;
+    debouncedSave();
     renderSettingsCards();
     renderDailyEventRow();
   });
@@ -2440,16 +2649,206 @@ function renderSettingsCards() {
 }
 
 // ── Settings change listeners ──
-['projPages', 'projStart', 'projDeadline'].forEach(id => {
+['projPages', 'projStart', 'projDeadline', 'projName'].forEach(id => {
   document.getElementById(id).addEventListener('change', () => {
     state.totalPages = parseInt(document.getElementById('projPages').value) || 16;
+    debouncedSave();
     updateCellHeaders();
+    updateProjectSelectorBtn();
   });
 });
 
+// ── Project tabs ──
+function renderProjectTabs() {
+  const container = document.getElementById('projectTabs');
+  container.innerHTML = '';
+  projects.forEach(p => {
+    const tab = document.createElement('div');
+    tab.className = 'project-tab' + (p.id === activeProjectId ? ' active' : '');
+    tab.innerHTML = `<div class="project-tab-dot" style="background:${p.color}"></div>${p.name}`;
+    tab.addEventListener('click', () => {
+      if (p.id !== activeProjectId) switchProject(p.id);
+    });
+    container.appendChild(tab);
+  });
+}
+
+// ── Project management (settings) ──
+function renderProjectManageList() {
+  const list = document.getElementById('projectManageList');
+  list.innerHTML = '';
+  projects.forEach((p, idx) => {
+    const row = document.createElement('div');
+    row.className = 'project-manage-row';
+
+    const dot = document.createElement('div');
+    dot.className = 'project-manage-dot';
+    dot.style.background = p.color;
+    row.appendChild(dot);
+
+    const info = document.createElement('div');
+    info.className = 'project-manage-info';
+    info.style.cursor = 'pointer';
+    info.innerHTML = `<div>${p.name}${p.id === activeProjectId ? ' (選択中)' : ''}</div>
+      <div class="project-manage-dates">${p.startDate} 〜 ${p.deadline}</div>`;
+    info.addEventListener('click', () => {
+      if (p.id !== activeProjectId) switchProject(p.id);
+    });
+    row.appendChild(info);
+
+    if (p.id === activeProjectId) {
+      row.style.background = 'var(--name-bg)';
+      row.style.borderRadius = '8px';
+      row.style.padding = '8px';
+      row.style.margin = '-0px -0px';
+    }
+
+    if (projects.length > 1) {
+      const delBtn = document.createElement('button');
+      delBtn.className = 'task-delete-btn';
+      delBtn.textContent = '×';
+      delBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!confirm(`「${p.name}」を削除しますか？`)) return;
+        projects.splice(idx, 1);
+        if (p.id === activeProjectId) {
+          activeProjectId = projects[0].id;
+          loadFromProject(getActiveProject());
+          renderAll();
+          updateProjectSelectorBtn();
+        }
+        debouncedSave();
+        renderProjectManageList();
+      });
+      row.appendChild(delBtn);
+    }
+
+    list.appendChild(row);
+  });
+}
+
+document.getElementById('addProjectBtn').addEventListener('click', () => {
+  const newProj = {
+    id: 'proj_' + Date.now(),
+    name: '新しいプロジェクト',
+    totalPages: 16,
+    startDate: todayStr,
+    deadline: formatDateStr(today.getFullYear(), today.getMonth() + 1, today.getDate()),
+    color: PROJECT_COLORS[projects.length % PROJECT_COLORS.length],
+    planRatios: [0.25, 0.25, 0.25, 0.25],
+    stickerLog: [],
+    createdAt: new Date().toISOString(),
+  };
+  // Set deadline ~2 months out
+  const dl = new Date(today);
+  dl.setMonth(dl.getMonth() + 2);
+  newProj.deadline = dl.toISOString().slice(0, 10);
+
+  projects.push(newProj);
+  debouncedSave();
+  switchProject(newProj.id);
+});
+
+// ── Calendar: event add from detail ──
+function renderCalendarDetail(dateStr) {
+  const detail = document.getElementById('calendarDetail');
+  const d = parseDate(dateStr);
+  const dayData = getDayData(dateStr);
+
+  let html = `<div class="cal-detail-title">${d.getMonth()+1}月${d.getDate()}日 (${WEEKDAYS[d.getDay()]})</div>`;
+
+  if (dayData.details.length === 0) {
+    html += `<div class="cal-detail-empty">この日の記録はありません</div>`;
+  } else {
+    dayData.details.forEach(item => {
+      html += `<div class="cal-detail-item">`;
+      html += `<div class="cal-detail-dot" style="background:${item.color}"></div>`;
+      if (item.type === 'sequential') {
+        html += `${item.label}: ${item.count}ページ`;
+      } else if (item.type === 'daily') {
+        html += `${item.label}: ${item.count}/${item.total}回`;
+      } else if (item.type === 'event') {
+        html += `${item.label}${item.done ? ' (完了)' : ''}`;
+      }
+      html += `</div>`;
+    });
+  }
+
+  detail.innerHTML = html;
+
+  // Add event button
+  const addBtn = document.createElement('button');
+  addBtn.className = 'cal-event-add-btn';
+  addBtn.textContent = '＋ イベントを追加';
+  addBtn.addEventListener('click', () => {
+    addBtn.style.display = 'none';
+    const form = document.createElement('div');
+    form.className = 'cal-event-add-form';
+
+    const nameIn = document.createElement('input');
+    nameIn.className = 'task-edit-input';
+    nameIn.type = 'text';
+    nameIn.placeholder = 'イベント名';
+    nameIn.style.width = '100px';
+    form.appendChild(nameIn);
+
+    const colors = document.createElement('div');
+    colors.className = 'task-edit-colors';
+    let selectedColor = TASK_COLORS[0];
+    TASK_COLORS.forEach(c => {
+      const btn = document.createElement('div');
+      btn.className = 'task-color-btn' + (c === selectedColor ? ' selected' : '');
+      btn.style.background = c;
+      btn.addEventListener('click', () => {
+        selectedColor = c;
+        colors.querySelectorAll('.task-color-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
+      colors.appendChild(btn);
+    });
+    form.appendChild(colors);
+
+    const okBtn = document.createElement('button');
+    okBtn.className = 'task-add-btn';
+    okBtn.style.width = 'auto';
+    okBtn.style.marginTop = '0';
+    okBtn.style.padding = '4px 12px';
+    okBtn.textContent = '追加';
+    okBtn.addEventListener('click', () => {
+      const name = nameIn.value.trim();
+      if (!name) return;
+      const newId = 'evt_' + (nextTaskId++);
+      EVENT_TASKS.push({ id: newId, label: name, date: dateStr, color: selectedColor });
+      state.eventDone[newId] = false;
+      // Immediate save (not debounced) to ensure persistence
+      saveGlobalTasks();
+      saveProjects();
+      renderCalendar();
+      renderDailyEventRow();
+      renderSettingsCards();
+    });
+    form.appendChild(okBtn);
+
+    detail.appendChild(form);
+    nameIn.focus();
+  });
+  detail.appendChild(addBtn);
+}
+
+// ── Window resize handler ──
+let resizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (state.currentPage === 0) renderGantt();
+  }, 150);
+});
+
 // ── Init ──
+updateProjectSelectorBtn();
 renderDailyEventRow();
 renderSettingsCards();
+renderProjectManageList();
 createTapGrid();
 renderStickers();
 renderCalendar();

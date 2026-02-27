@@ -1,0 +1,55 @@
+.ai-panel {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+.ai-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.ai-panel-header h3 {
+  font-size: 16px;
+}
+
+.ai-loading {
+  text-align: center;
+  padding: 32px;
+}
+
+.ai-loading p {
+  margin-top: 12px;
+  color: var(--text-secondary);
+}
+
+.ai-result {
+  background-color: var(--bg-input);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.ai-result-text {
+  white-space: pre-wrap;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.ai-result-error {
+  border: 1px solid var(--danger);
+}
+
+.ai-error {
+  color: var(--danger);
+  font-size: 14px;
+}
+
+.ai-hint {
+  color: var(--text-muted);
+  font-size: 14px;
+  text-align: center;
+  padding: 24px;
+}

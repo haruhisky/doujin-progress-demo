@@ -1,0 +1,30 @@
+[
+  {
+    "label": "ネーム",
+    "folderName": "ネーム",
+    "trackingMethod": "manual",
+    "filePatterns": ["*.png", "*.jpg", "*.jpeg"],
+    "order": 0
+  },
+  {
+    "label": "下書き",
+    "folderName": "下書き",
+    "trackingMethod": "folder",
+    "filePatterns": ["*.psd", "*.clip", "*.png"],
+    "order": 1
+  },
+  {
+    "label": "ペン入れ",
+    "folderName": "ペン入れ",
+    "trackingMethod": "folder",
+    "filePatterns": ["*.psd", "*.clip", "*.png"],
+    "order": 2
+  },
+  {
+    "label": "仕上げ",
+    "folderName": "仕上げ",
+    "trackingMethod": "folder",
+    "filePatterns": ["*.psd", "*.clip", "*.png"],
+    "order": 3
+  }
+]
