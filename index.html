@@ -37,11 +37,95 @@ body {
   font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   background: #e8e4df;
   color: var(--text);
-  overflow: hidden;
-  height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  min-height: 100dvh;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
+  padding: 2rem 1rem;
+  gap: 2rem;
+}
+
+/* ── Links Section ── */
+.links-section {
+  max-width: 420px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+}
+.links-section .dl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #e8a0b4;
+  color: #fff;
+  border-radius: 12px;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(232,160,180,0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.links-section .dl-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(232,160,180,0.4);
+}
+
+/* ── WorkMate Section ── */
+.workmate-section {
+  max-width: 440px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+.workmate-section h2 {
+  font-size: 1.1rem;
+  color: var(--text);
+  font-weight: 600;
+}
+.workmate-section .wm-desc {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  text-align: center;
+  line-height: 1.6;
+}
+.workmate-section iframe {
+  width: 100%;
+  max-width: 420px;
+  height: 720px;
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+}
+.workmate-section .wm-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.25rem;
+  background: #667eea;
+  color: #fff;
+  border-radius: 12px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(102,126,234,0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.workmate-section .wm-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+}
+.footer-note {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  text-align: center;
+  padding-bottom: 1rem;
 }
 
 .phone-frame {
@@ -878,13 +962,15 @@ body {
 }
 
 @media (max-width: 420px) {
-  body { align-items: flex-start; }
+  body { align-items: flex-start; padding: 0; gap: 1.5rem; }
   .phone-frame {
     width: 100%;
     height: 100dvh;
     border-radius: 0;
     box-shadow: none;
   }
+  .links-section, .workmate-section { padding: 0 1rem; }
+  .workmate-section iframe { height: 600px; border-radius: 12px; }
 }
 </style>
 </head>
@@ -2455,5 +2541,25 @@ renderStickers();
 renderCalendar();
 goToPage(1);
 </script>
+
+<!-- ── Download & Links ── -->
+<div class="links-section">
+  <a class="dl-btn" href="https://github.com/haruhisky/doujin-progress-demo/releases/latest" target="_blank" rel="noopener">
+    📥 簡易PC版をダウンロード（Windows）
+  </a>
+</div>
+
+<!-- ── Work Mate Demo ── -->
+<div class="workmate-section">
+  <h2>Work Mate — あなたの作業を、静かに見守る</h2>
+  <p class="wm-desc">クリエイターのためのアンビエント作業トラッカー。<br>作業を始めると一緒にがんばり、手が止まったら静かに待っている。</p>
+  <iframe src="https://haruhisky.github.io/workmate/demo-embed.html" loading="lazy" allow="autoplay"></iframe>
+  <a class="wm-link" href="https://haruhisky.github.io/workmate/" target="_blank" rel="noopener">
+    Work Mate の詳細を見る →
+  </a>
+</div>
+
+<p class="footer-note">&copy; haruhisky</p>
+
 </body>
 </html>
