@@ -394,10 +394,7 @@ body {
   min-height: 0;
 }
 
-.tap-cell.name-cell { background: var(--name-bg); }
-.tap-cell.draft-cell { background: var(--draft-bg); }
-.tap-cell.ink-cell { background: var(--ink-bg); }
-.tap-cell.finish-cell { background: var(--finish-bg); }
+/* tap-cell backgrounds are now set dynamically via processColorBg() */
 
 .tap-cell-header {
   display: flex;
@@ -416,10 +413,7 @@ body {
   font-weight: 700;
 }
 
-.tap-cell.name-cell .tap-cell-header { color: #b06078; }
-.tap-cell.draft-cell .tap-cell-header { color: #a07840; }
-.tap-cell.ink-cell .tap-cell-header { color: #5080a0; }
-.tap-cell.finish-cell .tap-cell-header { color: #508068; }
+/* tap-cell-header colors are now set dynamically via processColorText() */
 
 .tap-cell-stickers {
   flex: 1;
@@ -894,21 +888,77 @@ body {
   color: var(--text);
   background: var(--bg);
 }
-.process-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.process-item {
+/* ── Process edit UI ── */
+.process-edit-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
   font-size: 13px;
+  flex-wrap: wrap;
 }
-.process-dot {
-  width: 14px; height: 14px;
-  border-radius: 50%;
-  flex-shrink: 0;
+.process-edit-row:last-of-type { border-bottom: none; }
+.process-order-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.process-order-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 8px;
+  line-height: 1;
+  padding: 2px 4px;
+  cursor: pointer;
+  color: var(--text-light);
+  transition: color 0.2s, border-color 0.2s;
+}
+.process-order-btn:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--text-light);
+}
+.process-order-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.process-icon-btn {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 16px;
+  padding: 2px 6px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.process-icon-btn:hover {
+  border-color: var(--text-light);
+}
+.process-icon-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px var(--shadow);
+  width: 100%;
+  margin-top: 4px;
+}
+.process-icon-option {
+  font-size: 18px;
+  padding: 4px 6px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+.process-icon-option:hover {
+  background: var(--bg);
+}
+.process-icon-option.selected {
+  background: var(--name-bg);
 }
 .setting-task-row {
   display: flex;
@@ -1139,26 +1189,9 @@ body {
             <span class="setting-value"><input type="date" id="projDeadline" value="2026-04-15"></span>
           </div>
         </div>
-        <div class="settings-card">
+        <div class="settings-card" id="settingsProcessCard">
           <h3>工程</h3>
-          <div class="process-list">
-            <div class="process-item">
-              <div class="process-dot" style="background:var(--name-color)"></div>
-              <span>ネーム</span>
-            </div>
-            <div class="process-item">
-              <div class="process-dot" style="background:var(--draft-color)"></div>
-              <span>下書き</span>
-            </div>
-            <div class="process-item">
-              <div class="process-dot" style="background:var(--ink-color)"></div>
-              <span>ペン入れ</span>
-            </div>
-            <div class="process-item">
-              <div class="process-dot" style="background:var(--finish-color)"></div>
-              <span>仕上げ</span>
-            </div>
-          </div>
+          <div id="settingsProcessList"></div>
         </div>
         <div class="settings-card" id="settingsDailyCard">
           <h3>デイリータスク</h3>
@@ -1184,12 +1217,44 @@ body {
 
 <script>
 // ── Process definitions ──
-const PROCESSES = [
-  { id: 'name', label: 'ネーム', icon: '✏️', cls: 'name', stickerCls: 'name-s', cellCls: 'name-cell', color: '#e8a0b4' },
-  { id: 'draft', label: '下書き', icon: '📝', cls: 'draft', stickerCls: 'draft-s', cellCls: 'draft-cell', color: '#e8b472' },
-  { id: 'ink', label: 'ペン入れ', icon: '🖊️', cls: 'ink', stickerCls: 'ink-s', cellCls: 'ink-cell', color: '#7baed4' },
-  { id: 'finish', label: '仕上げ', icon: '✨', cls: 'finish', stickerCls: 'finish-s', cellCls: 'finish-cell', color: '#82b89a' },
+const DEFAULT_PROCESSES = [
+  { id: 'name', label: 'ネーム', icon: '✏️', color: '#e8a0b4' },
+  { id: 'draft', label: '下書き', icon: '📝', color: '#e8b472' },
+  { id: 'ink', label: 'ペン入れ', icon: '🖊️', color: '#7baed4' },
+  { id: 'finish', label: '仕上げ', icon: '✨', color: '#82b89a' },
 ];
+
+const PROCESS_COLOR_PALETTE = [
+  '#e8a0b4', '#e8b472', '#7baed4', '#82b89a',
+  '#c4a6d4', '#d4a6b8', '#d4b896', '#a6c4b8',
+];
+
+const PROCESS_ICON_CHOICES = ['✏️', '📝', '🖊️', '✨', '🎨', '📐', '🖌️', '📖', '💬', '🔧', '📦', '🎯'];
+
+// Mutable processes array for this demo (no persistence)
+let currentProcesses = DEFAULT_PROCESSES.map(p => ({ ...p }));
+
+function getProcesses() {
+  return currentProcesses;
+}
+
+// Helper: generate lighter bg color from process color
+function processColorBg(color) {
+  const r = parseInt(color.slice(1, 3), 16);
+  const g = parseInt(color.slice(3, 5), 16);
+  const b = parseInt(color.slice(5, 7), 16);
+  const blend = (c) => Math.round(c * 0.12 + 255 * 0.88);
+  return `rgb(${blend(r)}, ${blend(g)}, ${blend(b)})`;
+}
+
+// Helper: generate darker header text color from process color
+function processColorText(color) {
+  const r = parseInt(color.slice(1, 3), 16);
+  const g = parseInt(color.slice(3, 5), 16);
+  const b = parseInt(color.slice(5, 7), 16);
+  const darken = (c) => Math.round(c * 0.55);
+  return `rgb(${darken(r)}, ${darken(g)}, ${darken(b)})`;
+}
 
 // ── Daily / Event task definitions (mutable for editing) ──
 const today = new Date();
@@ -1224,7 +1289,7 @@ const state = {
   currentPage: 1,
   totalPages: 16,
   stickers: [], // today's stickers: { process, x, y, timestamp }
-  planRatios: [0.25, 0.25, 0.25, 0.25],
+  planRatios: Array(DEFAULT_PROCESSES.length).fill(1 / DEFAULT_PROCESSES.length),
   dailyDone: {},   // { 'stretch': 0, 'practice': 0 }
   eventDone: {},   // { 'evt1': false }
   calYear: today.getFullYear(),
@@ -1319,7 +1384,8 @@ function calcPace(processId) {
   const lastDate = parseDate(dates[dates.length - 1]);
 
   let periodStart;
-  if (processId === 'name') {
+  const procs = getProcesses();
+  if (procs.length > 0 && processId === procs[0].id) {
     periodStart = projStart;
   } else {
     periodStart = firstDate;
@@ -1343,6 +1409,7 @@ function goToPage(idx) {
   navLabels.forEach((l, i) => l.classList.toggle('active', i === idx));
   if (idx === 0) renderGantt();
   if (idx === 2) renderCalendar();
+  if (idx === 3) { renderSettingsCards(); renderProcessSettings(); }
 }
 
 navDots.forEach(d => d.addEventListener('click', () => goToPage(+d.dataset.page)));
@@ -1504,20 +1571,22 @@ function getPlannedProcessIndex() {
   const todayFrac = todayOffset / totalDays;
 
   let cumulative = 0;
-  for (let i = 0; i < PROCESSES.length; i++) {
+  const procs = getProcesses();
+  for (let i = 0; i < procs.length; i++) {
     cumulative += state.planRatios[i];
     if (todayFrac < cumulative) return i;
   }
-  return PROCESSES.length - 1;
+  return procs.length - 1;
 }
 
 function calcGridLayout() {
+  const procs = getProcesses();
   let mainIdx = getPlannedProcessIndex();
 
-  if (getTotal(PROCESSES[mainIdx].id) >= state.totalPages) {
+  if (getTotal(procs[mainIdx].id) >= state.totalPages) {
     let found = false;
-    for (let i = mainIdx + 1; i < PROCESSES.length; i++) {
-      if (getTotal(PROCESSES[i].id) < state.totalPages) {
+    for (let i = mainIdx + 1; i < procs.length; i++) {
+      if (getTotal(procs[i].id) < state.totalPages) {
         mainIdx = i;
         found = true;
         break;
@@ -1525,7 +1594,7 @@ function calcGridLayout() {
     }
     if (!found) {
       for (let i = 0; i < mainIdx; i++) {
-        if (getTotal(PROCESSES[i].id) < state.totalPages) {
+        if (getTotal(procs[i].id) < state.totalPages) {
           mainIdx = i;
           break;
         }
@@ -1534,21 +1603,21 @@ function calcGridLayout() {
   }
 
   let nextIdx = -1;
-  for (let i = mainIdx + 1; i < PROCESSES.length; i++) {
-    if (getTotal(PROCESSES[i].id) < state.totalPages) {
+  for (let i = mainIdx + 1; i < procs.length; i++) {
+    if (getTotal(procs[i].id) < state.totalPages) {
       nextIdx = i;
       break;
     }
   }
 
   const restIndices = [];
-  for (let i = 0; i < PROCESSES.length; i++) {
+  for (let i = 0; i < procs.length; i++) {
     if (i !== mainIdx && i !== nextIdx) {
       restIndices.push(i);
     }
   }
 
-  const mainDone = getTotal(PROCESSES[mainIdx].id);
+  const mainDone = getTotal(procs[mainIdx].id);
   const mainProgress = mainDone / state.totalPages;
   const transition = Math.max(0, Math.min(1, (mainProgress - 0.6) / 0.4));
 
@@ -1584,11 +1653,13 @@ function createTapGrid() {
 
   function createCell(p) {
     const cell = document.createElement('div');
-    cell.className = `tap-cell ${p.cellCls}`;
+    cell.className = 'tap-cell';
     cell.dataset.process = p.id;
+    cell.style.background = processColorBg(p.color);
 
     const header = document.createElement('div');
     header.className = 'tap-cell-header';
+    header.style.color = processColorText(p.color);
     header.innerHTML = `<span class="icon">${p.icon}</span><span>${p.label}</span><span class="progress">${getTotal(p.id)}/${state.totalPages}</span>`;
     cell.appendChild(header);
 
@@ -1608,12 +1679,13 @@ function createTapGrid() {
     return cell;
   }
 
-  const mainCell = createCell(PROCESSES[layout.mainIdx]);
+  const procs = getProcesses();
+  const mainCell = createCell(procs[layout.mainIdx]);
   mainCell.classList.add('tap-cell-main');
   grid.appendChild(mainCell);
 
   if (layout.nextIdx >= 0) {
-    const nextCell = createCell(PROCESSES[layout.nextIdx]);
+    const nextCell = createCell(procs[layout.nextIdx]);
     nextCell.classList.add('tap-cell-next');
     grid.appendChild(nextCell);
   }
@@ -1622,14 +1694,14 @@ function createTapGrid() {
     const restWrap = document.createElement('div');
     restWrap.className = 'tap-cell-rest-wrap';
     layout.restIndices.forEach(idx => {
-      restWrap.appendChild(createCell(PROCESSES[idx]));
+      restWrap.appendChild(createCell(procs[idx]));
     });
     grid.appendChild(restWrap);
   }
 }
 
 function updateCellHeaders() {
-  PROCESSES.forEach(p => {
+  getProcesses().forEach(p => {
     const cell = document.querySelector(`.tap-cell[data-process="${p.id}"]`);
     if (!cell) return;
     const progress = cell.querySelector('.tap-cell-header .progress');
@@ -1673,7 +1745,7 @@ function emitParticles(containerEl, x, y, color) {
 function addSticker(processId, xPct, yPct) {
   const total = getTotal(processId);
   if (total >= state.totalPages) {
-    showToast(`${PROCESSES.find(p => p.id === processId).label}は全ページ完了済みです`);
+    showToast(`${(getProcesses().find(p => p.id === processId) || {label: ''}).label}は全ページ完了済みです`);
     return;
   }
 
@@ -1728,7 +1800,7 @@ function removeSticker(processId, stickerIndex, slideOut) {
 }
 
 function renderStickers() {
-  PROCESSES.forEach(p => {
+  getProcesses().forEach(p => {
     const container = document.querySelector(`.tap-cell-stickers[data-process="${p.id}"]`);
     if (!container) return;
     container.querySelectorAll('.sticker, .particle').forEach(el => el.remove());
@@ -1895,7 +1967,8 @@ function renderGantt() {
   connectedBar.className = 'gantt-connected-bar';
   connectedBar.style.width = '100%';
 
-  PROCESSES.forEach((p, idx) => {
+  const procs = getProcesses();
+  procs.forEach((p, idx) => {
     const seg = document.createElement('div');
     seg.className = 'gantt-connected-segment';
     seg.style.flex = state.planRatios[idx];
@@ -1910,7 +1983,7 @@ function renderGantt() {
     connectedBar.appendChild(seg);
   });
 
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < procs.length - 1; i++) {
     const handle = document.createElement('div');
     handle.className = 'gantt-drag-handle';
     handle.dataset.index = i;
@@ -1925,7 +1998,7 @@ function renderGantt() {
   const forecastData = [];
   let chainEndDayOffset = 0;
 
-  PROCESSES.forEach((p, idx) => {
+  procs.forEach((p, idx) => {
     const pace = calcPace(p.id);
     if (pace) {
       const forecastDays = pages / pace.pace;
@@ -1960,7 +2033,7 @@ function renderGantt() {
   }
 
   // ── Process rows ──
-  PROCESSES.forEach((p, idx) => {
+  procs.forEach((p, idx) => {
     const row = document.createElement('div');
     row.className = 'gantt-row';
 
@@ -2018,7 +2091,7 @@ function renderGantt() {
 
   // ── Today line ──
   const todayPct = Math.min(100, Math.max(0, (todayOffset / totalDays) * 100));
-  const totalTimelineHeight = 36 + 12 + (36 + 6) * 4;
+  const totalTimelineHeight = 36 + 12 + (36 + 6) * procs.length;
   const todayLine = document.createElement('div');
   todayLine.className = 'gantt-vline today-line';
   todayLine.style.left = todayPct + '%';
@@ -2073,7 +2146,7 @@ function renderPaceAnalysis() {
   let totalDeviation = 0; // 計画に対する合計差分（正=超過、負=余裕）
   let hasAnyPace = false;
 
-  PROCESSES.forEach((p, idx) => {
+  getProcesses().forEach((p, idx) => {
     const pace = calcPace(p.id);
     const done = getTotal(p.id);
     const remaining = Math.max(0, pages - done);
@@ -2298,7 +2371,8 @@ function createCalDay(dayNum, dateStr, isOtherMonth) {
   if (dayData.hasSequential) {
     const dot = document.createElement('div');
     dot.className = 'cal-dot';
-    dot.style.background = '#e8a0b4';
+    const seqDetail = dayData.details.find(d => d.type === 'sequential');
+    dot.style.background = seqDetail ? seqDetail.color : (getProcesses()[0] || {color: '#e8a0b4'}).color;
     dots.appendChild(dot);
   }
 
@@ -2337,7 +2411,7 @@ function getDayData(dateStr) {
   // Check sticker log for sequential tasks
   if (dateStr === todayStr) {
     // Today: use live stickers
-    PROCESSES.forEach(p => {
+    getProcesses().forEach(p => {
       const count = state.stickers.filter(s => s.process === p.id).length;
       if (count > 0) {
         result.hasSequential = true;
@@ -2345,7 +2419,7 @@ function getDayData(dateStr) {
       }
     });
     // Also check stickerLog for today
-    PROCESSES.forEach(p => {
+    getProcesses().forEach(p => {
       const logCount = stickerLog.filter(e => e.process === p.id && e.date === dateStr).reduce((s, e) => s + e.count, 0);
       if (logCount > 0) {
         result.hasSequential = true;
@@ -2376,7 +2450,7 @@ function getDayData(dateStr) {
     });
   } else {
     // Past/future: check stickerLog
-    PROCESSES.forEach(p => {
+    getProcesses().forEach(p => {
       const count = stickerLog.filter(e => e.process === p.id && e.date === dateStr).reduce((s, e) => s + e.count, 0);
       if (count > 0) {
         result.hasSequential = true;
@@ -2432,6 +2506,148 @@ document.getElementById('calNext').addEventListener('click', () => {
   if (state.calMonth > 11) { state.calMonth = 0; state.calYear++; }
   renderCalendar();
 });
+
+// ── Settings: Process editing ──
+function renderProcessSettings() {
+  const list = document.getElementById('settingsProcessList');
+  if (!list) return;
+  list.innerHTML = '';
+
+  const procs = getProcesses();
+
+  procs.forEach((p, idx) => {
+    const row = document.createElement('div');
+    row.className = 'process-edit-row';
+
+    // Reorder buttons
+    const orderBtns = document.createElement('div');
+    orderBtns.className = 'process-order-btns';
+
+    const upBtn = document.createElement('button');
+    upBtn.className = 'process-order-btn';
+    upBtn.textContent = '▲';
+    upBtn.disabled = idx === 0;
+    upBtn.addEventListener('click', () => {
+      if (idx === 0) return;
+      [procs[idx - 1], procs[idx]] = [procs[idx], procs[idx - 1]];
+      [state.planRatios[idx - 1], state.planRatios[idx]] = [state.planRatios[idx], state.planRatios[idx - 1]];
+      renderProcessSettings();
+      createTapGrid(); renderStickers();
+    });
+    orderBtns.appendChild(upBtn);
+
+    const downBtn = document.createElement('button');
+    downBtn.className = 'process-order-btn';
+    downBtn.textContent = '▼';
+    downBtn.disabled = idx === procs.length - 1;
+    downBtn.addEventListener('click', () => {
+      if (idx === procs.length - 1) return;
+      [procs[idx], procs[idx + 1]] = [procs[idx + 1], procs[idx]];
+      [state.planRatios[idx], state.planRatios[idx + 1]] = [state.planRatios[idx + 1], state.planRatios[idx]];
+      renderProcessSettings();
+      createTapGrid(); renderStickers();
+    });
+    orderBtns.appendChild(downBtn);
+    row.appendChild(orderBtns);
+
+    // Color selector
+    const colors = document.createElement('div');
+    colors.className = 'task-edit-colors';
+    PROCESS_COLOR_PALETTE.forEach(c => {
+      const btn = document.createElement('div');
+      btn.className = 'task-color-btn' + (c === p.color ? ' selected' : '');
+      btn.style.background = c;
+      btn.addEventListener('click', () => {
+        p.color = c;
+        renderProcessSettings();
+        createTapGrid(); renderStickers();
+      });
+      colors.appendChild(btn);
+    });
+    row.appendChild(colors);
+
+    // Icon selector
+    const iconBtn = document.createElement('button');
+    iconBtn.className = 'process-icon-btn';
+    iconBtn.textContent = p.icon;
+    iconBtn.addEventListener('click', () => {
+      // Toggle icon picker
+      const existing = row.querySelector('.process-icon-picker');
+      if (existing) { existing.remove(); return; }
+      const picker = document.createElement('div');
+      picker.className = 'process-icon-picker';
+      PROCESS_ICON_CHOICES.forEach(ic => {
+        const opt = document.createElement('span');
+        opt.className = 'process-icon-option' + (ic === p.icon ? ' selected' : '');
+        opt.textContent = ic;
+        opt.addEventListener('click', (e) => {
+          e.stopPropagation();
+          p.icon = ic;
+          renderProcessSettings();
+          createTapGrid(); renderStickers();
+        });
+        picker.appendChild(opt);
+      });
+      row.appendChild(picker);
+    });
+    row.appendChild(iconBtn);
+
+    // Name input
+    const nameInput = document.createElement('input');
+    nameInput.className = 'task-edit-input task-edit-input-name';
+    nameInput.type = 'text';
+    nameInput.value = p.label;
+    nameInput.addEventListener('change', () => {
+      p.label = nameInput.value || p.label;
+      createTapGrid(); renderStickers();
+    });
+    row.appendChild(nameInput);
+
+    // Delete button (only if more than 1 process)
+    if (procs.length > 1) {
+      const delBtn = document.createElement('button');
+      delBtn.className = 'task-delete-btn';
+      delBtn.textContent = '×';
+      delBtn.addEventListener('click', () => {
+        if (!confirm(`「${p.label}」工程を削除しますか？\n（この工程のシールデータも失われます）`)) return;
+        procs.splice(idx, 1);
+        // Fix planRatios
+        state.planRatios.splice(idx, 1);
+        const sum = state.planRatios.reduce((a, b) => a + b, 0);
+        state.planRatios = state.planRatios.map(r => r / sum);
+        renderProcessSettings();
+        createTapGrid(); renderStickers();
+      });
+      row.appendChild(delBtn);
+    }
+
+    list.appendChild(row);
+  });
+
+  // Add process button (max 8)
+  if (procs.length < 8) {
+    const addBtn = document.createElement('button');
+    addBtn.className = 'task-add-btn';
+    addBtn.textContent = '＋ 工程を追加';
+    addBtn.addEventListener('click', () => {
+      const newId = 'p' + Date.now();
+      const colorIdx = procs.length % PROCESS_COLOR_PALETTE.length;
+      const iconIdx = procs.length % PROCESS_ICON_CHOICES.length;
+      procs.push({
+        id: newId,
+        label: '新しい工程',
+        icon: PROCESS_ICON_CHOICES[iconIdx],
+        color: PROCESS_COLOR_PALETTE[colorIdx],
+      });
+      // Redistribute planRatios equally
+      const n = procs.length;
+      state.planRatios = Array(n).fill(1 / n);
+      renderProcessSettings();
+      createTapGrid(); renderStickers();
+    });
+    list.appendChild(addBtn);
+  }
+}
 
 // ── Settings: Daily / Event cards (変更3: 編集対応) ──
 function renderSettingsCards() {
@@ -2599,6 +2815,7 @@ function renderSettingsCards() {
 // ── Init ──
 renderDailyEventRow();
 renderSettingsCards();
+renderProcessSettings();
 createTapGrid();
 renderStickers();
 renderCalendar();
