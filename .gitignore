@@ -2,3 +2,5 @@ node_modules/
 dist/
 .claude/
 package-lock.json
+flutter/build/
+flutter/.dart_tool/

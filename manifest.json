@@ -1,0 +1,35 @@
+{
+    "name": "同人わんたっぷ",
+    "short_name": "わんたっぷ",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#FBF8F4",
+    "theme_color": "#D4A0B9",
+    "description": "同人誌・漫画制作に特化したプロジェクト管理アプリ。シールを貼るように進捗を記録。",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "icons/Icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}
