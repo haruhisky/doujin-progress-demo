@@ -1,46 +1,234 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>同人わんたっぷ &amp; Work Mate</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
+body {
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  background: #e8e4df;
+  color: #4a4a4a;
+  overflow-x: hidden;
+  overflow-y: auto;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+/* ── App Section ── */
+.app-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2.5rem 1rem;
+  gap: 1.5rem;
+}
+.app-section.wantap-area {
+  background: #e8e4df;
+}
+.app-section.workmate-area {
+  background: #2a2a3e;
+  color: #e0ddd8;
+}
 
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
-  <base href="/doujin-progress-demo/">
+/* ── Header ── */
+.app-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.app-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+.wantap-area .app-title { color: #4a4a4a; }
+.workmate-area .app-title { color: #e0ddd8; }
+.app-tagline {
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+.wantap-area .app-tagline { color: #8a8a8a; }
+.workmate-area .app-tagline { color: rgba(224,221,216,0.7); }
 
-  <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="同人わんたっぷ — 同人誌・漫画制作に特化したプロジェクト管理アプリ">
+/* ── Phone Frame ── */
+.phone-frame {
+  width: 420px;
+  max-width: 100%;
+  height: 720px;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  background: #faf8f5;
+}
+.phone-frame iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
 
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="同人わんたっぷ">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+/* ── WorkMate iframe ── */
+.workmate-area iframe {
+  width: 100%;
+  max-width: 420px;
+  height: 720px;
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+/* ── Download Button ── */
+.dl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #e8a0b4;
+  color: #fff;
+  border-radius: 12px;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(232,160,180,0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.dl-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(232,160,180,0.4);
+}
 
-  <title>同人わんたっぷ</title>
-  <link rel="manifest" href="manifest.json">
+/* ── WorkMate Link ── */
+.wm-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.25rem;
+  background: #667eea;
+  color: #fff;
+  border-radius: 12px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(102,126,234,0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.wm-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+}
+
+/* ── WorkMate State Buttons ── */
+.wm-state-controls {
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.wm-state-btn {
+  padding: 0.5rem 1.1rem;
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(224,221,216,0.6);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+.wm-state-btn:hover {
+  border-color: rgba(255,255,255,0.3);
+  color: #e0ddd8;
+}
+.wm-state-btn.active { color: #fff; }
+.wm-state-btn[data-state="work"].active {
+  border-color: #667eea;
+  background: rgba(102,126,234,0.25);
+}
+.wm-state-btn[data-state="slacking"].active {
+  border-color: #f093fb;
+  background: rgba(240,147,251,0.25);
+}
+.wm-state-btn[data-state="break"].active {
+  border-color: #11998e;
+  background: rgba(17,153,142,0.25);
+}
+.wm-state-btn[data-state="away"].active {
+  border-color: #6c7086;
+  background: rgba(108,112,134,0.25);
+}
+.wm-hint {
+  font-size: 0.8rem;
+  color: rgba(224,221,216,0.5);
+  text-align: center;
+}
+
+/* ── Footer ── */
+.footer-note {
+  width: 100%;
+  font-size: 0.75rem;
+  color: rgba(224,221,216,0.5);
+  text-align: center;
+  padding: 1rem;
+  background: #2a2a3e;
+}
+</style>
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
 
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
-  <script src="flutter_bootstrap.js" async></script>
+<!-- ══ わんたっぷ エリア ══ -->
+<div class="app-section wantap-area">
+  <div class="app-header">
+    <div class="app-title">同人わんたっぷ</div>
+    <div class="app-tagline">シールを貼るように、今日の進捗をタップするだけ。<br>締切までの見通しが自動的に見える。</div>
+  </div>
+  <div class="phone-frame">
+    <iframe src="app/index.html" loading="lazy"></iframe>
+  </div>
+  <a class="dl-btn" href="https://github.com/haruhisky/doujin-progress-demo/releases/tag/v2.0.0" target="_blank" rel="noopener">
+    📥 PC版をダウンロード（Windows）
+  </a>
+</div>
+
+<!-- ══ Work Mate エリア ══ -->
+<div class="app-section workmate-area">
+  <div class="app-header">
+    <div class="app-title">Work Mate</div>
+    <div class="app-tagline">あなたの作業を、静かに見守る。<br>クリエイターのためのアンビエント作業トラッカー。</div>
+  </div>
+  <iframe id="wmDemoFrame" src="https://haruhisky.github.io/workmate/demo-embed.html" loading="lazy" allow="autoplay"></iframe>
+  <div class="wm-state-controls">
+    <button class="wm-state-btn active" data-state="work">作業中</button>
+    <button class="wm-state-btn" data-state="slacking">ひと息中</button>
+    <button class="wm-state-btn" data-state="break">休憩中</button>
+    <button class="wm-state-btn" data-state="away">離席中</button>
+  </div>
+  <p class="wm-hint">↑ ボタンで状態を切り替えてみてください</p>
+  <a class="wm-link" href="https://haruhisky.github.io/workmate/" target="_blank" rel="noopener">
+    Work Mate の詳細を見る →
+  </a>
+</div>
+
+<p class="footer-note">&copy; haruhisky</p>
+
+<script>
+// WorkMate demo state controls
+(function() {
+  var frame = document.getElementById('wmDemoFrame');
+  var btns = document.querySelectorAll('.wm-state-btn');
+  btns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var state = this.getAttribute('data-state');
+      frame.contentWindow.postMessage({ type: 'setState', state: state }, '*');
+      btns.forEach(function(b) { b.classList.toggle('active', b.getAttribute('data-state') === state); });
+    });
+  });
+})();
+</script>
 </body>
 </html>
