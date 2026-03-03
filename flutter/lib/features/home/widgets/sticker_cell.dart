@@ -168,8 +168,8 @@ class _StickerCellState extends State<StickerCell> {
   Widget _buildPastArea() {
     final pastCount = widget.pastCount;
     final grayColor = _grayColor;
-    final largeLabel = pastCount >= 10 ? (pastCount ~/ 10) * 10 : 0;
-    final smallCount = pastCount > 0 ? pastCount % 10 : 0;
+    final largeLabel = pastCount >= 5 ? (pastCount ~/ 5) * 5 : 0;
+    final smallCount = pastCount > 0 ? pastCount % 5 : 0;
     final isComplete = widget.totalCompleted >= widget.totalPages;
     final minusDisabled = pastCount <= 0;
     final plusDisabled = isComplete;

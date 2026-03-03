@@ -50877,9 +50877,9 @@ if(s.w+1>=s.x)s.ax.$0()},
 aaW(){var s,r,q,p,o,n,m,l,k,j=this,i=null,h=j.a,g=h.y
 h=A.aRI(h.f)
 s=new A.w8(h.a,h.b,0.15,0.65).a2M()
-r=g>=10?B.e.cd(g,10)*10:0
+r=g>=5?B.e.cd(g,5)*5:0
 h=g>0
-q=h?B.e.bw(g,10):0
+q=h?B.e.bw(g,5):0
 p=j.a
 o=p.w
 p=p.x
