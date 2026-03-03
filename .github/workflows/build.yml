@@ -1,0 +1,68 @@
+name: Build Desktop Apps
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Build Windows
+        working-directory: flutter
+        run: |
+          flutter pub get
+          flutter build windows --release
+      - name: Zip Windows build
+        run: Compress-Archive -Path flutter\build\windows\x64\runner\Release\* -DestinationPath doujin-wantap-windows.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: doujin-wantap-windows.zip
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Build macOS
+        working-directory: flutter
+        run: |
+          flutter pub get
+          flutter build macos --release
+      - name: Zip macOS build
+        run: |
+          cd flutter/build/macos/Build/Products/Release
+          zip -r -y ../../../../../../doujin-wantap-macos.zip "doujin_wantap.app"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: doujin-wantap-macos.zip
+
+  release:
+    needs: [build-windows, build-macos]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-build
+      - uses: actions/download-artifact@v4
+        with:
+          name: macos-build
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            doujin-wantap-windows.zip
+            doujin-wantap-macos.zip
