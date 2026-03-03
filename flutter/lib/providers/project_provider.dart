@@ -12,7 +12,7 @@ final projectRepositoryProvider = Provider<ProjectRepository>((ref) {
 final projectsProvider =
     StateNotifierProvider<ProjectsNotifier, List<Project>>((ref) {
   final repo = ref.watch(projectRepositoryProvider);
-  return ProjectsNotifier(repo);
+  return ProjectsNotifier(repo, ref);
 });
 
 /// アクティブプロジェクトID
@@ -35,8 +35,9 @@ final activeProjectProvider = Provider<Project?>((ref) {
 
 class ProjectsNotifier extends StateNotifier<List<Project>> {
   final ProjectRepository _repo;
+  final Ref _ref;
 
-  ProjectsNotifier(this._repo) : super(_repo.getAll());
+  ProjectsNotifier(this._repo, this._ref) : super(_repo.getAll());
 
   /// Hiveのオブジェクトは同一参照なので、copyWithで新しいインスタンスを作り
   /// Riverpod の Provider（activeProjectProvider等）が変更を検出できるようにする
@@ -71,6 +72,8 @@ class ProjectsNotifier extends StateNotifier<List<Project>> {
 
   Future<void> delete(String id) async {
     await _repo.delete(id);
+    // 削除後のアクティブIDをProviderに同期
+    _ref.read(activeProjectIdProvider.notifier).state = _repo.activeProjectId;
     _notify();
   }
 

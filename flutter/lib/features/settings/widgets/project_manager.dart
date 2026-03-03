@@ -293,8 +293,15 @@ class ProjectManager extends ConsumerWidget {
                 child: ElevatedButton(
                   onPressed: () {
                     final name = nameCtrl.text.trim();
-                    final pages = int.tryParse(pagesCtrl.text) ?? 24;
+                    final pages =
+                        (int.tryParse(pagesCtrl.text) ?? 24).clamp(1, 9999);
                     if (name.isEmpty) return;
+                    if (!startDate.isBefore(deadlineDate)) {
+                      ScaffoldMessenger.of(ctx).showSnackBar(
+                        const SnackBar(content: Text('開始日は締切日より前にしてください')),
+                      );
+                      return;
+                    }
                     ref.read(projectsProvider.notifier).create(
                           name: name,
                           totalPages: pages,
@@ -316,7 +323,9 @@ class ProjectManager extends ConsumerWidget {
   /// プロジェクト編集ダイアログ（名前、ページ数、開始日、締切日）
   void _showEditDialog(BuildContext context, WidgetRef ref, String projectId) {
     final projects = ref.read(projectsProvider);
-    final project = projects.firstWhere((p) => p.id == projectId);
+    final project =
+        projects.where((p) => p.id == projectId).firstOrNull;
+    if (project == null) return;
     final nameCtrl = TextEditingController(text: project.name);
     final pagesCtrl = TextEditingController(text: project.totalPages.toString());
     DateTime startDate = parseDate(project.startDate);
@@ -457,8 +466,15 @@ class ProjectManager extends ConsumerWidget {
                   onPressed: () {
                     final name = nameCtrl.text.trim();
                     final pages =
-                        int.tryParse(pagesCtrl.text) ?? project.totalPages;
+                        (int.tryParse(pagesCtrl.text) ?? project.totalPages)
+                            .clamp(1, 9999);
                     if (name.isEmpty) return;
+                    if (!startDate.isBefore(deadlineDate)) {
+                      ScaffoldMessenger.of(ctx).showSnackBar(
+                        const SnackBar(content: Text('開始日は締切日より前にしてください')),
+                      );
+                      return;
+                    }
                     project.name = name;
                     project.totalPages = pages;
                     project.startDate = formatDate(startDate);

@@ -143,12 +143,12 @@ class _TapGridState extends ConsumerState<TapGrid> {
           totalCompleted: totalCompleted,
           totalPages: project.totalPages,
           hideCompletionLabel: _hideCompletionLabelIndex == index,
-          onTap: () {
-            ref
+          onTap: () async {
+            await ref
                 .read(projectsProvider.notifier)
                 .addSticker(project.id, proc.id, today);
-            // シール追加後にプロジェクト完了をチェック
-            Future.microtask(() => _checkProjectComplete());
+            if (!mounted) return;
+            _checkProjectComplete();
           },
           onRemove: () {
             ref

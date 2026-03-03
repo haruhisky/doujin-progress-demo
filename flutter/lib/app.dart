@@ -5,12 +5,39 @@ import 'features/gantt/gantt_screen.dart';
 import 'features/calendar/calendar_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'providers/navigation_provider.dart';
+import 'providers/sticker_provider.dart';
 
-class WantapApp extends ConsumerWidget {
+class WantapApp extends ConsumerStatefulWidget {
   const WantapApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<WantapApp> createState() => _WantapAppState();
+}
+
+class _WantapAppState extends ConsumerState<WantapApp>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // アプリ復帰時に今日の日付を再評価（深夜跨ぎ対策）
+      ref.invalidate(todayProvider);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final currentIndex = ref.watch(navigationProvider);
 
     return Scaffold(

@@ -102,9 +102,9 @@ class Project extends HiveObject {
       startDate: startDate ?? this.startDate,
       deadline: deadline ?? this.deadline,
       color: color ?? this.color,
-      processes: processes ?? this.processes,
-      planRatios: planRatios ?? this.planRatios,
-      stickerLog: stickerLog ?? this.stickerLog,
+      processes: processes ?? List.from(this.processes),
+      planRatios: planRatios ?? List.from(this.planRatios),
+      stickerLog: stickerLog ?? List.from(this.stickerLog),
       createdAt: createdAt ?? this.createdAt,
     );
   }

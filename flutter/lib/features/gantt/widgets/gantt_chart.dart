@@ -132,6 +132,7 @@ class _GanttChartState extends State<GanttChart> {
 
   int? _findHandle(Offset position) {
     final chartWidth = (context.size?.width ?? 300) - leftLabelWidth;
+    if (chartWidth <= 0) return null;
     double cumulative = 0;
 
     for (int i = 0; i < _ratios.length - 1; i++) {
@@ -147,6 +148,7 @@ class _GanttChartState extends State<GanttChart> {
   void _updateRatio(Offset position) {
     final i = _draggingHandle!;
     final chartWidth = (context.size?.width ?? 300) - leftLabelWidth;
+    if (chartWidth <= 0) return;
     final relX = (position.dx - leftLabelWidth) / chartWidth;
 
     double before = 0;
