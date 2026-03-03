@@ -28,8 +28,11 @@ class StickerCell extends StatefulWidget {
   final int todayCount;
   final int totalCompleted;
   final int totalPages;
+  final int pastCount;
   final VoidCallback onTap;
   final VoidCallback onRemove;
+  final VoidCallback? onRemoveLatest;
+  final VoidCallback? onAddPast;
   final VoidCallback? onProcessComplete;
   final bool hideCompletionLabel;
 
@@ -42,8 +45,11 @@ class StickerCell extends StatefulWidget {
     required this.todayCount,
     required this.totalCompleted,
     required this.totalPages,
+    this.pastCount = 0,
     required this.onTap,
     required this.onRemove,
+    this.onRemoveLatest,
+    this.onAddPast,
     this.onProcessComplete,
     this.hideCompletionLabel = false,
   });
@@ -150,10 +156,95 @@ class _StickerCellState extends State<StickerCell> {
     }
   }
 
+  /// 脱色カラー（彩度を落とした灰色寄りのカラー）
+  Color get _grayColor {
+    return HSLColor.fromColor(widget.color)
+        .withSaturation(0.15)
+        .withLightness(0.65)
+        .toColor();
+  }
+
+  /// 過去シールエリアを構築（常設）
+  Widget _buildPastArea() {
+    final pastCount = widget.pastCount;
+    final grayColor = _grayColor;
+    final largeLabel = pastCount >= 10 ? (pastCount ~/ 10) * 10 : 0;
+    final smallCount = pastCount > 0 ? pastCount % 10 : 0;
+    final isComplete = widget.totalCompleted >= widget.totalPages;
+    final minusDisabled = pastCount <= 0;
+    final plusDisabled = isComplete;
+
+    return GestureDetector(
+      onTapDown: (_) {}, // タップ吸収（誤爆防止）
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.grey.shade100,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(16),
+            topRight: Radius.circular(16),
+          ),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // 背景テキスト
+            if (pastCount == 0)
+              Text(
+                '達成済みのシール',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Colors.grey.shade300,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            Row(
+              children: [
+                // [−] ボタン
+                _PastActionButton(
+                  icon: Icons.remove,
+                  disabled: minusDisabled,
+                  color: grayColor,
+                  onPressed: widget.onRemoveLatest,
+                ),
+                // シール列（横スクロール可能）
+                Expanded(
+                  child: pastCount > 0
+                      ? SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              if (largeLabel > 0)
+                                _LargePastSticker(
+                                  color: grayColor,
+                                  label: '$largeLabel',
+                                ),
+                              for (int j = 0; j < smallCount; j++)
+                                _SmallPastSticker(color: grayColor),
+                            ],
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                ),
+                // [＋] ボタン
+                _PastActionButton(
+                  icon: Icons.add,
+                  disabled: plusDisabled,
+                  color: grayColor,
+                  onPressed: widget.onAddPast,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isComplete = widget.totalCompleted >= widget.totalPages;
-
     return Container(
       decoration: BoxDecoration(
         color: widget.color.withOpacity(isComplete ? 0.12 : 0.06),
@@ -166,6 +257,14 @@ class _StickerCellState extends State<StickerCell> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 過去シールエリア
+          _buildPastArea(),
+          // 区切り線
+          Divider(
+              height: 1,
+              thickness: 1,
+              color: Colors.grey.shade300,
+            ),
           // ヘッダー
           Padding(
             padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
@@ -296,6 +395,95 @@ class _StickerCellState extends State<StickerCell> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// 過去エリアの [+] / [-] ボタン
+class _PastActionButton extends StatelessWidget {
+  final IconData icon;
+  final bool disabled;
+  final Color color;
+  final VoidCallback? onPressed;
+
+  const _PastActionButton({
+    required this.icon,
+    required this.disabled,
+    required this.color,
+    this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 28,
+      height: 28,
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        iconSize: 18,
+        icon: Icon(
+          icon,
+          color: disabled ? Colors.grey.shade400 : color,
+        ),
+        onPressed: disabled ? null : onPressed,
+      ),
+    );
+  }
+}
+
+/// 大シール（10個集約、数字ラベル付き）
+class _LargePastSticker extends StatelessWidget {
+  final Color color;
+  final String label;
+
+  const _LargePastSticker({
+    required this.color,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      child: SizedBox(
+        width: 32,
+        height: 32,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            CustomPaint(
+              size: const Size(32, 32),
+              painter: PawPainter(color: color, glossOpacity: 0.1),
+            ),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.w800,
+                color: Colors.white.withOpacity(0.9),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 小シール（1個分）
+class _SmallPastSticker extends StatelessWidget {
+  final Color color;
+
+  const _SmallPastSticker({required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 1),
+      child: CustomPaint(
+        size: const Size(18, 18),
+        painter: PawPainter(color: color, glossOpacity: 0.1),
       ),
     );
   }

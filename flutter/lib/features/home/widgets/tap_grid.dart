@@ -18,37 +18,52 @@ class TapGrid extends ConsumerStatefulWidget {
 }
 
 class _TapGridState extends ConsumerState<TapGrid> {
-  bool _showProjectComplete = false;
-  bool _showProcessComplete = false;
-  Color _processCompleteColor = Colors.transparent;
-  Rect? _processCompleteRect; // 完了セルの位置（TapGrid内座標）
   int? _hideCompletionLabelIndex; // 犬の手アニメ中にラベルを隠すセルのindex
   final _gridKey = GlobalKey();
   final Map<int, GlobalKey> _cellKeys = {};
+  OverlayEntry? _processOverlay;
+  OverlayEntry? _projectOverlay;
 
   GlobalKey _getCellKey(int index) {
     return _cellKeys.putIfAbsent(index, () => GlobalKey());
   }
 
+  @override
+  void dispose() {
+    _processOverlay?.remove();
+    _projectOverlay?.remove();
+    super.dispose();
+  }
+
   void _onProcessComplete(int index, Color color) {
     HapticFeedback.mediumImpact();
 
-    // セルの位置を取得（TapGridの座標系に変換）
+    // セルの位置をグローバル座標で取得
     final cellKey = _cellKeys[index];
-    final gridBox = _gridKey.currentContext?.findRenderObject() as RenderBox?;
     final cellBox = cellKey?.currentContext?.findRenderObject() as RenderBox?;
 
-    if (gridBox != null && cellBox != null) {
-      final cellPos = cellBox.localToGlobal(Offset.zero,
-          ancestor: gridBox);
+    if (cellBox != null) {
+      final globalPos = cellBox.localToGlobal(Offset.zero);
       final cellSize = cellBox.size;
-      setState(() {
-        _showProcessComplete = true;
-        _processCompleteColor = color;
-        _processCompleteRect =
-            Rect.fromLTWH(cellPos.dx, cellPos.dy, cellSize.width, cellSize.height);
-        _hideCompletionLabelIndex = index;
-      });
+      final targetRect = Rect.fromLTWH(
+          globalPos.dx, globalPos.dy, cellSize.width, cellSize.height);
+
+      setState(() => _hideCompletionLabelIndex = index);
+
+      _processOverlay = OverlayEntry(
+        builder: (context) => ProcessCompleteOverlay(
+          color: color,
+          targetRect: targetRect,
+          onStamp: () {
+            if (mounted) setState(() => _hideCompletionLabelIndex = null);
+          },
+          onComplete: () {
+            _processOverlay?.remove();
+            _processOverlay = null;
+          },
+        ),
+      );
+      Overlay.of(context).insert(_processOverlay!);
     }
   }
 
@@ -61,7 +76,7 @@ class _TapGridState extends ConsumerState<TapGrid> {
         rows.add(Padding(
           padding: const EdgeInsets.only(top: 8),
           child: SizedBox(
-            height: 160,
+            height: 200,
             child: Row(
               children: [
                 Expanded(child: buildCell(i)),
@@ -76,7 +91,7 @@ class _TapGridState extends ConsumerState<TapGrid> {
         rows.add(Padding(
           padding: const EdgeInsets.only(top: 8),
           child: SizedBox(
-            height: 160,
+            height: 200,
             child: Row(
               children: [
                 Expanded(child: buildCell(i)),
@@ -98,11 +113,18 @@ class _TapGridState extends ConsumerState<TapGrid> {
     final allComplete = project.processes.every(
         (proc) => (completedTotal[proc.id] ?? 0) >= project.totalPages);
     if (allComplete) {
-      setState(() => _showProjectComplete = true);
       HapticFeedback.heavyImpact();
-      Future.delayed(const Duration(seconds: 3), () {
-        if (mounted) setState(() => _showProjectComplete = false);
-      });
+      _projectOverlay = OverlayEntry(
+        builder: (context) => Positioned.fill(
+          child: _ProjectCompleteOverlay(
+            onDismiss: () {
+              _projectOverlay?.remove();
+              _projectOverlay = null;
+            },
+          ),
+        ),
+      );
+      Overlay.of(context).insert(_projectOverlay!);
     }
   }
 
@@ -131,6 +153,7 @@ class _TapGridState extends ConsumerState<TapGrid> {
       final proc = processes[index];
       final todayCount = todayCounts[index];
       final totalCompleted = completedTotal[proc.id] ?? 0;
+      final pastCount = totalCompleted - todayCount;
 
       return KeyedSubtree(
         key: _getCellKey(index),
@@ -142,6 +165,7 @@ class _TapGridState extends ConsumerState<TapGrid> {
           todayCount: todayCount,
           totalCompleted: totalCompleted,
           totalPages: project.totalPages,
+          pastCount: pastCount,
           hideCompletionLabel: _hideCompletionLabelIndex == index,
           onTap: () async {
             await ref
@@ -155,6 +179,16 @@ class _TapGridState extends ConsumerState<TapGrid> {
                 .read(projectsProvider.notifier)
                 .removeSticker(project.id, proc.id, today);
           },
+          onRemoveLatest: () {
+            ref
+                .read(projectsProvider.notifier)
+                .removeLatestSticker(project.id, proc.id);
+          },
+          onAddPast: () {
+            ref
+                .read(projectsProvider.notifier)
+                .addPastSticker(project.id, proc.id);
+          },
           onProcessComplete: () =>
               _onProcessComplete(index, colorFromHex(proc.color)),
         ),
@@ -166,12 +200,12 @@ class _TapGridState extends ConsumerState<TapGrid> {
     // 2x2グリッドレイアウト
     if (processes.length == 1) {
       grid = SizedBox(
-        height: 300,
+        height: 340,
         child: buildCell(0),
       );
     } else if (processes.length == 2) {
       grid = SizedBox(
-        height: 300,
+        height: 340,
         child: Row(
           children: [
             Expanded(child: buildCell(0)),
@@ -184,12 +218,12 @@ class _TapGridState extends ConsumerState<TapGrid> {
       grid = Column(
         children: [
           SizedBox(
-            height: 200,
+            height: 240,
             child: buildCell(0),
           ),
           const SizedBox(height: 8),
           SizedBox(
-            height: 160,
+            height: 200,
             child: Row(
               children: [
                 Expanded(child: buildCell(1)),
@@ -205,7 +239,7 @@ class _TapGridState extends ConsumerState<TapGrid> {
       grid = Column(
         children: [
           SizedBox(
-            height: 180,
+            height: 220,
             child: Row(
               children: [
                 Expanded(child: buildCell(0)),
@@ -216,7 +250,7 @@ class _TapGridState extends ConsumerState<TapGrid> {
           ),
           const SizedBox(height: 8),
           SizedBox(
-            height: 160,
+            height: 200,
             child: Row(
               children: [
                 Expanded(child: buildCell(2)),
@@ -231,31 +265,9 @@ class _TapGridState extends ConsumerState<TapGrid> {
       );
     }
 
-    return Stack(
+    return KeyedSubtree(
       key: _gridKey,
-      clipBehavior: Clip.none,
-      children: [
-        grid,
-        // 工程完了の犬の手スタンプ演出
-        if (_showProcessComplete && _processCompleteRect != null)
-          Positioned.fill(
-            child: ProcessCompleteOverlay(
-              color: _processCompleteColor,
-              targetRect: _processCompleteRect!,
-              onStamp: () =>
-                  setState(() => _hideCompletionLabelIndex = null),
-              onComplete: () =>
-                  setState(() => _showProcessComplete = false),
-            ),
-          ),
-        // プロジェクト完了の全画面演出
-        if (_showProjectComplete)
-          Positioned.fill(
-            child: _ProjectCompleteOverlay(
-              onDismiss: () => setState(() => _showProjectComplete = false),
-            ),
-          ),
-      ],
+      child: grid,
     );
   }
 }

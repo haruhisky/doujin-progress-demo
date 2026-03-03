@@ -127,6 +127,10 @@ class HomeScreen extends ConsumerWidget {
                       const _ProgressSummary(),
                       const SizedBox(height: 12),
 
+                      // 継起タスク（タップグリッド）— メイン機能
+                      const TapGrid(),
+                      const SizedBox(height: 16),
+
                       // デイリータスク（3つまで横並び）
                       if (dailyTasks.isNotEmpty) ...[
                         Padding(
@@ -169,8 +173,6 @@ class HomeScreen extends ConsumerWidget {
                         const SizedBox(height: 4),
                       ],
 
-                      // 継起タスク（タップグリッド）
-                      const TapGrid(),
                       const SizedBox(height: 24),
                     ],
                   ),

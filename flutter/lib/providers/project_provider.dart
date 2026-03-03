@@ -87,6 +87,16 @@ class ProjectsNotifier extends StateNotifier<List<Project>> {
     _notify();
   }
 
+  Future<void> removeLatestSticker(String projectId, String processId) async {
+    await _repo.removeLatestSticker(projectId, processId);
+    _notify();
+  }
+
+  Future<void> addPastSticker(String projectId, String processId) async {
+    await _repo.addPastSticker(projectId, processId);
+    _notify();
+  }
+
   Future<void> updatePlanRatios(String projectId, List<double> ratios) async {
     final project = _repo.getById(projectId);
     if (project == null) return;

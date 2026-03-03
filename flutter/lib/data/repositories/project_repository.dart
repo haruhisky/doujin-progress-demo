@@ -132,6 +132,56 @@ class ProjectRepository {
     await update(project);
   }
 
+  /// 過去シールを1つ削除（今日以外の最新日付のログから-1）
+  Future<void> removeLatestSticker(String projectId, String processId) async {
+    final project = getById(projectId);
+    if (project == null) return;
+
+    final today = todayStr();
+    final pastLogs = project.stickerLog
+        .where((l) => l.process == processId && l.date != today && l.count > 0)
+        .toList();
+    if (pastLogs.isEmpty) return;
+
+    // 日付降順ソートして最新を取得
+    pastLogs.sort((a, b) => b.date.compareTo(a.date));
+    final latest = pastLogs.first;
+
+    if (latest.count > 1) {
+      latest.count -= 1;
+    } else {
+      project.stickerLog.remove(latest);
+    }
+
+    await update(project);
+  }
+
+  /// 過去シールを1つ追加（直近の過去日付に+1、なければ昨日に追加）
+  Future<void> addPastSticker(String projectId, String processId) async {
+    final project = getById(projectId);
+    if (project == null) return;
+
+    final today = todayStr();
+    final pastLogs = project.stickerLog
+        .where((l) => l.process == processId && l.date != today && l.count > 0)
+        .toList();
+
+    if (pastLogs.isNotEmpty) {
+      pastLogs.sort((a, b) => b.date.compareTo(a.date));
+      pastLogs.first.count += 1;
+    } else {
+      // 過去ログがなければ昨日の日付で作成
+      final yesterday = DateTime.now().subtract(const Duration(days: 1));
+      project.stickerLog.add(StickerLog(
+        process: processId,
+        date: formatDate(yesterday),
+        count: 1,
+      ));
+    }
+
+    await update(project);
+  }
+
   /// デフォルトプロジェクトを作成（初回起動時）
   Future<void> ensureDefaultProject() async {
     if (_box.isEmpty) {
